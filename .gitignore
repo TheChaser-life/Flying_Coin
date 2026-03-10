@@ -6,6 +6,7 @@ __pycache__/
 .env
 venv/
 env/
+.venv
 .pytest_cache/
 .coverage
 htmlcov/
@@ -17,7 +18,7 @@ build/
 .terraform/
 *.tfstate
 *.tfstate.backup
-.terraform.lock.hcl
+# .terraform.lock.hcl
 *.tfvars
 
 # Kubernetes / Local temp
@@ -28,9 +29,22 @@ kubeconfig
 # IDEs
 .idea/
 .vscode/
+.cursor/
 *.swp
 *.swo
+
+# ML / Airflow
+ml/logs/
+ml/outputs/
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Project specific
+diary/
+node_modules/
+*.pem
+*.key
+*.jks
+*.p12

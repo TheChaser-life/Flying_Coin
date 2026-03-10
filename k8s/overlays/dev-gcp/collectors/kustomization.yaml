@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dev
+
+resources:
+  - ../../../base/collectors
+  - database-external-secret.yaml
+
+images:
+  - name: collectors
+    newName: asia-southeast1-docker.pkg.dev/flying-coin/flying-coin/collectors
+    newTag: latest
+
+patchesStrategicMerge:
+  - |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: collectors-deployment
+    spec:
+      template:
+        spec:
+          containers:
+            - name: collectors
+              envFrom:
+                - secretRef:
+                    name: collectors-db-config
+              env:
+                - name: RABBITMQ_URL
+                  value: "amqp://admin:admin@rabbitmq-service.database.svc.cluster.local:5672/"

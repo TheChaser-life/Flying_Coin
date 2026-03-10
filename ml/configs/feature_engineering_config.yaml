@@ -1,0 +1,33 @@
+# Feature Engineering Pipeline Config — Task 5.6
+# Technical Indicators: SMA, EMA, RSI, MACD, Bollinger Bands, Stochastic, ATR, OBV, VWAP, ADX
+
+# SMA / EMA windows (days)
+sma_windows: [7, 14, 21, 50, 200]
+ema_spans: [7, 14, 21, 50, 200]
+
+# Momentum
+rsi_period: 14
+macd_fast: 12
+macd_slow: 26
+macd_signal: 9
+stoch_period: 14
+
+# Volatility
+bb_period: 20
+bb_std: 2.0
+atr_period: 14
+
+# Trend
+adx_period: 14
+
+# Bật/tắt từng nhóm
+include_sma: true
+include_ema: true
+include_rsi: true
+include_macd: true
+include_bollinger: true
+include_stochastic: true
+include_atr: true
+include_obv: true
+include_vwap: true
+include_adx: true

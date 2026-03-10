@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev
+
+resources:
+  - ../../../base/collectors
+
+# Override image tag cho local build
+images:
+  - name: collectors
+    newTag: local
+
+# Thêm imagePullPolicy: Never — chỉ cần ở local Minikube
+patches:
+  - path: patch-imagepull.yaml
+    target:
+      kind: Deployment
+      name: collectors-deployment

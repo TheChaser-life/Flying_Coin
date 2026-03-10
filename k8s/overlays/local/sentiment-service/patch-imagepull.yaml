@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-service-deployment
+spec:
+  template:
+    spec:
+      containers:
+        - name: sentiment-service
+          image: sentiment-service:local
+          imagePullPolicy: Never

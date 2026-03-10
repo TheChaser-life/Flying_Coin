@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collectors-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: collectors
+  template:
+    metadata:
+      labels:
+        app: collectors
+    spec:
+      containers:
+        - name: collectors
+          image: collectors
+          envFrom:
+            - configMapRef:
+                name: collectors-config
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"

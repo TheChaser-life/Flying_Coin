@@ -72,7 +72,7 @@ global:
   ## @param global.defaultFips Default value for the FIPS configuration (allowed values: '', restricted, relaxed, off). Can be overriden by the 'fips' object
   ##  Configure FIPS mode: '', 'restricted', 'relaxed', 'off'
   ##
-  defaultFips: restricted
+  defaultFips: "off"
 ## @section Common parameters
 ##
 ## @param kubeVersion Override Kubernetes version
@@ -159,13 +159,13 @@ auth:
   enablePostgresUser: true
   ## @param auth.postgresPassword Password for the "postgres" admin user. Ignored if `auth.existingSecret` is provided
   ##
-  postgresPassword: "admintesting123"
+  postgresPassword: "password"
   ## @param auth.username Name for a custom user to create
   ##
   username: "user"
   ## @param auth.password Password for the custom user to create. Ignored if `auth.existingSecret` is provided
   ##
-  password: "testing123"
+  password: "password"
   ## @param auth.database Name for a custom database to create
   ##
   database: "market_data"
@@ -174,7 +174,7 @@ auth:
   replicationUsername: repl_user
   ## @param auth.replicationPassword Password for the replication user. Ignored if `auth.existingSecret` is provided
   ##
-  replicationPassword: "repl_password"
+  replicationPassword: "password"
   ## @param auth.metricsUsername Name of the metrics user used by postgresql exporter
   ##
   metricsUsername: ""
@@ -343,7 +343,12 @@ primary:
   ##   host all all localhost trust
   ##   host mydatabase mysuser 192.168.0.0/24 md5
   ##
-  pgHbaConfiguration: ""
+  pgHbaConfiguration: |-
+    host     all             all             0.0.0.0/0               scram-sha-256
+    host     all             all             ::/0                    scram-sha-256
+    local    all             all                                     scram-sha-256
+    host     all             all        127.0.0.1/32                 scram-sha-256
+    host     all             all        ::1/128                      scram-sha-256
   ## @param primary.existingConfigmap Name of an existing ConfigMap with PostgreSQL Primary configuration
   ## NOTE: `primary.configuration` and `primary.pgHbaConfiguration` will be ignored
   ##

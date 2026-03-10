@@ -1,0 +1,29 @@
+# Data Preprocessing Pipeline Config — Task 5.4
+# Sử dụng bởi: ml/pipelines/preprocessing.py, Airflow DAG, Dataset Builder
+
+# Missing values
+missing:
+  strategy: ffill          # ffill | bfill | interpolate | drop
+  threshold: 0.3           # Drop row nếu > 30% cột missing
+
+# Outlier detection
+outlier:
+  method: iqr              # iqr | zscore | none
+  iqr_multiplier: 1.5
+  zscore_threshold: 3.0
+
+# Normalization / Scaling
+scaling:
+  scaler: minmax           # minmax | standard | robust | none
+  fit_on: train            # train | all — fit scaler chỉ trên train (tránh leakage)
+
+# Time-series split (không shuffle)
+split:
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+
+# EDA
+eda:
+  save_report: true
+  output_dir: ml/outputs/eda

@@ -142,36 +142,6 @@ image:
 ## @section Redis(R) common configuration parameters
 ## https://github.com/bitnami/containers/tree/main/bitnami/redis#configuration
 ##
-## @param architecture Redis(R) architecture. Allowed values: `standalone` or `replication`
-##
-architecture: standalone
-## Redis(R) Authentication parameters
-## ref: https://github.com/bitnami/containers/tree/main/bitnami/redis#setting-the-server-password-on-first-run
-##
-auth:
-  ## @param auth.enabled Enable password authentication
-  ##
-  enabled: true
-  ## @param auth.sentinel Enable authentication on sentinels too
-  ##
-  sentinel: true
-  ## @param auth.password Redis(R) password
-  ## Defaults to a random 10-character alphanumeric string if not set
-  ##
-  password: "admin"
-  ## @param auth.existingSecret The name of an existing secret with Redis(R) credentials
-  ## NOTE: When it's set, the previous `auth.password` parameter is ignored
-  ##
-  existingSecret: ""
-  ## @param auth.existingSecretPasswordKey Password key to be retrieved from existing secret
-  ## NOTE: ignored unless `auth.existingSecret` parameter is set
-  ##
-  existingSecretPasswordKey: ""
-  ## @param auth.usePasswordFiles Mount credentials as files instead of using an environment variable
-  ##
-  usePasswordFiles: true
-  ## @param auth.usePasswordFileFromSecret Mount password file from secret
-  ##
   usePasswordFileFromSecret: true
   ## Redis ACL restricts connections by limiting commands and key access with auth management.
   ## ref: https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/

@@ -1,0 +1,10 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forecast-service-deployment
+spec:
+  template:
+    spec:
+      containers:
+        - name: forecast-service
+          imagePullPolicy: Never

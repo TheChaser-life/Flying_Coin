@@ -1,0 +1,10 @@
+yfinance==0.2.54
+aiohttp>=3.9,<4
+aio-pika==9.4.1
+newsapi-python>=0.2.7
+feedparser>=6.0
+pydantic>=2.7,<3
+pydantic-settings>=2.2,<3
+python-dotenv==1.0.1
+tenacity==8.3.0
+structlog==24.1.0

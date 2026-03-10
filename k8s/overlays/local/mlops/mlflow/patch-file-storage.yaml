@@ -1,0 +1,17 @@
+# Patch MLflow deployment để mount PVC cho file-based artifact storage
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-tracking
+spec:
+  template:
+    spec:
+      containers:
+        - name: mlflow-tracking
+          volumeMounts:
+            - name: artifacts
+              mountPath: /mlflow/artifacts
+      volumes:
+        - name: artifacts
+          persistentVolumeClaim:
+            claimName: mlflow-artifacts-pvc

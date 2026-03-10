@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlflow-config
+data:
+  # Artifact destination for --serve-artifacts (proxy upload/download)
+  # Local: file:/mlflow/artifacts | GCP: gs://bucket
+  MLFLOW_ARTIFACTS_DESTINATION: "./mlartifacts"
+  MLFLOW_S3_ENDPOINT_URL: ""
+  MLFLOW_S3_IGNORE_TLS: "false"

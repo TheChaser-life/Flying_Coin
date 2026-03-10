@@ -59,6 +59,16 @@ resource "kubernetes_namespace_v1" "database" {
   metadata { name = "database" }
 }
 
+# Tạo namespace "kong" cho API Gateway
+resource "kubernetes_namespace_v1" "kong" {
+  metadata { name = "kong" }
+}
+
+# Tạo namespace "auth" cho Keycloak
+resource "kubernetes_namespace_v1" "auth" {
+  metadata { name = "auth" }
+}
+
 # Tạo namespace "external-secrets"
 resource "kubernetes_namespace_v1" "external_secrets" {
   metadata { name = "external-secrets" }
@@ -151,3 +161,14 @@ resource "google_project_iam_member" "sa_monitoring" {
   member  = "serviceAccount:${google_service_account.gke_service_account.email}"
 }
 
+resource "kubernetes_storage_class_v1" "gcp_ssd" {
+  metadata {
+    name = "standard-rwo"
+  }
+  storage_provisioner = "pd.csi.storage.gke.io"
+  reclaim_policy      = "Retain"
+  volume_binding_mode = "WaitForFirstConsumer"
+  parameters = {
+    type = "pd-ssd"
+  }
+}

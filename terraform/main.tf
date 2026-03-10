@@ -2,8 +2,11 @@ terraform {
   required_version = ">= 1.0"
   required_providers {
     google = {
-      source  = "hashicorp/google"
-      version = ">= 6.0"
+      source                      = "hashicorp/google"
+      version                     = ">= 6.0"
+      project                     = var.project_id
+      region                      = var.region
+      impersonate_service_account = var.impersonate_service_account
     }
     helm = {
       source  = "hashicorp/helm"

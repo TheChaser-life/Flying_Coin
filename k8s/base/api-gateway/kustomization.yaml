@@ -1,0 +1,12 @@
+# Chức năng: Là file "Hợp Nhất Tập Hợp" của thư mục base/api-gateway.
+# Khi bạn gõ chạy lệnh `kubectl apply -k .`, Kubernetes (Kustomize) sẽ tự động tìm quét file kustomization.yaml này đầu tiên,
+# và sau đó lần lượt nạp, apply tất cả con cài đặt theo danh sách resources bên dưới.
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ingress.yaml           # Tự động apply bộ quy tắc Ingress (Các Routes)
+  - kong-plugins.yaml      # Tự động apply các Plugin giúp thiết lập hành vi của KONG
+  - httpbin.yaml           # Tự động tạo cái Backend ảo Httpbin
+  - keycloak-consumer.yaml # KongConsumer + JWT credential để verify Keycloak token (RS256)
