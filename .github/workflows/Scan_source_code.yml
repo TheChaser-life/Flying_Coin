@@ -3,7 +3,7 @@ name: 1. Scan source code
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   scan_source_code:
