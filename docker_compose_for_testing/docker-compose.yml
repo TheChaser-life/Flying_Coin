@@ -21,6 +21,7 @@ services:
   
   collectors:
     build: ../services/collectors
+    image: ${ARTIFACT_REGISTRY}/collectors:${TAG}
     ports:
       - "8000:8000"
     environment:
@@ -31,11 +32,13 @@ services:
   
   forecast-service:
     build: ../services/forecast-service
+    image: ${ARTIFACT_REGISTRY}/forecast-service:${TAG}
     ports:
       - "8001:8000"
   
   sentiment-service:
     build: ../services/sentiment-service
+    image: ${ARTIFACT_REGISTRY}/sentiment-service:${TAG}
     ports:
       - "8002:8002"
     environment:
@@ -49,6 +52,7 @@ services:
   
   market-data-service:
     build: ../services/market-data-service
+    image: ${ARTIFACT_REGISTRY}/market-data-service:${TAG}
     ports:
       - "8003:8001"
     environment:
