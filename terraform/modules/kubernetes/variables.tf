@@ -13,6 +13,11 @@ variable "region" {
   type        = string
 }
 
+variable "zone" {
+  description = "Zone triển khai cluster"
+  type        = string
+}
+
 variable "subnet_id" {
   description = "ID của subnet trong VPC đã tạo ở module networking"
   type        = string
@@ -35,4 +40,12 @@ variable "machine_type" {
 
 variable "eso_gcp_sa_email" {
   description = "email của GSA để map với KSA"
+}
+
+variable "disk_size" {
+  type = number
+}
+
+variable "disk_type" {
+  type = string
 }

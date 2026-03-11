@@ -253,14 +253,14 @@
 
 | # | Task | Người | Thời gian | Chi tiết |
 |---|------|-------|-----------|----------|
-| M.1 | `terraform apply` — GKE Cluster | 👤 Bạn | 15 phút | Tạo GKE cluster từ modules đã viết sẵn ở Phase 1 |
-| M.2 | `terraform apply` — Cloud SQL | 👤 Bạn | 10 phút | PostgreSQL + TimescaleDB managed |
-| M.3 | `terraform apply` — GCR/Redis/RabbitMQ | 👤 Bạn | 10 phút | Container Registry + managed services (hoặc self-host trên GKE) |
-| M.4 | Migrate data (nếu cần) | 👤 Bạn | 30 phút | `pg_dump` local → `pg_restore` Cloud SQL |
+| M.1 | `terraform apply` — GKE Cluster | 👤 Bạn | ✅ Done | Tạo GKE cluster từ modules đã viết sẵn ở Phase 1 |
+| M.2 | **Deploy DB & Cache on GKE** | 👤 Bạn | 15 phút | Cấu hình PV/PVC (SSD), deploy PostgreSQL + TimescaleDB & Redis bằng Helm |
+| M.3 | `terraform apply` — GCR/SecretManager | 👤 Bạn | ✅ Done | Container Registry + Secret Manager infrastructure |
+| M.4 | Migrate data (nếu cần) | 👤 Bạn | 30 phút | `pg_dump` local → `pg_restore` vào PostgreSQL pod trên GKE |
 | M.5 | Đổi kubectl context | 👤 Bạn | 1 phút | `gcloud container clusters get-credentials` |
 | M.6 | `kubectl apply -k overlays/dev/` | 👤 Bạn | 5 phút | Deploy tất cả services lên GKE — overlay đã sẵn sàng! |
 | M.7 | **Deploy Airflow trên GKE** | 👤 Bạn | 30 phút | `helm install airflow apache-airflow/airflow -f helm-values/airflow-cloud.yaml`, migrate DAG files |
-| M.8 | **Cấu hình Airflow cloud** | 👤 Bạn | 30 phút | Kết nối MLflow trên GKE, cập nhật DB connection, test DAG chạy trên cloud |
+| M.8 | **Cấu hình Airflow cloud** | 👤 Bạn | 30 phút | Kết nối MLflow trên GKE, cập nhật connection string đến DB pod trong cluster |
 | M.9 | **Setup SSH cho remote training** | 👤 Bạn | 30 phút | Bật OpenSSH Server trên Windows, cấu hình Airflow `SSHOperator` connection đến máy local để trigger GPU training |
 | M.10 | Verify tất cả services | 👤 Bạn | 1 giờ | Test mọi service + Airflow DAGs + SSH training hoạt động |
 | M.11 | Cập nhật CI/CD target | 👤 Bạn | 15 phút | GitHub Actions deploy → GKE thay vì local |

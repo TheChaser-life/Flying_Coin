@@ -1,7 +1,7 @@
 # Tạo GKE Cluster
 resource "google_container_cluster" "gke_cluster" {
   name     = "${var.project_name}-gke-cluster"
-  location = var.region
+  location = var.zone
 
   remove_default_node_pool = true # Xóa default node pool để tạo pool riêng
   initial_node_count       = 1    # GKE bắt buộc phải có ít nhất 1 node khi tạo cluster
@@ -30,17 +30,27 @@ resource "google_container_cluster" "gke_cluster" {
     # Pool này đóng vai trò như một cơ quan trung gian xác thực (Identity Provider). 
     # Nó cho phép Google Cloud tin tưởng và chấp nhận danh tính của các Kubernetes Service Account (KSA) đến từ cụm GKE này, mà không cần bất kỳ file key (mật khẩu) nào cả
   }
+
+  # Cấu hình tạm thời để tránh GKE tạo mặc định 100GB SSD gây quá Quota
+  node_config {
+    disk_size_gb = 20
+    disk_type    = "pd-standard"
+  }
+
+  deletion_protection = false
 }
 
 # Tạo node pool, máy chạy các pods
 resource "google_container_node_pool" "primary" {
   name       = "${var.project_name}-node-pool"
-  location   = var.region
+  location   = var.zone
   cluster    = google_container_cluster.gke_cluster.id # Gắn node pool vào cluster đã tạo ở trên
   node_count = var.node_count
   node_config {
     machine_type    = var.machine_type                                 # Loại máy (VD: e2-standard-2, ...)
     service_account = google_service_account.gke_service_account.email # Chỉ định service account cho node
+    disk_size_gb    = var.disk_size
+    disk_type       = var.disk_type
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform" # Cho phép node truy cập tất cả các APIs của GCP (Artifact Registry, Cloud Storage, ...)
       # Nếu service account có quyền truy cập
@@ -89,9 +99,9 @@ resource "kubernetes_namespace_v1" "production" {
   metadata { name = "production" }
 }
 
-# Tạo namespace "logging_monitoring" cho prometheus stack và elastic stack
+# Tạo namespace "logging-monitoring" cho prometheus stack và elastic stack
 resource "kubernetes_namespace_v1" "logging_monitoring" {
-  metadata { name = "logging_monitoring" }
+  metadata { name = "logging-monitoring" }
 }
 
 # Tạo namespace "mlops" cho airflow và MLflow
