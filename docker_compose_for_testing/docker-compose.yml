@@ -20,8 +20,9 @@ services:
       retries: 5
   
   collectors:
-    build: ../services/collectors
-    image: ${ARTIFACT_REGISTRY}/collectors:${TAG}
+    build:
+      context: ..
+      dockerfile: services/collectors/Dockerfile
     ports:
       - "8000:8000"
     environment:
@@ -31,14 +32,16 @@ services:
         condition: service_healthy
   
   forecast-service:
-    build: ../services/forecast-service
-    image: ${ARTIFACT_REGISTRY}/forecast-service:${TAG}
+    build:
+      context: ..
+      dockerfile: services/forecast-service/Dockerfile
     ports:
       - "8001:8000"
   
   sentiment-service:
-    build: ../services/sentiment-service
-    image: ${ARTIFACT_REGISTRY}/sentiment-service:${TAG}
+    build:
+      context: ..
+      dockerfile: services/sentiment-service/Dockerfile
     ports:
       - "8002:8002"
     environment:
@@ -51,8 +54,9 @@ services:
         condition: service_healthy
   
   market-data-service:
-    build: ../services/market-data-service
-    image: ${ARTIFACT_REGISTRY}/market-data-service:${TAG}
+    build:
+      context: ..
+      dockerfile: services/market-data-service/Dockerfile
     ports:
       - "8003:8001"
     environment:
@@ -60,3 +64,4 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+
