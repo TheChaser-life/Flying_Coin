@@ -1,20 +1,33 @@
-# name: 1. Health Check
+name: 2. Health Check
 
-# on:
-#   push:
-#     branches: ["dev"]
+on:
+  push:
+    branches:
+     - dev
 
-# jobs:
-#   Build-service-container-and-test:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: clone_code
-#         uses: actions/checkout@v4
+jobs:
+  Build-service-container-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone_code
+        uses: actions/checkout@v4
     
-#       - name: collectors
-#         run: | 
-#           docker build -t collector-service:staging -f services/collectors/Dockerfile
-#           docker run -d --name collector-service -p 8000:8000 collector-service:staging
+      - name: build_and_health_check
+        run: | 
+          docker compose -f docker_compose_for_testing/docker-compose.yml up -d
           
-
+          echo "Waiting for services to be healthy..."
+          # Đợi tối đa 60s cho các service ổn định
+          timeout 60s bash -c 'until curl -s http://localhost:8000/health && \
+                                     curl -s http://localhost:8001/health && \
+                                     curl -s http://localhost:8002/health && \
+                                     curl -s http://localhost:8003/health; do sleep 5; done'
+          
+          echo "Verifying health endpoints..."
+          curl --fail http://localhost:8000/health || exit -1
+          curl --fail http://localhost:8001/health || exit -1
+          curl --fail http://localhost:8002/health || exit -1
+          curl --fail http://localhost:8003/health || exit -1
+          
+          echo "All services are healthy!"
         
