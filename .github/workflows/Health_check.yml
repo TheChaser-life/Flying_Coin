@@ -1,0 +1,20 @@
+# name: 1. Health Check
+
+# on:
+#   push:
+#     branches: ["dev"]
+
+# jobs:
+#   Build-service-container-and-test:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: clone_code
+#         uses: actions/checkout@v4
+    
+#       - name: collectors
+#         run: | 
+#           docker build -t collector-service:staging -f services/collectors/Dockerfile
+#           docker run -d --name collector-service -p 8000:8000 collector-service:staging
+          
+
+        
