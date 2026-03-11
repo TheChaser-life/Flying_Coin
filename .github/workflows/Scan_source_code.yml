@@ -4,6 +4,16 @@ on:
   push:
     branches:
       - dev
+    paths:
+      - 'services/**'
+      - 'ml/**'
+      - 'shared/**'
+      - 'terraform/**'
+      - 'k8s/**'
+      - 'helm_values/**'
+      - 'scripts/**'
+      - 'docker_compose_for_testing/**'
+      - '.github/workflows/**'
 
 jobs:
   scan_source_code:
@@ -17,12 +27,13 @@ jobs:
       - name: scan_source_code
         uses: SonarSource/sonarqube-scan-action@v5.0.0
         env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-         args: >
-          -Dsonar.organization=${{ secrets.ORGANIZATION }}
-          -Dsonar.projectKey=${{ secrets.PROJECT_KEY }}
-          -Dsonar.python.version=3.10
-          -Dsonar.branch.name=dev
-        
+          args: >
+            -Dsonar.organization=${{ secrets.ORGANIZATION }}
+            -Dsonar.projectKey=${{ secrets.PROJECT_KEY }}
+            -Dsonar.python.version=3.10
+            -Dsonar.sources=services,ml,shared,terraform,k8s,helm_values,scripts,docker_compose_for_testing,.github/workflows
+            -Dsonar.exclusions=docs/**,**/*.md,alembic.ini
+            -Dsonar.branch.name=dev
