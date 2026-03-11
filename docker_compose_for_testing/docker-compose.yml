@@ -1,8 +1,9 @@
 services:
   rabbitmq:
-    image: rabbitmq:alpine
+    image: rabbitmq:3.13-management-alpine
     ports:
       - "5672:5672"
+      - "15672:15672"
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 10s
