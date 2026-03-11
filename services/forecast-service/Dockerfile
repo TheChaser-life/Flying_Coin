@@ -4,18 +4,22 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY services/forecast-service/requirements.txt .
 
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # Phase 2: running
 FROM python:3.11-slim
 
-COPY app/ ./app/
+WORKDIR /app
 
 COPY --from=builder /install /usr/local
 
-ENV PYTHONPATH=/app
+COPY services/forecast-service/ .
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app
 
 EXPOSE 8000
 
