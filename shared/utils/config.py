@@ -10,16 +10,16 @@ class SharedConfig(BaseSettings):
     ENVIRONMENT: str = "local"
     
     # Database
-    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/market_db"
+    DATABASE_URL: str = "postgresql://user:password@localhost:5432/db"
     
     # Message Broker
-    RABBITMQ_URL: str = "amqp://user:password@localhost:5672/"
+    RABBITMQ_URL: str = "amqp://guest:guest@localhost:5672/"
     
     # Cache
     REDIS_URL: str = "redis://localhost:6379/0"
 
     # JWT Security (Should be overridden in production)
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "super-secret-default-key")
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "change-me-in-production")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 

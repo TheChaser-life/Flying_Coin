@@ -1,0 +1,13 @@
+# KongConsumer đại diện cho Keycloak realm flying-coin.
+# Secret "keycloak-jwt-credential" được cung cấp bởi từng overlay:
+#   - overlays/local/    → Secret hardcoded (public key OK để commit, không phải secret thật)
+#   - overlays/dev-gcp/  → ExternalSecret tự động sync từ GCP Secret Manager
+apiVersion: configuration.konghq.com/v1
+kind: KongConsumer
+metadata:
+  name: keycloak-realm-consumer
+  annotations:
+    kubernetes.io/ingress.class: kong
+username: keycloak-flying-coin
+credentials:
+  - keycloak-jwt-credential

@@ -1,6 +1,7 @@
 resource "google_storage_bucket" "mlflow_artifacts" {
   name     = "${var.project_name}-mlflow-artifacts"
   location = var.region
+  uniform_bucket_level_access = true
 
   force_destroy = true # Cho phép xóa bucket kể cả khi còn object bên trong
   # -> Dùng để bật tắt terraform trong quá trình phát triển

@@ -1,0 +1,9 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-tracking
+spec:
+  template:
+    spec:
+      # Use the Workload Identity-annotated SA so the pod can write to GCS directly
+      serviceAccountName: mlflow-sa

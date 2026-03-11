@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: market-data-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: market-data-service
+  template:
+    metadata:
+      labels:
+        app: market-data-service
+    spec:
+      containers:
+        - name: market-data-service
+          image: market-data-service
+          ports: 
+            - containerPort: 8001
+          livenessProbe: # Kiểm tra container còn sống không
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 15 # Chờ 15 giây sau khi container start để kiểm tra
+            periodSeconds: 20 # Kiểm tra 20 giây 1 lần
+          readinessProbe: # Kiểm tra container có sẵn sàng nhận traffic không
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 10 # Chờ 10 giây sau khi container start để kiểm tra
+            periodSeconds: 10 # Kiểm tra 10 giây 1 lần
+          envFrom:
+            - configMapRef:
+                name: market-data-service-config
+            - configMapRef:
+                name: market-data-db-config
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          

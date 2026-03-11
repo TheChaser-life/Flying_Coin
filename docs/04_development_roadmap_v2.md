@@ -68,7 +68,7 @@
 
 | # | Task | Người | Tình trạng | Chi tiết |
 |---|------|-------|-----------|----------|
-| 1.1 | Git Repository setup | 👤 Bạn | ⬜ Todo | Tạo repo, branch strategy (main/develop/feature), protection rules |
+| 1.1 | Git Repository setup | 👤 Bạn | ✅ Done | Tạo repo, branch strategy (main/develop/feature), protection rules |
 | 1.2 | **Cài Docker Desktop + K8s Local** | 👤 Bạn | ✅ Done | Cài Minikube hoặc Kind, bật các addon `ingress`, `metrics-server` |
 | 1.3 | **Local Docker Registry** | 👤 Bạn | ⬜ Todo | Tích hợp registry vào local cluster |
 | 1.4 | **Cấu hình Helm charts** | 👤 Bạn | ✅ Done | Viết `*-local.yaml` và `*-gcp.yaml` cho **PostgreSQL**, **Redis**, **RabbitMQ**. Đã setup cơ chế chia Node Pool (`database-pool`) và Resource Limits cho Cloud. |
@@ -103,32 +103,32 @@
 
 | # | Task | Người | Phụ thuộc | Chi tiết |
 |---|------|-------|-----------|----------|
-| 2.1 | **Local Docker Registry** | 👤 Bạn | 1.2 | Hoàn thành task 1.3: Enable registry addon trên Minikube |
-| 2.2 | **Alembic migrations** | 🤖 AI | 1.8, 1.9 | Setup Alembic, kết nối PostgreSQL local và tạo migration rải bảng |
-| 2.3 | CI/CD Pipeline (Templates) | 👤 Bạn | — | Tạo sẵn khung `.github/workflows/`, chuẩn bị pipeline chờ gắn code tuần 3 |
-| 2.4 | **Kustomize directories** | 👤 Bạn | 1.7 | Đã khởi tạo khung cấu trúc thư mục rỗng `base/` và `overlays/` (`local/`, `dev/`) |
+| 2.1 | **Local Docker Registry** | 👤 Bạn | ✅ Done | Hoàn thành task 1.3: Enable registry addon trên Minikube |
+| 2.2 | **Alembic migrations** | 🤖 AI | ✅ Done | Setup Alembic, kết nối PostgreSQL local và tạo migration rải bảng |
+| 2.3 | **CI/CD Pipeline (Templates)** | 👤 Bạn | ✅ Done | Tạo sẵn khung `.github/workflows/`, chuẩn bị pipeline chờ gắn code tuần 3 |
+| 2.4 | **Kustomize directories** | 👤 Bạn | ✅ Done | Đã khởi tạo khung cấu trúc thư mục rỗng `base/` và `overlays/` (`local/`, `dev/`) |
 
-### Tuần 3 — Auth & API Gateway
+### Tuần 3 — IAM (Keycloak) & API Gateway
 
 | # | Task | Người | Phụ thuộc | Chi tiết |
 |---|------|-------|-----------|----------|
-| 3.1 | **Auth Service** | 🤖 AI | 1.9 | Đăng ký, đăng nhập, JWT, refresh token, RBAC |
-| 3.2 | **API Gateway config** | 🤖 AI | — | Kong/Nginx: routing, rate limiting, CORS |
-| 3.3 | **Dockerfiles (Auth + Gateway)** | 🤖 AI | 3.1, 3.2 | Multi-stage build cho Auth Service + API Gateway |
-| 3.4 | K8s manifests cho Auth + GW | 👤 Bạn | 2.3 | Deployment, Service, ConfigMap, Secrets |
-| 3.5 | Deploy Auth + Gateway trên Minikube | 👤 Bạn | 3.1, 3.2, 3.3, 3.4 | `kubectl apply -k overlays/local/`, verify |
-| 3.6 | Test Auth flow E2E | 👤 Bạn | 3.5 | Register → Login → JWT → Access protected API |
+| 3.1 | **Cài đặt Keycloak (Helm)** | 👤 Bạn | 1.8 | ✅ Đã deploy Keycloak lên Minikube |
+| 3.2 | **Cấu hình Keycloak Admin** | 👤 Bạn | 3.1 | ✅ Đã tạo Realm, Client, Roles, Users test |
+| 3.3 | **Cài đặt Kong Gateway (Helm)** | 👤 Bạn | 1.8 | ✅ Đã deploy Kong Ingress Controller bằng Helm |
+| 3.4 | **Cấu hình Kong Routes & Plugins** | 🤖 AI | 3.3 | ✅ Đã cấu hình `ingress.yaml` và `kong-plugins.yaml` |
+| 3.5 | **Tích hợp Auth (Kong + Keycloak)** | 🤖 AI | 3.2, 3.4 | ✅ KongConsumer + RS256 public key từ Keycloak. Kong JWT plugin verify qua `iss` claim + `rsa_public_key`. Strip-path `/api/v1` trước khi forward backend |
+| 3.6 | **Test IAM & Gateway flow** | 👤 Bạn | 3.5 | ✅ No token→401, Valid token→200 (rate-limit+CORS headers OK), Fake token→401 |
 
 ### Tuần 4 — Market Data Service
 
 | # | Task | Người | Phụ thuộc | Chi tiết |
 |---|------|-------|-----------|----------|
-| 4.1 | **Market Data Collectors** | 🤖 AI | 1.6 | Python scripts: Yahoo Finance + Binance → RabbitMQ queues |
-| 4.2 | **Market Data Service** | 🤖 AI | 1.4, 1.6 | Consume RabbitMQ → xử lý → lưu PostgreSQL → publish Redis |
-| 4.3 | **Data Pipeline + API** | 🤖 AI | 4.2 | Làm sạch dữ liệu, API endpoints đọc dữ liệu lịch sử |
-| 4.4 | **Dockerfiles (Collectors + Market Data)** | 🤖 AI | 4.1, 4.2 | Multi-stage build cho Collectors + Market Data Service |
-| 4.5 | Deploy Market Data trên Minikube | 👤 Bạn | 4.1, 4.2, 4.3, 4.4 | K8s manifests, deploy local, verify |
-| 4.6 | Verify full pipeline | 👤 Bạn | 4.5 | Collector → RabbitMQ → Service → PostgreSQL → API → Response |
+| 4.1 | **Market Data Collectors** | 🤖 AI | 1.6 | ✅ Done — Python scripts: Yahoo Finance + Binance → RabbitMQ queues |
+| 4.2 | **Market Data Service** | 🤖 AI | 1.4, 1.6 | ✅ Done — Consume RabbitMQ → xử lý → lưu PostgreSQL → publish Redis |
+| 4.3 | **Data Pipeline + API** | 🤖 AI | 4.2 | ✅ Done — Làm sạch dữ liệu, API endpoints đọc dữ liệu lịch sử |
+| 4.4 | **Dockerfiles (Collectors + Market Data)** | 🤖 AI | 4.1, 4.2 | ✅ Done — Multi-stage build cho Collectors + Market Data Service |
+| 4.5 | **Deploy Market Data trên Minikube** | 👤 Bạn | 4.1, 4.2, 4.3, 4.4 | ✅ Done — K8s manifests (Kustomize base/overlay), deploy namespace dev, fix FIPS/timezone/Redis auth |
+| 4.6 | **Verify full pipeline** | 👤 Bạn | 4.5 | ✅ Done — Binance → RabbitMQ → market-data-service → PostgreSQL → Redis → API `/symbols`, `/latest`, `/history` |
 
 **✅ Deliverable Phase 1:**
 
@@ -136,7 +136,8 @@
 - [ ] 👤 CI/CD pipeline hoạt động (build → push → deploy local)
 - [ ] 👤 Kustomize: `overlays/local/` đang dùng + `overlays/dev/` sẵn sàng cho cloud
 - [ ] 👤 Terraform modules viết xong nhưng **chưa apply** (tiết kiệm $0)
-- [ ] 🤖 Auth + API Gateway + Market Data Service hoạt động
+- [ ] 👤 Keycloak (IAM) chạy ổn định
+- [ ] 🤖 API Gateway + Market Data Service hoạt động (đã tích hợp Keycloak)
 - [ ] 🤖 Thu thập & lưu trữ dữ liệu chứng khoán + crypto
 
 ---
@@ -184,38 +185,45 @@
 
 | # | Task | Người | Phụ thuộc | Chi tiết |
 |---|------|-------|-----------|----------|
-| 5.1 | **MLflow server trên Minikube** | 👤 Bạn | Phase 1 | Deploy MLflow pod, backend = PostgreSQL local, artifacts = local PV |
-| 5.2 | **Training environment setup** | 👤 Bạn | — | Python venv + PyTorch CUDA + MLflow client → kết nối MLflow trên Minikube (`minikube service mlflow --url`) |
-| 5.3 | **Airflow setup (Docker Compose)** | 👤 Bạn | 5.1 | Viết `docker-compose-airflow.yml` (webserver + scheduler + PostgreSQL metadata), kết nối MLflow, test DAG đơn giản |
-| 5.4 | **Data Preprocessing pipeline** | 🤖 AI | Phase 1 | EDA (phân phối, tương quan), xử lý missing values, outlier detection, normalization/scaling, time-series train/val/test split |
-| 5.5 | **Dataset Builder** | 🤖 AI | 5.4 | JOIN market_data + technical_indicators + sentiment_scores → 1 training dataset hoàn chỉnh, xuất ra file hoặc bảng `training_datasets` |
-| 5.6 | **Feature Engineering pipeline** | 🤖 AI | 5.5 | Technical Indicators: SMA, EMA, RSI, MACD, Bollinger Bands → lưu vào dataset |
-| 5.7 | **Naive Baselines** | 🤖 AI | 5.5 | Naive forecast (giá ngày mai = giá hôm nay) + MA forecast → log lên MLflow làm benchmark so sánh |
-| 5.8 | **ARIMA baseline model** | 🤖 AI | 5.6, 5.7 | Training script (local Python) → log lên MLflow → so sánh với naive baselines |
+| 5.1 | ~~**MLflow server trên Minikube**~~ ✅ | 👤 Bạn | Phase 1 | Deploy MLflow pod, backend = PostgreSQL local, artifacts = MinIO (S3-compatible, local PVC) |
+| 5.2 | ~~**Training environment setup**~~ ✅ | 👤 Bạn | — | Python venv + PyTorch CUDA + MLflow client → kết nối MLflow trên Minikube (`minikube service mlflow --url`) |
+| 5.3 | ~~**Airflow setup (Docker Compose)**~~ ✅ | 👤 Bạn | 5.1 | Viết `docker-compose-airflow-local.yaml` (webserver + scheduler + PostgreSQL metadata), kết nối MLflow, test DAG đơn giản |
+| 5.4 | **Data Preprocessing pipeline** | 🤖 AI | Phase 1 | ✅ Done — EDA (phân phối, tương quan), xử lý missing values, outlier detection, normalization/scaling, time-series train/val/test split |
+| 5.5 | **Dataset Builder** | 🤖 AI | 5.4 | ✅ Done — JOIN market_data + technical_indicators + sentiment_scores → training dataset (parquet/csv), feature_engineering.py (SMA, EMA, RSI, MACD, Bollinger Bands) |
+| 5.6 | **Feature Engineering pipeline** | 🤖 AI | 5.5 | ✅ Done — SMA/EMA(7,14,21,50,200), RSI, MACD, Bollinger Bands, Stochastic, ATR, OBV, VWAP, ADX → lưu dataset |
+| 5.7 | **Naive Baselines** | 🤖 AI | 5.5 | ✅ Done — Naive + MA(7) forecast, RMSE/MAE/DA/MAPE → log MLflow benchmark |
+| 5.8 | **ARIMA baseline model** | 🤖 AI | 5.6, 5.7 | ✅ Done — train_arima.py: fit ARIMA(p,d,q), evaluate, log MLflow, so sánh naive |
 
 ### Tuần 6-7 — XGBoost, LSTM & MLOps
 
 | # | Task | Người | Phụ thuộc | Chi tiết |
 |---|------|-------|-----------|----------|
-| 6.1 | MLOps CI pipeline | 👤 Bạn | 5.1 | GitHub Actions: trigger train (local runner hoặc self-hosted) → log MLflow → validate metrics |
-| 6.2 | Model Validation Gate | 👤 Bạn | 6.1 | Auto-check RMSE, MAE, Directional Accuracy trước khi promote |
-| 6.3 | **Airflow Training DAG** | 🤖 AI | 5.3 | Viết DAG: fetch data → preprocess → build dataset → features → train models → validate vs baselines → promote |
-| 6.4 | **XGBoost model** | 🤖 AI | 5.6 | Training script + Airflow task (GPU: `tree_method='gpu_hist'`) → RTX 4060 → MLflow → so sánh với baselines |
-| 6.5 | **LSTM model** | 🤖 AI | 5.6 | Training script + Airflow task (PyTorch CUDA, RTX 4060) → ~5-15 phút → MLflow → so sánh với baselines |
-| 6.6 | **Forecast Service (serving only)** | 🤖 AI | 6.4, 6.5 | Load model từ MLflow → inference API (CPU, ~200-500MB) → dự báo 7/14/30 ngày |
+| 6.3 | **Airflow Training DAG** | 🤖 AI | 5.3 | ✅ Done — DAG: check_datasets → trigger arima/xgboost/lstm (Trigger Server) |
+| 6.4 | **XGBoost model** | 🤖 AI | 5.6 | ✅ Done — train_xgboost.py (GPU `tree_method='gpu_hist'`) → MLflow |
+| 6.5 | **LSTM model** | 🤖 AI | 5.6 | ✅ Done — train_lstm.py (PyTorch CUDA) → MLflow |
+| 6.6 | **Forecast Service (serving only)** | 🤖 AI | 6.4, 6.5 | ✅ Done — services/forecast-service: load model từ MLflow → POST /forecast/predict |
 
-### Tuần 8 — Sentiment & Deploy ML
+> [!NOTE]
+> **6.1 MLOps CI pipeline** và **6.2 Model Validation Gate** — dời sang **Migration Checkpoint (Tuần 9)** khi triển khai lên cloud.
+
+> [!IMPORTANT]
+> **Minikube khi chạy Tuần 6-7:**
+> - **6.3, 6.4, 6.5 (training):** Cần `minikube stop` trước → giải phóng ~8GB RAM cho Airflow + XGBoost/LSTM GPU. MLflow cần chạy riêng (Docker Compose hoặc `mlflow server`) vì MLflow trên Minikube sẽ tắt.
+> - **6.6 (deploy Forecast Service):** Cần `minikube start` → deploy Forecast Service pod lên K8s.
+> - **Workflow:** `minikube stop` → `docker compose up airflow` (+ MLflow nếu chưa có) → train → `docker compose down` → `minikube start` → deploy 6.6.
+
+### Tuần 8 — Sentiment & Deploy ML ✅ completed
 
 | # | Task | Người | Phụ thuộc | Chi tiết |
 |---|------|-------|-----------|----------|
-| 8.1 | Model Serving pipeline | 👤 Bạn | 6.2 | CD: pull model từ MLflow Registry → deploy Forecast Service pod (serving mode) |
-| 8.2 | Deploy Forecast trên Minikube | 👤 Bạn | 6.6, 8.1 | K8s manifests (nhẹ — chỉ inference, không GPU), deploy, verify API |
-| 8.3 | **FinBERT inference pipeline** | 🤖 AI | — | Script chạy local (RTX 4060 GPU) → batch process news → scores |
-| 8.4 | **News Collectors** | 🤖 AI | 1.6 | NewsAPI & RSS → RabbitMQ |
-| 8.5 | **Sentiment Airflow DAG** | 🤖 AI | 8.3, 6.3 | Thêm task vào Airflow DAG: fetch news → FinBERT → sentiment score |
-| 8.6 | **Sentiment Service (serving)** | 🤖 AI | 8.3, 8.4 | Consume news từ RabbitMQ → load FinBERT (CPU inference) → Sentiment Score → Redis |
-| 8.7 | **Tích hợp Sentiment** | 🤖 AI | 8.6, 5.6 | Sentiment → Feature Engineering → retrain models (Airflow DAG, local GPU) |
-| 8.8 | Deploy Sentiment trên Minikube | 👤 Bạn | 8.6 | Deploy (CPU-only pod, ~1GB RAM), verify |
+| 8.1 | ~~Model Serving pipeline~~ | 👤 Bạn | 6.6 | ✅ Done — CD: pull model từ MLflow Registry → deploy Forecast Service pod (serving mode). *Promote model thủ công trên MLflow UI cho local; 6.2 Validation Gate khi lên cloud* |
+| 8.2 | ~~Deploy Forecast trên Minikube~~ | 👤 Bạn | 6.6, 8.1 | ✅ Done — K8s manifests (nhẹ — chỉ inference, không GPU), deploy, verify API |
+| 8.3 | **FinBERT inference pipeline** | 🤖 AI | — | ✅ Done — ml/scripts/run_finbert.py, ml/pipelines/finbert_inference.py |
+| 8.4 | **News Collectors** | 🤖 AI | 1.6 | ✅ Done — NewsAPI + RSS → news.raw queue |
+| 8.5 | **Sentiment Airflow DAG** | 🤖 AI | 8.3, 6.3 | ✅ Done — ml/dags/sentiment_dag.py, fetch_news → run_finbert |
+| 8.6 | **Sentiment Service (serving)** | 🤖 AI | 8.3, 8.4 | ✅ Done — services/sentiment-service, news.raw → FinBERT → Redis |
+| 8.7 | **Tích hợp Sentiment** | 🤖 AI | 8.6, 5.6 | ✅ Done — Sentiment → Feature Engineering → retrain models (Airflow DAG, local GPU) |
+| 8.8 | ~~Deploy Sentiment trên Minikube~~ | 👤 Bạn | 8.6 | ✅ Done — Deploy (CPU-only pod, ~1GB RAM), verify |
 
 > [!NOTE]
 > **Workflow training Phase 2 (tiết kiệm RAM):**
@@ -231,7 +239,7 @@
 
 - [ ] 🤖 3 ML models trained local (ARIMA, XGBoost GPU, LSTM GPU) + registered trên MLflow
 - [ ] 🤖 Forecast Service (serving only) + API dự báo 7/14/30 ngày
-- [ ] 👤 MLflow tracking + MLOps pipeline (train local → validate → promote → deploy serving)
+- [ ] 👤 MLflow tracking; promote model thủ công (local). MLOps CI + Validation Gate khi lên cloud (M.12, M.13)
 - [ ] 👤 **Airflow DAGs** orchestrate training pipeline (Docker Compose on-demand)
 - [ ] 🤖 FinBERT Sentiment Analysis (GPU local inference + CPU K8s serving)
 - [ ] 👤 Tất cả services chạy local, **sẵn sàng migrate lên cloud**
@@ -245,17 +253,19 @@
 
 | # | Task | Người | Thời gian | Chi tiết |
 |---|------|-------|-----------|----------|
-| M.1 | `terraform apply` — GKE Cluster | 👤 Bạn | 15 phút | Tạo GKE cluster từ modules đã viết sẵn ở Phase 1 |
-| M.2 | `terraform apply` — Cloud SQL | 👤 Bạn | 10 phút | PostgreSQL + TimescaleDB managed |
-| M.3 | `terraform apply` — GCR/Redis/RabbitMQ | 👤 Bạn | 10 phút | Container Registry + managed services (hoặc self-host trên GKE) |
-| M.4 | Migrate data (nếu cần) | 👤 Bạn | 30 phút | `pg_dump` local → `pg_restore` Cloud SQL |
+| M.1 | `terraform apply` — GKE Cluster | 👤 Bạn | ✅ Done | Tạo GKE cluster từ modules đã viết sẵn ở Phase 1 |
+| M.2 | **Deploy DB & Cache on GKE** | 👤 Bạn | 15 phút | Cấu hình PV/PVC (SSD), deploy PostgreSQL + TimescaleDB & Redis bằng Helm |
+| M.3 | `terraform apply` — GCR/SecretManager | 👤 Bạn | ✅ Done | Container Registry + Secret Manager infrastructure |
+| M.4 | Migrate data (nếu cần) | 👤 Bạn | 30 phút | `pg_dump` local → `pg_restore` vào PostgreSQL pod trên GKE |
 | M.5 | Đổi kubectl context | 👤 Bạn | 1 phút | `gcloud container clusters get-credentials` |
 | M.6 | `kubectl apply -k overlays/dev/` | 👤 Bạn | 5 phút | Deploy tất cả services lên GKE — overlay đã sẵn sàng! |
 | M.7 | **Deploy Airflow trên GKE** | 👤 Bạn | 30 phút | `helm install airflow apache-airflow/airflow -f helm-values/airflow-cloud.yaml`, migrate DAG files |
-| M.8 | **Cấu hình Airflow cloud** | 👤 Bạn | 30 phút | Kết nối MLflow trên GKE, cập nhật DB connection, test DAG chạy trên cloud |
+| M.8 | **Cấu hình Airflow cloud** | 👤 Bạn | 30 phút | Kết nối MLflow trên GKE, cập nhật connection string đến DB pod trong cluster |
 | M.9 | **Setup SSH cho remote training** | 👤 Bạn | 30 phút | Bật OpenSSH Server trên Windows, cấu hình Airflow `SSHOperator` connection đến máy local để trigger GPU training |
 | M.10 | Verify tất cả services | 👤 Bạn | 1 giờ | Test mọi service + Airflow DAGs + SSH training hoạt động |
 | M.11 | Cập nhật CI/CD target | 👤 Bạn | 15 phút | GitHub Actions deploy → GKE thay vì local |
+| M.12 | **MLOps CI pipeline** (6.1) | 👤 Bạn | M.11 | GitHub Actions: trigger train (self-hosted/GKE) → log MLflow → validate metrics |
+| M.13 | **Model Validation Gate** (6.2) | 👤 Bạn | M.12 | Auto-check RMSE, MAE, Directional Accuracy trước khi promote model |
 
 **Sau migration:** Airflow chạy 24/7 trên GKE, orchestrate pipeline tự động. Training vẫn chạy trên máy local (RTX 4060) qua SSH.
 
@@ -312,7 +322,7 @@
 | 12.1 | Trivy scanning | 👤 Bạn | Phase 1 | Container image scanning tích hợp CI |
 | 12.2 | Secret Management | 👤 Bạn | Phase 1 | HashiCorp Vault / K8s External Secrets |
 | 12.3 | **Next.js setup** | 🤖 AI | — | Project, Shadcn UI, routing, dark mode |
-| 12.4 | **Auth pages** | 🤖 AI | 12.3 | Đăng nhập / Đăng ký |
+| 12.4 | **Auth integration** | 🤖 AI | 12.3 | Tích hợp NextAuth/Auth.js với Keycloak OIDC |
 | 12.5 | **Dashboard tổng quan** | 🤖 AI | 12.3 | Market summary, cards, charts |
 | 12.6 | **Analysis page** | 🤖 AI | 12.3 | Candlestick chart (TradingView) |
 
@@ -404,7 +414,7 @@ Tổng 4 tháng: ~$100-180 (~2.6-4.6 triệu VNĐ)
 ## Checklist Tổng Thể
 
 - [x] Thiết kế kiến trúc hệ thống (Microservice)
-- [ ] **Phase 1:** 👤 Minikube + CI/CD | 🤖 Auth + Market Data *(tuần 1-4, $0)*
+- [ ] **Phase 1:** 👤 Minikube + CI/CD + Keycloak | 🤖 Gateway + Market Data *(tuần 1-4, $0)*
 - [ ] **Phase 2:** 👤 MLOps local | 🤖 3 ML Models + Sentiment *(tuần 5-8, ~$0-15)*
 - [ ] ⬆️ **Migration:** Local → GKE Cloud *(~2-4 giờ)*
 - [ ] **Phase 3:** 👤 Monitoring + Logging trên cloud | 🤖 Portfolio + WS *(tuần 9-11)*

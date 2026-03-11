@@ -1,0 +1,50 @@
+# 1. Plugin Giới hạn tần suất gọi API (Rate Limiting)
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: global-rate-limit
+config:
+  minute: 30       # Mỗi IP chỉ được gọi tối đa 30 requests / phút
+  limit_by: ip     # Dựa theo địa chỉ IP của Client
+  policy: local    # Lưu trữ thông tin đếm (counter) ở bộ nhớ cục bộ bề mặt Node Kong thay vì Redis dùng chung
+plugin: rate-limiting
+---
+# 2. Plugin Xác thực bằng Token (JWT)
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: keycloak-jwt-auth
+plugin: jwt
+config:
+  claims_to_verify:
+  - exp            # Yêu cầu Kong phải tự giải mã JWT và xác minh trường "expire" (hạn sử dụng) là còn hạn
+  key_claim_name: iss  # Kong sẽ dùng giá trị "iss" trong token để tra cứu KongConsumer credential tương ứng
+---
+# 3. Plugin Cấu hình CORS mở (Cross-Origin Resource Sharing)
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: global-cors
+plugin: cors
+config:
+  origins:
+  - '*'            # Cho phép mọi trang Web (bất chấp tên miền) Frontend gọi API (Có thể thay bằng domain thật sau này)
+  methods:
+  - GET            # Chấp nhận các loại phương thức HTTP HTTP cơ bản tới Backend
+  - POST
+  - PUT
+  - PATCH
+  - DELETE
+  - OPTIONS
+  headers:         # Những loại Header được trình duyệt Web phép đính kèm thêm khi gửi gửi Request lên Kong
+  - Accept
+  - Accept-Version
+  - Content-Length
+  - Content-MD5
+  - Content-Type
+  - Date
+  - Authorization
+  exposed_headers: # Những Header Kong trả về mà Client JavaScript (Axios/Fetch) được phép đọc
+  - Authorization
+  credentials: true
+  max_age: 3600    # Tuổi thọ lưu giữ kết quả Pre-flight (Của lệnh gọi OPTIONS rào trước) trong máy client là 3600 giây (1h). Giúp tăng tốc FE.

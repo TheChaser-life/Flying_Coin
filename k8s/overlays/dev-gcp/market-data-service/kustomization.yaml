@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dev
+
+resources:
+  - ../../../base/market-data-service
+  - database-external-secret.yaml
+
+images:
+  - name: market-data-service
+    newName: asia-southeast1-docker.pkg.dev/flying-coin/flying-coin/market-data-service
+    newTag: latest
+
+patchesStrategicMerge:
+  - |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: market-data-service-deployment
+    spec:
+      template:
+        spec:
+          containers:
+            - name: market-data-service
+              envFrom:
+                - secretRef:
+                    name: market-data-db-config

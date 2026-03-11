@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mlflow-minio-bucket-init
+  namespace: mlops
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      containers:
+        - name: mc
+          image: minio/mc:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Waiting for MinIO to be ready..."
+              until mc alias set local http://mlflow-minio-svc.mlops.svc.cluster.local:9000 \
+                    "$MINIO_USER" "$MINIO_PASS" 2>/dev/null; do
+                sleep 5
+              done
+              mc mb local/mlflow --ignore-existing
+              echo "Bucket 'mlflow' is ready."
+          env:
+            - name: MINIO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow-secret
+                  key: AWS_ACCESS_KEY_ID
+            - name: MINIO_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow-secret
+                  key: AWS_SECRET_ACCESS_KEY
+      restartPolicy: OnFailure

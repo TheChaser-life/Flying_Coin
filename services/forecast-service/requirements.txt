@@ -1,0 +1,16 @@
+# Forecast Service — Task 6.6 (serving only, CPU)
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# MLflow client — load model
+mlflow>=2.19.0
+
+# Model runtimes
+xgboost>=2.0.0
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.0.0
+statsmodels>=0.14.0
+numpy>=1.24.0
+pandas>=2.0.0

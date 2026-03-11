@@ -1,0 +1,1342 @@
+{
+  "version": 4,
+  "terraform_version": "1.14.3",
+  "serial": 254,
+  "lineage": "c36a91b5-c070-525d-c994-297d326add97",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "data",
+      "type": "google_client_config",
+      "name": "default",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "access_token": "ya29.c.c0AZ4bNpYvfRgCEcey3EXdLoxm1MJISxYYr09AEZE426ld1eMu4bAtW47Wb5ivZgc5XNa6sXRv4c4rSphpR_qt_q423Ju_m_xBMVtcjDTU672vFGXUBaCLVRSNqMR_nMi27LHUDXpDm_tQQD8AVlUFBORvcAJHmULrxw5dXXO9icOFP7u9SvRd5POk3xARRoJI0wYABotcaHIsApFU1ZZDED93or3X2lUjPDaBiZMiWK-ymBjxt9MA2FZWbcXWbZH8NSMioeW1KTQiWWV8baCua-6QhSdzEQPN7LOuYPH3jSZWKgc6fdHNHSuvlzyQzZggGkU-CG8A-9JUiAIHR4wafY1Ut6Jk7DMo4u1CVq_Fjdd7uxuymkM8GpBB8AOXg6nbN9TfHEdHpNgaUo_Al90KUbinuwF0ZiZyudlUNRzpWob8cFRl2Eef9tx8Wq2mc1p4a0QWtqYo6-gGeuY1W-hiwakw5ij1re8jKwzdn_mfXLjjwt0y1riuwvvtrfPDQK4-05ANOcdOuZ_lgyNA4BNPuhedEASM8qUWuO2Zs6fHtHM7oRWOY7YRXBoICcWbEXyJp9QGUfrWPcwET8wHXO9Z7qMB86I39Oy1Owiy63mmYQ1hOD_WK4BCI5X_v16AYXutcxJQx-bNZKy99KSCfcyTjgN671Pu4gd1b5mY8gw9QlBo2e5nF0fgx4hxo8egYRwaUm-Wta5Iot98_thWYzXnyVu4ZuvskW_9BdmvO4Bp7jnU5YUalcwczn2y4zsyMtoY8qwjjIttOBR4_Y7uMrclsiI5Xc16jQIqVSJBMFlXnzi2aIWBwdmq6MRIq4290FgvR_RIRqhg_6MZtxXoQewnWzhmZ5yXbq0084BIltqw3qoUQdyeFQ06d5jYO2daaReS02iFuu0Qj_Sp5ymafFaVJdSzQonmgZ2k_kJ-tdBOBYOlh89qQlntXz-jkevZQm2epbI6JQWord5-0IyavbOzvabO9zWc-ng--bvWnd0ilFl0FwOhJmX9fan",
+            "default_labels": {},
+            "id": "projects/flying-coin-489803/regions/asia-southeast1/zones/",
+            "project": "flying-coin-489803",
+            "region": "asia-southeast1",
+            "zone": ""
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "access_token"
+              }
+            ]
+          ],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "google_project_service",
+      "name": "enabled_services",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "index_key": "artifactregistry.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/artifactregistry.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "artifactregistry.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        },
+        {
+          "index_key": "cloudresourcemanager.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/cloudresourcemanager.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "cloudresourcemanager.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        },
+        {
+          "index_key": "compute.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/compute.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "compute.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        },
+        {
+          "index_key": "container.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/container.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "container.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        },
+        {
+          "index_key": "iam.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/iam.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "iam.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        },
+        {
+          "index_key": "secretmanager.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/secretmanager.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "secretmanager.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        },
+        {
+          "index_key": "storage.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/storage.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "storage.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        }
+      ]
+    },
+    {
+      "module": "module.kubernetes",
+      "mode": "managed",
+      "type": "google_container_cluster",
+      "name": "gke_cluster",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 2,
+          "attributes": {
+            "addons_config": [
+              {
+                "cloudrun_config": [],
+                "config_connector_config": [],
+                "dns_cache_config": [
+                  {
+                    "enabled": true
+                  }
+                ],
+                "gce_persistent_disk_csi_driver_config": [
+                  {
+                    "enabled": true
+                  }
+                ],
+                "gcp_filestore_csi_driver_config": [],
+                "gcs_fuse_csi_driver_config": [],
+                "gke_backup_agent_config": [],
+                "horizontal_pod_autoscaling": [],
+                "http_load_balancing": [],
+                "lustre_csi_driver_config": [],
+                "network_policy_config": [
+                  {
+                    "disabled": true
+                  }
+                ],
+                "parallelstore_csi_driver_config": [],
+                "ray_operator_config": [],
+                "stateful_ha_config": []
+              }
+            ],
+            "allow_net_admin": null,
+            "anonymous_authentication_config": [
+              {
+                "mode": "ENABLED"
+              }
+            ],
+            "authenticator_groups_config": [],
+            "binary_authorization": [
+              {
+                "enabled": false,
+                "evaluation_mode": ""
+              }
+            ],
+            "cluster_autoscaling": [
+              {
+                "auto_provisioning_defaults": [],
+                "auto_provisioning_locations": [],
+                "autoscaling_profile": "BALANCED",
+                "enabled": false,
+                "resource_limits": []
+              }
+            ],
+            "cluster_ipv4_cidr": "10.1.0.0/16",
+            "confidential_nodes": [],
+            "control_plane_endpoints_config": [
+              {
+                "dns_endpoint_config": [
+                  {
+                    "allow_external_traffic": false,
+                    "endpoint": "gke-0127b9a330244fddae727ef47c4f592a9586-821305063051.asia-southeast1.gke.goog"
+                  }
+                ],
+                "ip_endpoints_config": [
+                  {
+                    "enabled": true
+                  }
+                ]
+              }
+            ],
+            "cost_management_config": [],
+            "database_encryption": [
+              {
+                "key_name": "",
+                "state": "DECRYPTED"
+              }
+            ],
+            "datapath_provider": "",
+            "default_max_pods_per_node": 110,
+            "default_snat_status": [
+              {
+                "disabled": false
+              }
+            ],
+            "deletion_protection": false,
+            "description": "",
+            "disable_l4_lb_firewall_reconciliation": false,
+            "dns_config": [],
+            "effective_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "enable_autopilot": false,
+            "enable_cilium_clusterwide_network_policy": false,
+            "enable_fqdn_network_policy": false,
+            "enable_intranode_visibility": false,
+            "enable_k8s_beta_apis": [],
+            "enable_kubernetes_alpha": false,
+            "enable_l4_ilb_subsetting": false,
+            "enable_legacy_abac": false,
+            "enable_multi_networking": false,
+            "enable_shielded_nodes": true,
+            "enable_tpu": false,
+            "endpoint": "34.21.138.236",
+            "enterprise_config": [
+              {
+                "cluster_tier": "STANDARD",
+                "desired_tier": ""
+              }
+            ],
+            "fleet": [],
+            "gateway_api_config": [],
+            "gke_auto_upgrade_config": [],
+            "id": "projects/flying-coin-489803/locations/asia-southeast1/clusters/flying-coin-gke-cluster",
+            "identity_service_config": [],
+            "in_transit_encryption_config": "",
+            "initial_node_count": 1,
+            "ip_allocation_policy": [
+              {
+                "additional_ip_ranges_config": [],
+                "additional_pod_ranges_config": [],
+                "cluster_ipv4_cidr_block": "10.1.0.0/16",
+                "cluster_secondary_range_name": "pods-range",
+                "pod_cidr_overprovision_config": [
+                  {
+                    "disabled": false
+                  }
+                ],
+                "services_ipv4_cidr_block": "10.2.0.0/20",
+                "services_secondary_range_name": "services-range",
+                "stack_type": "IPV4"
+              }
+            ],
+            "label_fingerprint": "78cdf2f6",
+            "location": "asia-southeast1",
+            "logging_config": [
+              {
+                "enable_components": [
+                  "SYSTEM_COMPONENTS",
+                  "WORKLOADS"
+                ]
+              }
+            ],
+            "logging_service": "logging.googleapis.com/kubernetes",
+            "maintenance_policy": [],
+            "master_auth": [
+              {
+                "client_certificate": "",
+                "client_certificate_config": [
+                  {
+                    "issue_client_certificate": false
+                  }
+                ],
+                "client_key": "",
+                "cluster_ca_certificate": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUVMRENDQXBTZ0F3SUJBZ0lRRUF0elJnN3kwNzk3QmdQc1gvZnBFakFOQmdrcWhraUc5dzBCQVFzRkFEQXYKTVMwd0t3WURWUVFERXlSa1l6UTNaVGRqWmkwNVpqSXhMVFJoTnpFdE9ETTVaUzB5TVdaa09EUmpaRGc0TmpjdwpJQmNOTWpZd016RXdNRFl5T1RFMFdoZ1BNakExTmpBek1ESXdOekk1TVRSYU1DOHhMVEFyQmdOVkJBTVRKR1JqCk5EZGxOMk5tTFRsbU1qRXROR0UzTVMwNE16bGxMVEl4Wm1RNE5HTmtPRGcyTnpDQ0FhSXdEUVlKS29aSWh2Y04KQVFFQkJRQURnZ0dQQURDQ0FZb0NnZ0dCQU5UcEtEWm9vakJYMVBUdnFpUGxwcXFMZnFmMEF0dy94SVAzY3pCdwpsWU1TSGZndnBqdjVUcHpQb1ZvZDZIRmlCZnc3NWtrUmJHRlBJdTBNZEpzcVhjRFZVNElyTUo3RStzZ3RPNjhUCktyUGhkUUdtUC9nVFZkWFlKQmQ5S21MTGxRS0dtbkVVZS9yU0FQd2Q3OHF2aUhBbWhwK0hZZGRJSWdjaU5ueDEKZmlBUmcrUzR4bFdVMkdRS2thazN1SEl5MHA5Z0FwMGhaQWxHaytwcThVQXd1dHY0T3Y0ZFVCWEwyL2xxckRubQprdUNJN2wzSnZnMmpIMm5ybzZkMStoV3pKaFVGNlFPdzZRVE1tNGZUd1pPVTJGQ3hzenRkMkpUYW5CSmoyNnAzCk1HUFpxb2s1MnpuaGY0aHBpUUtOUkNORHpldTErTWQ1QmJLdy9aM2xpcW9mVEdXT2doM3pqSm9NOFJySXpCdVoKbThsVXlwT2lmQVlsbjBNeFJGaG9wamdmT0JQeE03RTRPMGNlTE9RUmN5TjhCaDU5RTRDL1JHMHVQMUxab2dKMQpLazZxL2Z0MGdJZWdPNTkwWWlkNkhlZDQyZVAzVVNhQ2FzSDRzTkRrMmZiRmMrU0t3UnhSaXNYRTQrRkJaL0RjCmdRNTlvWHFteG83S1BOQ1FRS0NRa2hyZWdRSURBUUFCbzBJd1FEQU9CZ05WSFE4QkFmOEVCQU1DQWdRd0R3WUQKVlIwVEFRSC9CQVV3QXdFQi96QWRCZ05WSFE0RUZnUVUzbkc1dnQzbE9MNU1RdjZIak5FSG1QSkxYR0V3RFFZSgpLb1pJaHZjTkFRRUxCUUFEZ2dHQkFDMk14M0s1cnJPUDhDQ05IRHI2Q05SdktoUTlySVlPeGVMNzZXY3BEVjFwCjBJUWJ4bm1KS1pKYjJZQXlKYWxObkVKUHlDRjdtTDV6d2xuMzJxSitYVWVMZUhCOHpvY3cvQTVDd09LUjkwNC8KdENKaE5nUk9aeDNaeVg0OUoxR1lyK09qSWlFOStJK09NNlB0ck5xNlRyZTRONUhaTWE3VzdVWTZaazdFTTBUcgprdnZHRHFodUNQM3VOdDhYUCsxQWlLSGNXQUNnRUpqc05CWGpMRzYxSnlnS2xySEJ5U05INHhhZmVpUldqaWJDCmNkKy80Mm1rQzZHODJyeFA0Nk1UejAzd0pEYUt6OHVoODdqMUJCbHZ3d2Z4QmNvVkVLRU81dnNGUmhKYlJYci8Ka1MxNllSSDA4Qm1ubXZHUFd3VUNWZDBGYkFla3RZVDFZcE04emFLTlI4MThPZ256VVA0OTQzNThsUlpYTHdYZgpkNVVadGZJNVlOVDFqS1RZRjJLdE9vUGoxU0xpN29lenBCaTJ4bWpOZmhqWDVGbDNPQTV4S0ozeXVGVG1hNlR4ClJrcEtLeEdlbnZoeno1bHlkVjVHS2RRTnFlY3R6QmZ6VTBzMlZFVnFWYU1nSFVqbnRmTUM0R0tCNzltdWVoek8KdWFiZ3B0TUw1MzB4anBidlRTWE0rdz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+              }
+            ],
+            "master_authorized_networks_config": [],
+            "master_version": "1.34.3-gke.1444000",
+            "mesh_certificates": [],
+            "min_master_version": null,
+            "monitoring_config": [
+              {
+                "advanced_datapath_observability_config": [
+                  {
+                    "enable_metrics": false,
+                    "enable_relay": false
+                  }
+                ],
+                "enable_components": [
+                  "SYSTEM_COMPONENTS",
+                  "DAEMONSET",
+                  "DEPLOYMENT",
+                  "STATEFULSET",
+                  "JOBSET",
+                  "STORAGE",
+                  "HPA",
+                  "POD",
+                  "CADVISOR",
+                  "KUBELET",
+                  "DCGM"
+                ],
+                "managed_prometheus": [
+                  {
+                    "auto_monitoring_config": [],
+                    "enabled": true
+                  }
+                ]
+              }
+            ],
+            "monitoring_service": "monitoring.googleapis.com/kubernetes",
+            "name": "flying-coin-gke-cluster",
+            "network": "projects/flying-coin-489803/global/networks/flying-coin-vpc",
+            "network_performance_config": [],
+            "network_policy": [
+              {
+                "enabled": false,
+                "provider": "PROVIDER_UNSPECIFIED"
+              }
+            ],
+            "networking_mode": "VPC_NATIVE",
+            "node_config": [],
+            "node_locations": [
+              "asia-southeast1-a",
+              "asia-southeast1-b",
+              "asia-southeast1-c"
+            ],
+            "node_pool": [],
+            "node_pool_auto_config": [
+              {
+                "linux_node_config": [],
+                "network_tags": [],
+                "node_kubelet_config": [
+                  {
+                    "insecure_kubelet_readonly_port_enabled": "FALSE"
+                  }
+                ],
+                "resource_manager_tags": {}
+              }
+            ],
+            "node_pool_defaults": [
+              {
+                "node_config_defaults": [
+                  {
+                    "containerd_config": [],
+                    "gcfs_config": [],
+                    "insecure_kubelet_readonly_port_enabled": "FALSE",
+                    "logging_variant": "DEFAULT"
+                  }
+                ]
+              }
+            ],
+            "node_version": "1.34.3-gke.1444000",
+            "notification_config": [
+              {
+                "pubsub": [
+                  {
+                    "enabled": false,
+                    "filter": [],
+                    "topic": ""
+                  }
+                ]
+              }
+            ],
+            "operation": null,
+            "pod_autoscaling": [
+              {
+                "hpa_profile": "PERFORMANCE"
+              }
+            ],
+            "private_cluster_config": [
+              {
+                "enable_private_endpoint": false,
+                "enable_private_nodes": true,
+                "master_global_access_config": [
+                  {
+                    "enabled": false
+                  }
+                ],
+                "master_ipv4_cidr_block": "172.16.0.0/28",
+                "peering_name": "",
+                "private_endpoint": "172.16.0.2",
+                "private_endpoint_subnetwork": "projects/flying-coin-489803/regions/asia-southeast1/subnetworks/gke-flying-coin-gke-cluster-8d504b8a-pe-subnet",
+                "public_endpoint": "34.21.138.236"
+              }
+            ],
+            "private_ipv6_google_access": "",
+            "project": "flying-coin-489803",
+            "rbac_binding_config": [
+              {
+                "enable_insecure_binding_system_authenticated": true,
+                "enable_insecure_binding_system_unauthenticated": true
+              }
+            ],
+            "release_channel": [
+              {
+                "channel": "REGULAR"
+              }
+            ],
+            "remove_default_node_pool": true,
+            "resource_labels": null,
+            "resource_usage_export_config": [],
+            "secret_manager_config": [
+              {
+                "enabled": false
+              }
+            ],
+            "security_posture_config": [
+              {
+                "mode": "BASIC",
+                "vulnerability_mode": "VULNERABILITY_MODE_UNSPECIFIED"
+              }
+            ],
+            "self_link": "https://container.googleapis.com/v1/projects/flying-coin-489803/locations/asia-southeast1/clusters/flying-coin-gke-cluster",
+            "service_external_ips_config": [
+              {
+                "enabled": false
+              }
+            ],
+            "services_ipv4_cidr": "10.2.0.0/20",
+            "subnetwork": "projects/flying-coin-489803/regions/asia-southeast1/subnetworks/flying-coin-gke-subnet",
+            "terraform_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "timeouts": null,
+            "tpu_ipv4_cidr_block": "",
+            "user_managed_keys_config": [],
+            "vertical_pod_autoscaling": [],
+            "workload_identity_config": [
+              {
+                "workload_pool": "flying-coin-489803.svc.id.goog"
+              }
+            ]
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "master_auth"
+              },
+              {
+                "type": "index",
+                "value": {
+                  "value": 0,
+                  "type": "number"
+                }
+              },
+              {
+                "type": "get_attr",
+                "value": "client_key"
+              }
+            ]
+          ],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoyNDAwMDAwMDAwMDAwLCJkZWxldGUiOjI0MDAwMDAwMDAwMDAsInJlYWQiOjI0MDAwMDAwMDAwMDAsInVwZGF0ZSI6MzYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMiJ9",
+          "dependencies": [
+            "google_project_service.enabled_services",
+            "module.networking.google_compute_network.vpc_network",
+            "module.networking.google_compute_subnetwork.gke_subnet"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.kubernetes",
+      "mode": "managed",
+      "type": "google_project_iam_member",
+      "name": "sa_logging",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "condition": [],
+            "etag": "BwZMpnbhOgA=",
+            "id": "flying-coin-489803/roles/logging.logWriter/serviceAccount:flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "member": "serviceAccount:flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "project": "flying-coin-489803",
+            "role": "roles/logging.logWriter"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "google_project_service.enabled_services",
+            "module.kubernetes.google_service_account.gke_service_account"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.kubernetes",
+      "mode": "managed",
+      "type": "google_project_iam_member",
+      "name": "sa_monitoring",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "condition": [],
+            "etag": "BwZMpnbhOgA=",
+            "id": "flying-coin-489803/roles/monitoring.metricWriter/serviceAccount:flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "member": "serviceAccount:flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "project": "flying-coin-489803",
+            "role": "roles/monitoring.metricWriter"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "google_project_service.enabled_services",
+            "module.kubernetes.google_service_account.gke_service_account"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.kubernetes",
+      "mode": "managed",
+      "type": "google_project_iam_member",
+      "name": "sa_registry",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "condition": [],
+            "etag": "BwZMpnbhOgA=",
+            "id": "flying-coin-489803/roles/artifactregistry.reader/serviceAccount:flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "member": "serviceAccount:flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "project": "flying-coin-489803",
+            "role": "roles/artifactregistry.reader"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "google_project_service.enabled_services",
+            "module.kubernetes.google_service_account.gke_service_account"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.kubernetes",
+      "mode": "managed",
+      "type": "google_project_iam_member",
+      "name": "sa_storage",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "condition": [],
+            "etag": "BwZMpnbhOgA=",
+            "id": "flying-coin-489803/roles/storage.objectAdmin/serviceAccount:flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "member": "serviceAccount:flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "project": "flying-coin-489803",
+            "role": "roles/storage.objectAdmin"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "google_project_service.enabled_services",
+            "module.kubernetes.google_service_account.gke_service_account"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.kubernetes",
+      "mode": "managed",
+      "type": "google_service_account",
+      "name": "gke_service_account",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "account_id": "flying-coin-gke-sa",
+            "create_ignore_already_exists": null,
+            "description": "",
+            "disabled": false,
+            "display_name": "GKE Service Account for flying-coin",
+            "email": "flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "id": "projects/flying-coin-489803/serviceAccounts/flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "member": "serviceAccount:flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "name": "projects/flying-coin-489803/serviceAccounts/flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "project": "flying-coin-489803",
+            "timeouts": null,
+            "unique_id": "117412301423888709130"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDB9fQ==",
+          "dependencies": [
+            "google_project_service.enabled_services"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.kubernetes",
+      "mode": "managed",
+      "type": "kubernetes_namespace_v1",
+      "name": "mlops",
+      "provider": "provider[\"registry.terraform.io/hashicorp/kubernetes\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "mlops",
+            "metadata": [
+              {
+                "annotations": null,
+                "generate_name": "",
+                "generation": 0,
+                "labels": null,
+                "name": "mlops",
+                "resource_version": "1773128400702623016",
+                "uid": "9b2da538-a110-4823-ac27-67eb8654a5e1"
+              }
+            ],
+            "timeouts": null,
+            "wait_for_default_service_account": false
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "api_version": "v1",
+            "kind": "Namespace",
+            "name": "mlops"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiZGVsZXRlIjozMDAwMDAwMDAwMDB9fQ==",
+          "dependencies": [
+            "data.google_client_config.default",
+            "google_project_service.enabled_services",
+            "module.kubernetes.google_container_cluster.gke_cluster",
+            "module.networking.google_compute_network.vpc_network",
+            "module.networking.google_compute_subnetwork.gke_subnet"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.kubernetes",
+      "mode": "managed",
+      "type": "kubernetes_namespace_v1",
+      "name": "production",
+      "provider": "provider[\"registry.terraform.io/hashicorp/kubernetes\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "production",
+            "metadata": [
+              {
+                "annotations": null,
+                "generate_name": "",
+                "generation": 0,
+                "labels": null,
+                "name": "production",
+                "resource_version": "1773128400695007008",
+                "uid": "99b17cdf-6c4f-48cc-8afb-17807bd51339"
+              }
+            ],
+            "timeouts": null,
+            "wait_for_default_service_account": false
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "api_version": "v1",
+            "kind": "Namespace",
+            "name": "production"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiZGVsZXRlIjozMDAwMDAwMDAwMDB9fQ==",
+          "dependencies": [
+            "data.google_client_config.default",
+            "google_project_service.enabled_services",
+            "module.kubernetes.google_container_cluster.gke_cluster",
+            "module.networking.google_compute_network.vpc_network",
+            "module.networking.google_compute_subnetwork.gke_subnet"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.kubernetes",
+      "mode": "managed",
+      "type": "kubernetes_namespace_v1",
+      "name": "staging",
+      "provider": "provider[\"registry.terraform.io/hashicorp/kubernetes\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "staging",
+            "metadata": [
+              {
+                "annotations": null,
+                "generate_name": "",
+                "generation": 0,
+                "labels": null,
+                "name": "staging",
+                "resource_version": "1773128400723215014",
+                "uid": "d45119de-f7bd-40df-b116-bed3bddddbdc"
+              }
+            ],
+            "timeouts": null,
+            "wait_for_default_service_account": false
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "api_version": "v1",
+            "kind": "Namespace",
+            "name": "staging"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiZGVsZXRlIjozMDAwMDAwMDAwMDB9fQ==",
+          "dependencies": [
+            "data.google_client_config.default",
+            "google_project_service.enabled_services",
+            "module.kubernetes.google_container_cluster.gke_cluster",
+            "module.networking.google_compute_network.vpc_network",
+            "module.networking.google_compute_subnetwork.gke_subnet"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.kubernetes",
+      "mode": "managed",
+      "type": "kubernetes_service_account_v1",
+      "name": "eso_ksa",
+      "provider": "provider[\"registry.terraform.io/hashicorp/kubernetes\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "automount_service_account_token": true,
+            "default_secret_name": "",
+            "id": "external-secrets/eso-ksa",
+            "image_pull_secret": [],
+            "metadata": [
+              {
+                "annotations": {
+                  "iam.gke.io/gcp-service-account": "flying-coin-eso-sa@flying-coin-489803.iam.gserviceaccount.com"
+                },
+                "generate_name": "",
+                "generation": 0,
+                "labels": null,
+                "name": "eso-ksa",
+                "namespace": "external-secrets",
+                "resource_version": "1773128400974703000",
+                "uid": "20b025ad-bbc5-4162-976b-3f33a7aee405"
+              }
+            ],
+            "secret": [],
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 1,
+          "identity": {
+            "api_version": "v1",
+            "kind": "ServiceAccount",
+            "name": "eso-ksa",
+            "namespace": "external-secrets"
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "data.google_client_config.default",
+            "google_project_service.enabled_services",
+            "module.kubernetes.google_container_cluster.gke_cluster",
+            "module.networking.google_compute_network.vpc_network",
+            "module.networking.google_compute_subnetwork.gke_subnet",
+            "module.secrets.google_service_account.eso_gcp_sa"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.networking",
+      "mode": "managed",
+      "type": "google_compute_firewall",
+      "name": "allow_health_check",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "allow": [
+              {
+                "ports": [
+                  "80",
+                  "443"
+                ],
+                "protocol": "tcp"
+              }
+            ],
+            "creation_timestamp": "2026-03-10T00:28:29.656-07:00",
+            "deny": [],
+            "description": "",
+            "destination_ranges": [],
+            "direction": "INGRESS",
+            "disabled": false,
+            "enable_logging": null,
+            "id": "projects/flying-coin-489803/global/firewalls/flying-coin-allow-health-check",
+            "log_config": [],
+            "name": "flying-coin-allow-health-check",
+            "network": "https://www.googleapis.com/compute/v1/projects/flying-coin-489803/global/networks/flying-coin-vpc",
+            "params": [],
+            "priority": 1000,
+            "project": "flying-coin-489803",
+            "self_link": "https://www.googleapis.com/compute/v1/projects/flying-coin-489803/global/firewalls/flying-coin-allow-health-check",
+            "source_ranges": [
+              "130.211.0.0/22",
+              "35.191.0.0/16"
+            ],
+            "source_service_accounts": null,
+            "source_tags": null,
+            "target_service_accounts": null,
+            "target_tags": null,
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
+          "dependencies": [
+            "google_project_service.enabled_services",
+            "module.networking.google_compute_network.vpc_network"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.networking",
+      "mode": "managed",
+      "type": "google_compute_global_address",
+      "name": "ingress_ip",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "address": "34.110.212.216",
+            "address_type": "EXTERNAL",
+            "creation_timestamp": "2026-03-10T00:28:04.485-07:00",
+            "description": "",
+            "effective_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "id": "projects/flying-coin-489803/global/addresses/flying-coin-ingress-ip",
+            "ip_version": "",
+            "label_fingerprint": "vezUS-42LLM=",
+            "labels": null,
+            "name": "flying-coin-ingress-ip",
+            "network": "",
+            "prefix_length": 0,
+            "project": "flying-coin-489803",
+            "purpose": "",
+            "self_link": "https://www.googleapis.com/compute/v1/projects/flying-coin-489803/global/addresses/flying-coin-ingress-ip",
+            "terraform_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "google_project_service.enabled_services"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.networking",
+      "mode": "managed",
+      "type": "google_compute_network",
+      "name": "vpc_network",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "auto_create_subnetworks": false,
+            "bgp_always_compare_med": false,
+            "bgp_best_path_selection_mode": "LEGACY",
+            "bgp_inter_region_cost": "",
+            "delete_default_routes_on_create": false,
+            "description": "",
+            "enable_ula_internal_ipv6": false,
+            "gateway_ipv4": "",
+            "id": "projects/flying-coin-489803/global/networks/flying-coin-vpc",
+            "internal_ipv6_range": "",
+            "mtu": 0,
+            "name": "flying-coin-vpc",
+            "network_firewall_policy_enforcement_order": "AFTER_CLASSIC_FIREWALL",
+            "network_id": "8871967208859924202",
+            "network_profile": "",
+            "numeric_id": "8871967208859924202",
+            "params": [],
+            "project": "flying-coin-489803",
+            "routing_mode": "REGIONAL",
+            "self_link": "https://www.googleapis.com/compute/v1/projects/flying-coin-489803/global/networks/flying-coin-vpc",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "google_project_service.enabled_services"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.networking",
+      "mode": "managed",
+      "type": "google_compute_router",
+      "name": "router",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "bgp": [],
+            "creation_timestamp": "2026-03-10T00:28:29.288-07:00",
+            "description": "",
+            "encrypted_interconnect_router": false,
+            "id": "projects/flying-coin-489803/regions/asia-southeast1/routers/flying-coin-router",
+            "md5_authentication_keys": [],
+            "name": "flying-coin-router",
+            "network": "https://www.googleapis.com/compute/v1/projects/flying-coin-489803/global/networks/flying-coin-vpc",
+            "project": "flying-coin-489803",
+            "region": "asia-southeast1",
+            "self_link": "https://www.googleapis.com/compute/v1/projects/flying-coin-489803/regions/asia-southeast1/routers/flying-coin-router",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "google_project_service.enabled_services",
+            "module.networking.google_compute_network.vpc_network"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.networking",
+      "mode": "managed",
+      "type": "google_compute_router_nat",
+      "name": "nat",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "auto_network_tier": null,
+            "drain_nat_ips": [],
+            "enable_dynamic_port_allocation": false,
+            "enable_endpoint_independent_mapping": false,
+            "endpoint_types": [
+              "ENDPOINT_TYPE_VM"
+            ],
+            "icmp_idle_timeout_sec": 30,
+            "id": "flying-coin-489803/asia-southeast1/flying-coin-router/flying-coin-nat",
+            "initial_nat_ips": null,
+            "log_config": [],
+            "max_ports_per_vm": 0,
+            "min_ports_per_vm": 0,
+            "name": "flying-coin-nat",
+            "nat64_subnetwork": [],
+            "nat_ip_allocate_option": "AUTO_ONLY",
+            "nat_ips": [],
+            "project": "flying-coin-489803",
+            "region": null,
+            "router": "flying-coin-router",
+            "rules": [],
+            "source_subnetwork_ip_ranges_to_nat": "ALL_SUBNETWORKS_ALL_IP_RANGES",
+            "source_subnetwork_ip_ranges_to_nat64": "",
+            "subnetwork": [],
+            "tcp_established_idle_timeout_sec": 1200,
+            "tcp_time_wait_timeout_sec": 120,
+            "tcp_transitory_idle_timeout_sec": 30,
+            "timeouts": null,
+            "type": "PUBLIC",
+            "udp_idle_timeout_sec": 30
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "google_project_service.enabled_services",
+            "module.networking.google_compute_network.vpc_network",
+            "module.networking.google_compute_router.router"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.networking",
+      "mode": "managed",
+      "type": "google_compute_subnetwork",
+      "name": "gke_subnet",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "creation_timestamp": "2026-03-10T00:28:29.857-07:00",
+            "description": "",
+            "enable_flow_logs": false,
+            "external_ipv6_prefix": "",
+            "fingerprint": null,
+            "gateway_address": "10.0.0.1",
+            "id": "projects/flying-coin-489803/regions/asia-southeast1/subnetworks/flying-coin-gke-subnet",
+            "internal_ipv6_prefix": "",
+            "ip_cidr_range": "10.0.0.0/20",
+            "ip_collection": null,
+            "ipv6_access_type": "",
+            "ipv6_cidr_range": "",
+            "ipv6_gce_endpoint": "",
+            "log_config": [],
+            "name": "flying-coin-gke-subnet",
+            "network": "https://www.googleapis.com/compute/v1/projects/flying-coin-489803/global/networks/flying-coin-vpc",
+            "params": [],
+            "private_ip_google_access": false,
+            "private_ipv6_google_access": "DISABLE_GOOGLE_ACCESS",
+            "project": "flying-coin-489803",
+            "purpose": "PRIVATE",
+            "region": "asia-southeast1",
+            "reserved_internal_range": "",
+            "role": "",
+            "secondary_ip_range": [
+              {
+                "ip_cidr_range": "10.1.0.0/16",
+                "range_name": "pods-range",
+                "reserved_internal_range": ""
+              },
+              {
+                "ip_cidr_range": "10.2.0.0/20",
+                "range_name": "services-range",
+                "reserved_internal_range": ""
+              }
+            ],
+            "self_link": "https://www.googleapis.com/compute/v1/projects/flying-coin-489803/regions/asia-southeast1/subnetworks/flying-coin-gke-subnet",
+            "send_secondary_ip_range_if_empty": null,
+            "stack_type": "IPV4_ONLY",
+            "state": "",
+            "subnetwork_id": 2687604289945368306,
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "google_project_service.enabled_services",
+            "module.networking.google_compute_network.vpc_network"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.registry",
+      "mode": "managed",
+      "type": "google_artifact_registry_repository",
+      "name": "docker_repo",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "cleanup_policies": [],
+            "cleanup_policy_dry_run": false,
+            "create_time": "2026-03-10T07:28:05.940497Z",
+            "description": "Docker repository cho flying-coin",
+            "docker_config": [],
+            "effective_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "format": "DOCKER",
+            "id": "projects/flying-coin-489803/locations/asia-southeast1/repositories/flying-coin-docker",
+            "kms_key_name": "",
+            "labels": null,
+            "location": "asia-southeast1",
+            "maven_config": [],
+            "mode": "STANDARD_REPOSITORY",
+            "name": "flying-coin-docker",
+            "project": "flying-coin-489803",
+            "remote_repository_config": [],
+            "repository_id": "flying-coin-docker",
+            "terraform_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "timeouts": null,
+            "update_time": "2026-03-10T07:28:05.940497Z",
+            "virtual_repository_config": [],
+            "vulnerability_scanning_config": [
+              {
+                "enablement_config": "",
+                "enablement_state": "SCANNING_DISABLED",
+                "enablement_state_reason": "API containerscanning.googleapis.com is not enabled."
+              }
+            ]
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "google_project_service.enabled_services"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.secrets",
+      "mode": "managed",
+      "type": "google_project_iam_member",
+      "name": "eso_secret_accessor",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "condition": [],
+            "etag": "BwZMpnbhOgA=",
+            "id": "flying-coin-489803/roles/secretmanager.secretAccessor/serviceAccount:flying-coin-eso-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "member": "serviceAccount:flying-coin-eso-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "project": "flying-coin-489803",
+            "role": "roles/secretmanager.secretAccessor"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "google_project_service.enabled_services",
+            "module.secrets.google_service_account.eso_gcp_sa"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.secrets",
+      "mode": "managed",
+      "type": "google_service_account",
+      "name": "eso_gcp_sa",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "account_id": "flying-coin-eso-sa",
+            "create_ignore_already_exists": null,
+            "description": "",
+            "disabled": false,
+            "display_name": "Service Account cho ESO (flying-coin)",
+            "email": "flying-coin-eso-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "id": "projects/flying-coin-489803/serviceAccounts/flying-coin-eso-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "member": "serviceAccount:flying-coin-eso-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "name": "projects/flying-coin-489803/serviceAccounts/flying-coin-eso-sa@flying-coin-489803.iam.gserviceaccount.com",
+            "project": "flying-coin-489803",
+            "timeouts": null,
+            "unique_id": "114027438261192597680"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDB9fQ==",
+          "dependencies": [
+            "google_project_service.enabled_services"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.secrets",
+      "mode": "managed",
+      "type": "google_service_account_iam_member",
+      "name": "eso_workload_identity",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "condition": [],
+            "etag": "BwZMpnafUpk=",
+            "id": "projects/flying-coin-489803/serviceAccounts/flying-coin-eso-sa@flying-coin-489803.iam.gserviceaccount.com/roles/iam.workloadIdentityUser/serviceAccount:flying-coin-489803.svc.id.goog[external-secrets/eso-ksa]",
+            "member": "serviceAccount:flying-coin-489803.svc.id.goog[external-secrets/eso-ksa]",
+            "role": "roles/iam.workloadIdentityUser",
+            "service_account_id": "projects/flying-coin-489803/serviceAccounts/flying-coin-eso-sa@flying-coin-489803.iam.gserviceaccount.com"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "google_project_service.enabled_services",
+            "module.secrets.google_service_account.eso_gcp_sa"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.storage",
+      "mode": "managed",
+      "type": "google_storage_bucket",
+      "name": "mlflow_artifacts",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 3,
+          "attributes": {
+            "autoclass": [],
+            "cors": [],
+            "custom_placement_config": [],
+            "default_event_based_hold": false,
+            "effective_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "enable_object_retention": false,
+            "encryption": [],
+            "force_destroy": true,
+            "hierarchical_namespace": [
+              {
+                "enabled": false
+              }
+            ],
+            "id": "flying-coin-mlflow-artifacts",
+            "ip_filter": [],
+            "labels": null,
+            "lifecycle_rule": [
+              {
+                "action": [
+                  {
+                    "storage_class": "",
+                    "type": "Delete"
+                  }
+                ],
+                "condition": [
+                  {
+                    "age": 7,
+                    "created_before": "",
+                    "custom_time_before": "",
+                    "days_since_custom_time": 0,
+                    "days_since_noncurrent_time": 0,
+                    "matches_prefix": [],
+                    "matches_storage_class": [],
+                    "matches_suffix": [],
+                    "noncurrent_time_before": "",
+                    "num_newer_versions": 0,
+                    "send_age_if_zero": false,
+                    "send_days_since_custom_time_if_zero": false,
+                    "send_days_since_noncurrent_time_if_zero": false,
+                    "send_num_newer_versions_if_zero": false,
+                    "with_state": "ANY"
+                  }
+                ]
+              }
+            ],
+            "location": "ASIA-SOUTHEAST1",
+            "logging": [],
+            "name": "flying-coin-mlflow-artifacts",
+            "project": "flying-coin-489803",
+            "project_number": 821305063051,
+            "public_access_prevention": "inherited",
+            "requester_pays": false,
+            "retention_policy": [],
+            "rpo": null,
+            "self_link": "https://www.googleapis.com/storage/v1/b/flying-coin-mlflow-artifacts",
+            "soft_delete_policy": [
+              {
+                "effective_time": "2026-03-10T07:28:06.029Z",
+                "retention_duration_seconds": 604800
+              }
+            ],
+            "storage_class": "STANDARD",
+            "terraform_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "time_created": "2026-03-10T07:28:06.029Z",
+            "timeouts": null,
+            "uniform_bucket_level_access": true,
+            "updated": "2026-03-10T07:28:06.029Z",
+            "url": "gs://flying-coin-mlflow-artifacts",
+            "versioning": [
+              {
+                "enabled": true
+              }
+            ],
+            "website": []
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsInJlYWQiOjI0MDAwMDAwMDAwMCwidXBkYXRlIjoyNDAwMDAwMDAwMDB9LCJzY2hlbWFfdmVyc2lvbiI6IjMifQ==",
+          "dependencies": [
+            "google_project_service.enabled_services"
+          ]
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}

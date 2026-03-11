@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "title": "Stock market rallies as Fed signals potential rate cuts",
+    "content": "Major indices surged on Wednesday after Federal Reserve Chair Jerome Powell indicated that interest rate cuts could be on the horizon. Investors welcomed the dovish stance, with the S&P 500 closing up 1.2%.",
+    "source": "Reuters",
+    "symbol": "SPY",
+    "timestamp": "2024-03-06T14:30:00Z"
+  },
+  {
+    "id": 2,
+    "title": "Bitcoin drops below $60,000 amid regulatory concerns",
+    "content": "Cryptocurrency prices tumbled as new regulatory proposals from the SEC sparked fears of stricter oversight. Bitcoin fell 8% in 24 hours, while Ethereum lost 6%.",
+    "source": "Bloomberg",
+    "symbol": "BTC",
+    "timestamp": "2024-03-06T12:00:00Z"
+  },
+  {
+    "id": 3,
+    "title": "Apple reports record quarterly revenue",
+    "content": "Apple Inc. announced record revenue of $119.6 billion for the quarter, driven by strong iPhone and services growth. The company also raised its dividend.",
+    "source": "Reuters",
+    "symbol": "AAPL",
+    "timestamp": "2024-03-06T16:00:00Z"
+  },
+  {
+    "id": 4,
+    "title": "Oil prices hold steady amid OPEC production decision",
+    "content": "OPEC+ agreed to maintain current production levels. Brent crude traded at $82 per barrel with no significant change.",
+    "source": "Reuters",
+    "symbol": "BZ",
+    "timestamp": "2024-03-06T10:00:00Z"
+  },
+  {
+    "id": 5,
+    "title": "Banking sector faces headwinds from rising loan defaults",
+    "content": "Major banks reported an increase in loan loss provisions as consumer credit quality deteriorates. Analysts expect further pressure on earnings.",
+    "source": "Financial Times",
+    "symbol": "JPM",
+    "timestamp": "2024-03-06T09:30:00Z"
+  }
+]

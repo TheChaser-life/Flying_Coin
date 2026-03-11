@@ -1,0 +1,40 @@
+# MLflow client — tracking, experiments, model registry
+mlflow>=2.19.0
+
+# Trigger server (Cách B — train trên host)
+flask>=3.0.0
+
+# S3/MinIO artifact store (local dev)
+boto3>=1.34.0
+
+# Data & preprocessing
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# EDA plots (optional — pipeline chạy được không cần)
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Config & DB (cho run_preprocessing.py, run_dataset_builder.py)
+pyyaml>=6.0
+pyarrow>=14.0  # parquet support
+psycopg2-binary>=2.9.0  # PostgreSQL driver (load từ DB)
+
+# Time-series & baselines
+statsmodels>=0.14.0
+
+# XGBoost (GPU: tree_method='gpu_hist')
+xgboost>=2.0.0
+
+# PyTorch — cài riêng với CUDA:
+#   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+# Hoặc CPU-only:
+#   pip install torch torchvision torchaudio
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# FinBERT — sentiment analysis (Task 8.3)
+transformers>=4.35.0
+accelerate>=0.25.0

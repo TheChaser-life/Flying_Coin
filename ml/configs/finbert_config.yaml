@@ -1,0 +1,14 @@
+# FinBERT Inference Config — Task 8.3
+# Sử dụng bởi: ml/scripts/run_finbert.py, Airflow sentiment_dag, Sentiment Service
+
+model:
+  name: ProsusAI/finbert
+  max_length: 512
+
+inference:
+  batch_size: 32
+  use_gpu: true
+
+# Output schema (tương thích sentiments table)
+# sentiment_score: -1.0 → +1.0
+# sentiment_label: POSITIVE | NEGATIVE | NEUTRAL
