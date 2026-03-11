@@ -18,12 +18,33 @@ from app.binance_collector import BinanceCollector
 from app.newsapi_collector import NewsAPICollector
 from app.rss_collector import RSSCollector
 
+from aiohttp import web
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     stream=sys.stdout,
 )
 logger = logging.getLogger(__name__)
+
+
+async def handle_health(request):
+    """Simple health check endpoint."""
+    return web.json_response({"status": "ok", "service": "collectors"})
+
+
+async def run_health_server():
+    """Starts a minimal web server for health checks on port 8000."""
+    app = web.Application()
+    app.router.add_get("/health", handle_health)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", 8000)
+    logger.info("Health check server starting on port 8000")
+    await site.start()
+    # Keep the server running indefinitely
+    while True:
+        await asyncio.sleep(3600)
 
 
 class CollectorOrchestrator:
@@ -121,7 +142,11 @@ async def main() -> None:
             # Windows does not support add_signal_handler for all signals
             signal.signal(sig, lambda s, f: loop.create_task(orchestrator.stop()))
 
-    await orchestrator.start()
+    # Run both the health server and the orchestrator
+    await asyncio.gather(
+        run_health_server(),
+        orchestrator.start()
+    )
 
 
 if __name__ == "__main__":
