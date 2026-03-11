@@ -1,13 +1,25 @@
-# name: 1. Scan source code
+name: 1. Scan source code
 
-# on:
-#   push:
-#     branches:
-#       - dev
+on:
+  push:
+    branches:
+      - dev
 
-# jobs:
-#   scan_source_code:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name:
+jobs:
+  scan_source_code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: copy_source_code
+        uses: actions/checkout@v4
+        
+      - name: scan_source_code
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+         args: >
+          -Dsonar.organization=${{ secrets.ORGANIZATION }}
+          -Dsonar.projectKey=${{ secrets.PROJECT_KEY }}
+          -Dsonar.python.version=3.10
         
