@@ -48,3 +48,7 @@ node_modules/
 *.key
 *.jks
 *.p12
+
+# Sonar Scan
+sonar_scan/
+source_code_issues_*.json
