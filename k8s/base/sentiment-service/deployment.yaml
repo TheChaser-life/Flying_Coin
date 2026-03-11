@@ -18,8 +18,8 @@ spec:
           ports:
             - containerPort: 8002
           envFrom:
-            - configMapRef:
-                name: sentiment-service-config
+            - secretRef:
+                name: infra-credentials
           livenessProbe:
             httpGet:
               path: /health

@@ -20,6 +20,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: forecast-service-config
+            - secretRef:
+                name: infra-credentials
           livenessProbe:
             httpGet:
               path: /health

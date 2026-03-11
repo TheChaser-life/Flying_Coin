@@ -30,8 +30,8 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
           envFrom:
-            - configMapRef:
-                name: collectors-config
+            - secretRef:
+                name: infra-credentials
           resources:
             requests:
               cpu: "100m"

@@ -30,10 +30,8 @@ spec:
             initialDelaySeconds: 10 # Chờ 10 giây sau khi container start để kiểm tra
             periodSeconds: 10 # Kiểm tra 10 giây 1 lần
           envFrom:
-            - configMapRef:
-                name: market-data-service-config
-            - configMapRef:
-                name: market-data-db-config
+            - secretRef:
+                name: infra-credentials
           resources:
             requests:
               cpu: "100m"

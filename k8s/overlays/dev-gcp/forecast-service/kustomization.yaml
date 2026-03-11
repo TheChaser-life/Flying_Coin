@@ -28,5 +28,3 @@ patchesStrategicMerge:
               env:
                 - name: MLFLOW_TRACKING_URI
                   value: "http://mlflow-service.mlops.svc.cluster.local:5000"
-                - name: RABBITMQ_URL
-                  value: "amqp://admin:admin@rabbitmq-service.database.svc.cluster.local:5672/"
