@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: httpbin
-        image: kennethreitz/httpbin      # Docker image tiêu chuẩn từ cộng đồng dev
+        image: kennethreitz/httpbin:latest      # Docker image tiêu chuẩn từ cộng đồng dev
         ports:
         - containerPort: 80
 ---

@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 @router.get("", response_model=list[SymbolResponse])
 async def list_symbols(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Return all active symbols."""
     symbols = await _service.list_symbols(db)
@@ -44,7 +44,7 @@ async def list_symbols(
 @router.post("", response_model=SymbolResponse, status_code=status.HTTP_201_CREATED)
 async def register_symbol(
     payload: SymbolCreate,
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Register a new symbol for data collection."""
     symbol = await _service.register_symbol(
@@ -60,8 +60,8 @@ async def register_symbol(
 @router.get("/{ticker}/latest", response_model=MarketDataResponse)
 async def get_latest(
     ticker: str,
-    db: AsyncSession = Depends(get_db),
-    redis: aioredis.Redis = Depends(get_redis),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    redis: Annotated[aioredis.Redis, Depends(get_redis)],
 ):
     """
     Return the latest OHLCV bar for a symbol.
@@ -102,11 +102,11 @@ async def get_latest(
 @router.get("/{ticker}/history", response_model=list[MarketDataResponse])
 async def get_history(
     ticker: str,
+    db: Annotated[AsyncSession, Depends(get_db)],
     start_date: Annotated[Optional[datetime], Query(description="ISO 8601 start datetime")] = None,
     end_date: Annotated[Optional[datetime], Query(description="ISO 8601 end datetime")] = None,
     limit: Annotated[int, Query(ge=1, le=5000)] = 500,
     offset: Annotated[int, Query(ge=0)] = 0,
-    db: AsyncSession = Depends(get_db),
 ):
     """
     Return paginated historical OHLCV bars for a symbol.
@@ -139,9 +139,9 @@ async def get_history(
 @router.get("/{ticker}/stats", response_model=SymbolStatsResponse)
 async def get_stats(
     ticker: str,
+    db: Annotated[AsyncSession, Depends(get_db)],
     start_date: Annotated[Optional[datetime], Query()] = None,
     end_date: Annotated[Optional[datetime], Query()] = None,
-    db: AsyncSession = Depends(get_db),
 ):
     """
     Return aggregated statistics for a symbol over an optional time window.

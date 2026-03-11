@@ -78,6 +78,73 @@ class RSSCollector(BaseNewsCollector):
         super().__init__(rabbitmq_url)
         self._feeds = feeds or DEFAULT_RSS_FEEDS
 
+    def _process_entry(
+        self, entry: dict, source_name: str
+    ) -> RawNewsPayload | None:
+        """Process a single RSS entry into a payload, or None if invalid."""
+        title = _strip_html(entry.get("title") or "")
+        summary = _strip_html(
+            entry.get("summary") or entry.get("description") or ""
+        )
+        content = f"{title}. {summary}".strip() or title
+        if not content or len(content) < 20:
+            return None
+
+        link = entry.get("link") or ""
+        published_at = _parse_date(
+            entry.get("published") or entry.get("updated")
+        )
+        symbol = _extract_symbol(title, summary)
+
+        return RawNewsPayload(
+            title=title,
+            content=content[:2000],
+            source=source_name,
+            symbol=symbol,
+            timestamp=published_at,
+            url=link,
+        )
+
+    async def _fetch_feed(
+        self, session: aiohttp.ClientSession, feed_url: str, source_name: str
+    ) -> int:
+        """Fetch and process a single RSS feed. Returns number of articles published."""
+        published = 0
+        async with session.get(
+            feed_url,
+            timeout=aiohttp.ClientTimeout(total=15),
+            headers={"User-Agent": "MDMFS-NewsCollector/1.0"},
+        ) as resp:
+            if resp.status != 200:
+                logger.warning("RSS | %s returned %d", source_name, resp.status)
+                return 0
+
+            body = await resp.text()
+            feed = feedparser.parse(body)
+
+        entries = getattr(feed, "entries", []) or []
+        for entry in entries[:15]:
+            try:
+                payload = self._process_entry(entry, source_name)
+                if payload is None:
+                    continue
+                await self._publish(payload)
+                published += 1
+            except Exception:
+                logger.warning(
+                    "RSS | skip malformed entry from %s",
+                    source_name,
+                    exc_info=True,
+                )
+
+        if entries:
+            logger.info(
+                "RSS | %s → %d articles published",
+                source_name,
+                min(len(entries), 15),
+            )
+        return published
+
     async def collect(self) -> None:
         published = 0
         errors = 0
@@ -85,64 +152,7 @@ class RSSCollector(BaseNewsCollector):
         async with aiohttp.ClientSession() as session:
             for feed_url, source_name in self._feeds:
                 try:
-                    async with session.get(
-                        feed_url,
-                        timeout=aiohttp.ClientTimeout(total=15),
-                        headers={"User-Agent": "MDMFS-NewsCollector/1.0"},
-                    ) as resp:
-                        if resp.status != 200:
-                            logger.warning(
-                                "RSS | %s returned %d", source_name, resp.status
-                            )
-                            continue
-
-                        body = await resp.text()
-                        feed = feedparser.parse(body)
-
-                    entries = getattr(feed, "entries", []) or []
-                    for entry in entries[:15]:  # Limit per feed
-                        try:
-                            title = _strip_html(
-                                entry.get("title") or ""
-                            )
-                            summary = _strip_html(
-                                entry.get("summary") or entry.get("description") or ""
-                            )
-                            content = f"{title}. {summary}".strip() or title
-                            if not content or len(content) < 20:
-                                continue
-
-                            link = entry.get("link") or ""
-                            published_at = _parse_date(
-                                entry.get("published") or entry.get("updated")
-                            )
-                            symbol = _extract_symbol(title, summary)
-
-                            payload = RawNewsPayload(
-                                title=title,
-                                content=content[:2000],
-                                source=source_name,
-                                symbol=symbol,
-                                timestamp=published_at,
-                                url=link,
-                            )
-                            await self._publish(payload)
-                            published += 1
-
-                        except Exception:
-                            logger.warning(
-                                "RSS | skip malformed entry from %s",
-                                source_name,
-                                exc_info=True,
-                            )
-
-                    if entries:
-                        logger.info(
-                            "RSS | %s → %d articles published",
-                            source_name,
-                            min(len(entries), 15),
-                        )
-
+                    published += await self._fetch_feed(session, feed_url, source_name)
                 except Exception:
                     errors += 1
                     logger.error(
@@ -157,3 +167,4 @@ class RSSCollector(BaseNewsCollector):
             published,
             errors,
         )
+

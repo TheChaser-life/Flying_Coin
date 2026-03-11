@@ -32,7 +32,7 @@ def naive_forecast(close: pd.Series | np.ndarray) -> np.ndarray:
     pred[t] = close[t-1]
     """
     close = np.asarray(close)
-    return np.roll(close, 1)  # pred[0] = close[-1], pred[i] = close[i-1]
+    return np.roll(close, 1)
 
 
 def ma_forecast(close: pd.Series | np.ndarray, window: int = 7) -> np.ndarray:

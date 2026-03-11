@@ -26,12 +26,12 @@ def test_5_4_preprocessing() -> bool:
         from ml.pipelines.preprocessing import DataPreprocessor, PreprocessingConfig
 
         dates = pd.date_range("2023-01-01", periods=100, freq="D")
-        np.random.seed(42)
-        close = 100 + np.cumsum(np.random.randn(100) * 2)
+        rng = np.random.default_rng(42)
+        close = 100 + np.cumsum(rng.standard_normal(100) * 2)
         df = pd.DataFrame({
             "timestamp": dates,
             "open": np.roll(close, 1), "high": close + 1, "low": close - 1,
-            "close": close, "volume": np.random.randint(1_000_000, 10_000_000, 100).astype(float),
+            "close": close, "volume": rng.integers(1_000_000, 10_000_000, 100).astype(float),
         })
         df.loc[0, "open"] = 100
 
@@ -52,12 +52,12 @@ def test_5_5_dataset_builder() -> bool:
         from ml.pipelines.dataset_builder import DatasetBuilder, DatasetBuilderConfig
 
         dates = pd.date_range("2023-01-01", periods=200, freq="D")
-        np.random.seed(42)
-        close = 100 + np.cumsum(np.random.randn(200) * 2)
+        rng = np.random.default_rng(42)
+        close = 100 + np.cumsum(rng.standard_normal(200) * 2)
         df = pd.DataFrame({
             "timestamp": dates,
             "open": np.roll(close, 1), "high": close + 1, "low": close - 1,
-            "close": close, "volume": np.random.randint(1_000_000, 10_000_000, 200).astype(float),
+            "close": close, "volume": rng.integers(1_000_000, 10_000_000, 200).astype(float),
         })
         df.loc[0, "open"] = 100
 
@@ -83,12 +83,12 @@ def test_5_6_feature_engineering() -> bool:
         )
 
         dates = pd.date_range("2023-01-01", periods=100, freq="D")
-        np.random.seed(42)
-        close = 100 + np.cumsum(np.random.randn(100) * 2)
+        rng = np.random.default_rng(42)
+        close = 100 + np.cumsum(rng.standard_normal(100) * 2)
         df = pd.DataFrame({
             "timestamp": dates,
             "open": np.roll(close, 1), "high": close + 1, "low": close - 1,
-            "close": close, "volume": np.random.randint(1_000_000, 10_000_000, 100).astype(float),
+            "close": close, "volume": rng.integers(1_000_000, 10_000_000, 100).astype(float),
         })
         df.loc[0, "open"] = 100
 
@@ -111,8 +111,8 @@ def test_5_7_naive_baselines() -> bool:
         import pandas as pd
         from ml.pipelines.naive_baselines import evaluate_baselines
 
-        np.random.seed(42)
-        close = 100 + np.cumsum(np.random.randn(100) * 2)
+        rng = np.random.default_rng(42)
+        close = 100 + np.cumsum(rng.standard_normal(100) * 2)
         train = pd.DataFrame({"close": close[:70]})
         val = pd.DataFrame({"close": close[70:85]})
         test = pd.DataFrame({"close": close[85:]})
@@ -133,8 +133,8 @@ def test_5_8_arima() -> bool:
         import pandas as pd
         from ml.scripts.train_arima import run_arima_and_evaluate
 
-        np.random.seed(42)
-        close = 100 + np.cumsum(np.random.randn(150) * 2)
+        rng = np.random.default_rng(42)
+        close = 100 + np.cumsum(rng.standard_normal(150) * 2)
         train = pd.DataFrame({"close": close[:100]})
         val = pd.DataFrame({"close": close[100:120]})
         test = pd.DataFrame({"close": close[120:]})
@@ -157,12 +157,12 @@ def test_e2e_pipeline() -> bool:
         from ml.scripts.train_arima import run_arima_and_evaluate
 
         dates = pd.date_range("2023-01-01", periods=300, freq="D")
-        np.random.seed(42)
-        close = 100 + np.cumsum(np.random.randn(300) * 2)
+        rng = np.random.default_rng(42)
+        close = 100 + np.cumsum(rng.standard_normal(300) * 2)
         df = pd.DataFrame({
             "timestamp": dates,
             "open": np.roll(close, 1), "high": close + 1, "low": close - 1,
-            "close": close, "volume": np.random.randint(1_000_000, 10_000_000, 300).astype(float),
+            "close": close, "volume": rng.integers(1_000_000, 10_000_000, 300).astype(float),
         })
         df.loc[0, "open"] = 100
 

@@ -67,6 +67,43 @@ class NewsAPICollector(BaseNewsCollector):
         self._page_size = min(page_size, 100)
         self._language = language
 
+    def _process_article(
+        self, art: dict
+    ) -> RawNewsPayload | None:
+        """Process a single NewsAPI article into a payload, or None if invalid."""
+        title = art.get("title") or ""
+        description = art.get("description") or ""
+        content = f"{title}. {description}".strip() or title
+        if not content or content == "[]":
+            return None
+
+        source_id = (art.get("source") or {}).get("id") or "unknown"
+        source_name = SOURCE_NAMES.get(source_id, source_id.replace("-", " ").title())
+
+        published_at = art.get("publishedAt")
+        if published_at:
+            try:
+                ts = datetime.fromisoformat(
+                    published_at.replace("Z", "+00:00")
+                )
+            except ValueError:
+                ts = datetime.now(timezone.utc)
+        else:
+            ts = datetime.now(timezone.utc)
+
+        symbol = _extract_symbol_from_title(
+            title, self._keyword_symbol_map
+        )
+
+        return RawNewsPayload(
+            title=title,
+            content=content[:2000],
+            source=source_name,
+            symbol=symbol,
+            timestamp=ts,
+            url=art.get("url") or "",
+        )
+
     async def collect(self) -> None:
         if not self._api_key or self._api_key == "your-api-key":
             logger.warning("NewsAPI: No valid API key — skipping. Set NEWSAPI_KEY env var.")
@@ -89,41 +126,11 @@ class NewsAPICollector(BaseNewsCollector):
                 articles = response.get("articles") or []
                 for art in articles:
                     try:
-                        title = art.get("title") or ""
-                        description = art.get("description") or ""
-                        content = f"{title}. {description}".strip() or title
-                        if not content or content == "[]":
+                        payload = self._process_article(art)
+                        if payload is None:
                             continue
-
-                        source_id = (art.get("source") or {}).get("id") or "unknown"
-                        source_name = SOURCE_NAMES.get(source_id, source_id.replace("-", " ").title())
-
-                        published_at = art.get("publishedAt")
-                        if published_at:
-                            try:
-                                ts = datetime.fromisoformat(
-                                    published_at.replace("Z", "+00:00")
-                                )
-                            except ValueError:
-                                ts = datetime.now(timezone.utc)
-                        else:
-                            ts = datetime.now(timezone.utc)
-
-                        symbol = _extract_symbol_from_title(
-                            title, self._keyword_symbol_map
-                        )
-
-                        payload = RawNewsPayload(
-                            title=title,
-                            content=content[:2000],  # Truncate for FinBERT max length
-                            source=source_name,
-                            symbol=symbol,
-                            timestamp=ts,
-                            url=art.get("url") or "",
-                        )
                         await self._publish(payload)
                         published += 1
-
                     except Exception:
                         logger.warning("NewsAPI | skip malformed article: %s", art, exc_info=True)
 
@@ -145,3 +152,4 @@ class NewsAPICollector(BaseNewsCollector):
             published,
             errors,
         )
+

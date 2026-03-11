@@ -33,6 +33,9 @@ from ml.pipelines.naive_baselines import (
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
+# Constants to avoid duplicated literals (SonarQube S1192)
+PARQUET_EXT = ".parquet"
+
 
 def load_dataset_from_dir(data_dir: str | Path, symbol: str = "all") -> tuple:
     """Load train/val/test từ thư mục dataset builder output."""
@@ -40,13 +43,13 @@ def load_dataset_from_dir(data_dir: str | Path, symbol: str = "all") -> tuple:
     suffix = f"_{symbol}" if symbol != "all" else "_all"
 
     def _try_load(suf: str):
-        for ext in [".parquet", ".csv"]:
+        for ext in [PARQUET_EXT, ".csv"]:
             train_path = data_dir / f"training_dataset{suf}_train{ext}"
             val_path = data_dir / f"training_dataset{suf}_val{ext}"
             test_path = data_dir / f"training_dataset{suf}_test{ext}"
             if train_path.exists() and val_path.exists() and test_path.exists():
                 import pandas as pd
-                if ext == ".parquet":
+                if ext == PARQUET_EXT:
                     return pd.read_parquet(train_path), pd.read_parquet(val_path), pd.read_parquet(test_path)
                 return pd.read_csv(train_path), pd.read_csv(val_path), pd.read_csv(test_path)
         return None
@@ -70,7 +73,7 @@ def load_and_split(path: str | Path, train_ratio: float = 0.7, val_ratio: float 
     """Load file đơn và split theo thời gian."""
     import pandas as pd
     path = Path(path)
-    df = pd.read_parquet(path) if path.suffix == ".parquet" else pd.read_csv(path)
+    df = pd.read_parquet(path) if path.suffix == PARQUET_EXT else pd.read_csv(path)
     df = df.sort_values("timestamp").reset_index(drop=True)
     n = len(df)
     train_end = int(n * train_ratio)
@@ -98,12 +101,12 @@ def main() -> int:
         import pandas as pd
         import numpy as np
         dates = pd.date_range("2023-01-01", periods=300, freq="D")
-        np.random.seed(42)
-        close = 100 + np.cumsum(np.random.randn(300) * 2)
+        rng = np.random.default_rng(42)
+        close = 100 + np.cumsum(rng.standard_normal(300) * 2)
         df = pd.DataFrame({
             "timestamp": dates,
             "open": np.roll(close, 1), "high": close + 1, "low": close - 1,
-            "close": close, "volume": np.random.randint(1_000_000, 10_000_000, 300).astype(float),
+            "close": close, "volume": rng.integers(1_000_000, 10_000_000, 300).astype(float),
         })
         df.loc[0, "open"] = 100
         builder = DatasetBuilder(DatasetBuilderConfig(run_preprocessing=True, output_dir="ml/outputs/datasets_test"))

@@ -30,5 +30,5 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             raise
 
 
-async def get_redis() -> aioredis.Redis:
+def get_redis() -> aioredis.Redis:
     return get_redis_pool()

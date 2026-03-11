@@ -60,7 +60,7 @@ async def lifespan(app: FastAPI):
         try:
             await _consumer_task
         except asyncio.CancelledError:
-            pass
+            logger.info("Sentiment consumer task cancelled")
 
     if _consumer:
         await _consumer.close()

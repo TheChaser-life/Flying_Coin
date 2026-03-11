@@ -111,7 +111,7 @@ class NewsConsumer:
             pipe.set(key, json_payload, ex=self._ttl)
             pipe.publish(key, json_payload)
             await pipe.execute()
-        except (redis.RedisError, OSError, ConnectionError) as e:
+        except (redis.RedisError, OSError) as e:
             logger.error("Redis publish failed — message sẽ được requeue: %s", e)
             raise
 

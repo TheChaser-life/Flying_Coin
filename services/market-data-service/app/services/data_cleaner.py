@@ -6,6 +6,7 @@ they are persisted.  Returns None for records that cannot be salvaged.
 """
 
 import logging
+import math
 from datetime import datetime, timezone
 from typing import Any
 
@@ -88,7 +89,7 @@ class DataCleaner:
             logger.warning("%s | non-numeric %s: %s", ticker, field, value)
             return None
 
-        if v != v:   # NaN
+        if math.isnan(v):   # NaN
             logger.warning("%s | NaN %s", ticker, field)
             return None
 
@@ -108,7 +109,7 @@ class DataCleaner:
             logger.warning("%s | non-numeric volume: %s", ticker, value)
             return None
 
-        if v != v:
+        if math.isnan(v):
             return None
 
         if not (self.MIN_VOLUME <= v <= self.MAX_VOLUME):

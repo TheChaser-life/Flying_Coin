@@ -37,13 +37,13 @@ def create_sample_data() -> pd.DataFrame:
     """Sample OHLCV để test."""
     import numpy as np
     dates = pd.date_range("2023-01-01", periods=300, freq="D")
-    np.random.seed(42)
-    close = 100 + np.cumsum(np.random.randn(300) * 2)
+    rng = np.random.default_rng(42)
+    close = 100 + np.cumsum(rng.standard_normal(300) * 2)
     open_ = np.roll(close, 1)
     open_[0] = 100
-    high = np.maximum(open_, close) + np.abs(np.random.randn(300))
-    low = np.minimum(open_, close) - np.abs(np.random.randn(300))
-    volume = np.random.randint(1_000_000, 10_000_000, 300).astype(float)
+    high = np.maximum(open_, close) + np.abs(rng.standard_normal(300))
+    low = np.minimum(open_, close) - np.abs(rng.standard_normal(300))
+    volume = rng.integers(1_000_000, 10_000_000, 300).astype(float)
     return pd.DataFrame({
         "timestamp": dates,
         "open": open_,

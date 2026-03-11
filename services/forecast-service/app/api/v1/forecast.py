@@ -21,7 +21,14 @@ def get_loader() -> ForecastModelLoader:
     return _loader
 
 
-@router.post("/predict", response_model=ForecastResponse)
+@router.post(
+    "/predict",
+    responses={
+        400: {"description": "Invalid model_type or missing features"},
+        404: {"description": "Model artifact not found"},
+        500: {"description": "Internal prediction error"},
+    },
+)
 async def predict(req: ForecastRequest) -> ForecastResponse:
     """
     Dự báo 7/14/30 ngày.

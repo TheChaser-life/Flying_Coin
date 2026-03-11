@@ -91,11 +91,11 @@ def run_xgboost_and_evaluate(
     import xgboost as xgb
 
     X_train, y_train = prepare_xy(train, feature_cols)
-    X_val, y_val = prepare_xy(val, feature_cols)
+    x_val, y_val = prepare_xy(val, feature_cols)
     X_test, y_test = prepare_xy(test, feature_cols)
 
     dtrain = xgb.DMatrix(X_train, label=y_train)
-    dval = xgb.DMatrix(X_val, label=y_val)
+    dval = xgb.DMatrix(x_val, label=y_val)
     dtest = xgb.DMatrix(X_test)
 
     # XGBoost 2.x: tree_method="hist" + device="cuda" (không còn gpu_hist)

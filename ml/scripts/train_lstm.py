@@ -109,7 +109,7 @@ def run_lstm_and_evaluate(
     from torch.utils.data import DataLoader, TensorDataset
 
     X_train, y_train = create_sequences(train, feature_cols, seq_len=seq_len)
-    X_val, y_val = create_sequences(val, feature_cols, seq_len=seq_len)
+    _, _ = create_sequences(val, feature_cols, seq_len=seq_len)  # validation not used in training loop
     X_test, y_test = create_sequences(test, feature_cols, seq_len=seq_len)
 
     device = torch.device("cuda" if use_cuda and torch.cuda.is_available() else "cpu")
@@ -118,13 +118,13 @@ def run_lstm_and_evaluate(
     n_features = X_train.shape[2]
     model = LSTMModel(n_features, hidden_size, num_layers).to(device)
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-5)
 
     train_ds = TensorDataset(
         torch.from_numpy(X_train),
         torch.from_numpy(y_train),
     )
-    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=0)
 
     model.train()
     for epoch in range(epochs):
@@ -142,8 +142,8 @@ def run_lstm_and_evaluate(
 
     model.eval()
     with torch.no_grad():
-        X_test_t = torch.from_numpy(X_test).to(device)
-        pred = model(X_test_t).cpu().numpy()
+        x_test_t = torch.from_numpy(X_test).to(device)
+        pred = model(x_test_t).cpu().numpy()
 
     metrics = compute_metrics(y_test, pred)
     return metrics, model

@@ -28,7 +28,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-async def handle_health(request):
+def handle_health(request):
     """Simple health check endpoint."""
     return web.json_response({"status": "ok", "service": "collectors"})
 

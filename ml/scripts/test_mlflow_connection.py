@@ -6,6 +6,15 @@ import sys
 def _print(msg: str) -> None:
     print(msg, flush=True)
 
+def _parse_url_from_output(text: str) -> str | None:
+    """Extract first HTTP(S) URL from multiline output."""
+    for line in text.strip().splitlines():
+        line = line.strip()
+        if line.startswith("http://") or line.startswith("https://"):
+            return line
+    return None
+
+
 def get_mlflow_url():
     """Get MLflow URL. Prefer env var; minikube service --url blocks on Windows Docker driver."""
     # 1. Env var (user runs tunnel in another terminal first)
@@ -22,18 +31,15 @@ def get_mlflow_url():
             timeout=5,
             shell=True,
         )
-        out = (result.stdout or "").strip()
-        for line in out.splitlines():
-            line = line.strip()
-            if line.startswith("http://") or line.startswith("https://"):
-                return line
+        found = _parse_url_from_output(result.stdout or "")
+        if found:
+            return found
     except subprocess.TimeoutExpired as e:
         # May have URL in output before timeout (tunnel blocks)
         out = (e.output or "").strip() if hasattr(e, "output") else ""
-        for line in out.splitlines():
-            line = line.strip()
-            if line.startswith("http://") or line.startswith("https://"):
-                return line
+        found = _parse_url_from_output(out)
+        if found:
+            return found
     except (FileNotFoundError, OSError):
         pass
     return None
