@@ -1,0 +1,905 @@
+{
+  "version": 4,
+  "terraform_version": "1.14.3",
+  "serial": 507,
+  "lineage": "c36a91b5-c070-525d-c994-297d326add97",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "data",
+      "type": "google_client_config",
+      "name": "default",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "access_token": "ya29.c.c0AZ4bNpYHAvsI70r5LuUZSlkhdBf3WNv5jEpzK3ZvqvYAB4WAHOfe0bBXxuY57HmQJwG3i29xdhHIEd5wRCxlkVlNIc7apaPDUHPsL7lNbxd2xNxaOwPLntX8d6lV6LkDjBzgapdOjkXQ3eTegQtXptFnpJT2BL4VWc1vbOI8ffgCoThuVM2bdbr9WYgsWPHZStSkDmofFaQGRnLeq5nuhJKmQA3XurwAzRqjGK9bx9kgKtzwe8WXybgsI7PY3B9Qr5RAaoMWISCo5bog1gNueA__HdxoW3IqxCvXjz1D_EvKGZcSLClFvh5o0RdsVDO4MdNtSht3weJkynpEJHfaBu6P4KEDY-ibnx9DLtJJ7I3BqTOUrdbPTOfYz6UDTdWZ6idkHHUGmSKGZKfoHC9-YJz5SmIP1esowpJTb1S2TvkIu4hHrYxV_5uLsntDeMpotzExZyUkyBd-i9cEW7F5t-leXBJ8dMvdnPphAgRx82dmCEeUPBjyLmUNtlgVLd72dGhyEU8dQK9pGof6UDLjfKXUlhr98Y2kN0rD_rh5UUbAk2sSp1AaBs0WQ5WdwJf0qm_ar0Wt13W4WXuUqObi_PL6IF98lLWaCaFo9v8a6ZDzw8DoYU2c2yLc3PvOgKUbv6bZdACm91pUUa2ReEg1L669Pm4vZZFyu_FI-wa1IuOXU6qvOu1RiS1izZkt4dwvg9oSMk_MiQo87ygJZaUQ7s-n5nzUveJSvqnk9lnqzZmRgBjJSzFu8fJ4wptSn64V7dMuW59IrVFSsyVgsvxFdR5s6Jpqjs1fxtylmmRk2ZYJknSM47I3FVRbmBF8n2ip050boSyIO5qmI9pQ6Qhs7Z8OBWOrw3wWrUUqm59o_rjwzZt3gSUn4gwjtYv6Blz62gvrfIW2bfU5J1VmjfBy_fYVueqmcr5jM8v0x9JfpF6u_atby1bsY_Ucl6rgk3694xla65tjcqBc7Zaro-2-Ye9Mz0zd0woOjxM99i3ihxBdMJWJvhR_3yi",
+            "default_labels": {},
+            "id": "projects/flying-coin-489803/regions/asia-southeast1/zones/",
+            "project": "flying-coin-489803",
+            "region": "asia-southeast1",
+            "zone": ""
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "access_token"
+              }
+            ]
+          ],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "google_project_service",
+      "name": "enabled_services",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "index_key": "artifactregistry.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/artifactregistry.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "artifactregistry.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        },
+        {
+          "index_key": "cloudresourcemanager.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/cloudresourcemanager.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "cloudresourcemanager.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        },
+        {
+          "index_key": "compute.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/compute.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "compute.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        },
+        {
+          "index_key": "container.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/container.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "container.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        },
+        {
+          "index_key": "iam.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/iam.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "iam.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        },
+        {
+          "index_key": "iamcredentials.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/iamcredentials.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "iamcredentials.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        },
+        {
+          "index_key": "secretmanager.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/secretmanager.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "secretmanager.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        },
+        {
+          "index_key": "storage.googleapis.com",
+          "schema_version": 0,
+          "attributes": {
+            "disable_dependent_services": null,
+            "disable_on_destroy": false,
+            "id": "flying-coin-489803/storage.googleapis.com",
+            "project": "flying-coin-489803",
+            "service": "storage.googleapis.com",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInJlYWQiOjYwMDAwMDAwMDAwMCwidXBkYXRlIjoxMjAwMDAwMDAwMDAwfX0="
+        }
+      ]
+    },
+    {
+      "module": "module.kubernetes",
+      "mode": "managed",
+      "type": "google_container_cluster",
+      "name": "gke_cluster",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 2,
+          "attributes": {
+            "addons_config": [
+              {
+                "cloudrun_config": [],
+                "config_connector_config": [],
+                "dns_cache_config": [
+                  {
+                    "enabled": true
+                  }
+                ],
+                "gce_persistent_disk_csi_driver_config": [
+                  {
+                    "enabled": true
+                  }
+                ],
+                "gcp_filestore_csi_driver_config": [],
+                "gcs_fuse_csi_driver_config": [],
+                "gke_backup_agent_config": [],
+                "horizontal_pod_autoscaling": [],
+                "http_load_balancing": [],
+                "lustre_csi_driver_config": [],
+                "network_policy_config": [
+                  {
+                    "disabled": true
+                  }
+                ],
+                "parallelstore_csi_driver_config": [],
+                "ray_operator_config": [],
+                "stateful_ha_config": []
+              }
+            ],
+            "allow_net_admin": null,
+            "anonymous_authentication_config": [
+              {
+                "mode": "ENABLED"
+              }
+            ],
+            "authenticator_groups_config": [],
+            "binary_authorization": [
+              {
+                "enabled": false,
+                "evaluation_mode": ""
+              }
+            ],
+            "cluster_autoscaling": [
+              {
+                "auto_provisioning_defaults": [],
+                "auto_provisioning_locations": [],
+                "autoscaling_profile": "BALANCED",
+                "enabled": false,
+                "resource_limits": []
+              }
+            ],
+            "cluster_ipv4_cidr": "10.1.0.0/16",
+            "confidential_nodes": [],
+            "control_plane_endpoints_config": [
+              {
+                "dns_endpoint_config": [
+                  {
+                    "allow_external_traffic": false,
+                    "endpoint": "gke-b1f15daad45f4271acde79d0f391791f76ca-821305063051.asia-southeast1-b.gke.goog"
+                  }
+                ],
+                "ip_endpoints_config": [
+                  {
+                    "enabled": true
+                  }
+                ]
+              }
+            ],
+            "cost_management_config": [],
+            "database_encryption": [
+              {
+                "key_name": "",
+                "state": "DECRYPTED"
+              }
+            ],
+            "datapath_provider": "",
+            "default_max_pods_per_node": 110,
+            "default_snat_status": [
+              {
+                "disabled": false
+              }
+            ],
+            "deletion_protection": false,
+            "description": "",
+            "disable_l4_lb_firewall_reconciliation": false,
+            "dns_config": [],
+            "effective_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "enable_autopilot": false,
+            "enable_cilium_clusterwide_network_policy": false,
+            "enable_fqdn_network_policy": false,
+            "enable_intranode_visibility": false,
+            "enable_k8s_beta_apis": [],
+            "enable_kubernetes_alpha": false,
+            "enable_l4_ilb_subsetting": false,
+            "enable_legacy_abac": false,
+            "enable_multi_networking": false,
+            "enable_shielded_nodes": true,
+            "enable_tpu": false,
+            "endpoint": "34.21.150.69",
+            "enterprise_config": [
+              {
+                "cluster_tier": "STANDARD",
+                "desired_tier": ""
+              }
+            ],
+            "fleet": [],
+            "gateway_api_config": [],
+            "gke_auto_upgrade_config": [],
+            "id": "projects/flying-coin-489803/locations/asia-southeast1-b/clusters/flying-coin-gke-cluster",
+            "identity_service_config": [],
+            "in_transit_encryption_config": "",
+            "initial_node_count": 1,
+            "ip_allocation_policy": [
+              {
+                "additional_ip_ranges_config": [],
+                "additional_pod_ranges_config": [],
+                "cluster_ipv4_cidr_block": "10.1.0.0/16",
+                "cluster_secondary_range_name": "pods-range",
+                "pod_cidr_overprovision_config": [
+                  {
+                    "disabled": false
+                  }
+                ],
+                "services_ipv4_cidr_block": "10.2.0.0/20",
+                "services_secondary_range_name": "services-range",
+                "stack_type": "IPV4"
+              }
+            ],
+            "label_fingerprint": "78cdf2f6",
+            "location": "asia-southeast1-b",
+            "logging_config": [
+              {
+                "enable_components": [
+                  "SYSTEM_COMPONENTS",
+                  "WORKLOADS"
+                ]
+              }
+            ],
+            "logging_service": "logging.googleapis.com/kubernetes",
+            "maintenance_policy": [],
+            "master_auth": [
+              {
+                "client_certificate": "",
+                "client_certificate_config": [
+                  {
+                    "issue_client_certificate": false
+                  }
+                ],
+                "client_key": "",
+                "cluster_ca_certificate": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUVMVENDQXBXZ0F3SUJBZ0lSQUtrcXhjYmpIL083YVFPNkxONHhVZnN3RFFZSktvWklodmNOQVFFTEJRQXcKTHpFdE1Dc0dBMVVFQXhNa01HSmtNRFk0WkdVdFptTTRZeTAwWXpRd0xXSTBPVFV0TmprMU9EbGhObUkzTkRSbApNQ0FYRFRJMk1ETXhNVEV3TURRMU5Gb1lEekl3TlRZd016QXpNVEV3TkRVMFdqQXZNUzB3S3dZRFZRUURFeVF3ClltUXdOamhrWlMxbVl6aGpMVFJqTkRBdFlqUTVOUzAyT1RVNE9XRTJZamMwTkdVd2dnR2lNQTBHQ1NxR1NJYjMKRFFFQkFRVUFBNElCandBd2dnR0tBb0lCZ1FDemd5dk1WZmF3SU9NM0Y3UXNmeXBBbXNZYVNEdm9CdnkxeXVFSApEaFh2VnlnUDBjcmhrVGFCSUdtUTRMektBdTMyYnAxaWM5Y3RVOEgvUmwySklydVZNMFhsa0liOXVkdXlNTEpBCjFMdUpRb25YUzBUOHptU1Juc28wNnFHa0tBSmdPUXZiUVhFWkIxQVBJY3kxYUloNFRsckk0SmQ2WFFzZnBVNDgKZEx2V2s2VWxaWlZvb0dGVGg0elQxQU1SZ3Rrc3lGSTE1RmVRZWRIbHp6ZFZ2TExXQS8zYkJEbDM4dUJNSzdjegptbWNMWDIramR0YXJVamhZSXZXTlVQUmVWb1hKMzhHMWcveG5jUmdENUJELzNjaEhFWTdvUG0yTmM2dms3ZWFrClg2K21sSzR3Z3NHS1lMNzFMaXRxc3daQU9PUlVSdnZMYVdXbjRnT3duNE9pa2d0R1YvbmxLNUtuaHVCZmhGTTQKcjIwWUFxNS9LdmovSVQ1enovWTRma1g5aG0vaXB2eWNWWFJHdkxIUmoyU3FMQ1BSUEg2MURhS1V2elJIb2NTLwphU0R1MTE1ak8vZnJKanRpZXRoTVVyYUc2TWZKY0hwYVVkV1pmdFpMdzhKUW5hRGZEM0c4SkV0THpiUHdCV0tQCmtZdzlra01meE15Z1hJQndNbTJGcDNsVnB0VUNBd0VBQWFOQ01FQXdEZ1lEVlIwUEFRSC9CQVFEQWdJRU1BOEcKQTFVZEV3RUIvd1FGTUFNQkFmOHdIUVlEVlIwT0JCWUVGUDRVbC9OcnZUbUVRSE9UWUFtWnpReTRBOTFvTUEwRwpDU3FHU0liM0RRRUJDd1VBQTRJQmdRQW96YnFleXBBWjNwMWRob0tmSGlSdzZmUlBQNStTRmVPNDlyK3J5OXc5CmdDaDdydmJZWEVaNVdveGpjS25sSmNMWmVYSEczdmVYWEpvYStJTE1BSnFXYWRGc2xvZG1ycXJlRG5BaGNNSkcKQVlFT3QvTmNRemRoNzRhbThUcmxSNCtzY0ZkRkRjUHhRb25pUVRqSDgwNFZNWDdFdnBWVDNPNFpVZXJsUVdTRApNbXBCQzRwNVQwN3hEWXZTWVhoMXZablZaalY5VTRlY0lhTG9aaUFCNUlhdXpQKzJwUnJpaDNRazAxeG4zakIwCm5sa0JOU0pPQzkxZUkyaWpJNEM0ZjJ5ZXdES3U1cm5jeFlHMTJmVGpvSlV2V2RFUDVUY2xsdnE2Tnhack9lWTYKOXMwTk5aMnAwckYxN0tTdmw4a0hvZ0dneHJ6aGJ3bW90cHpITzV1TjFVdExjRVNUcHFnQ2Y3Rk5FaXRaVTNLeQpSb1B3TDhnaE1tOXd4Nm54NkNTUDIxM0lNRzVRVE5vWUU1V1IvcXpySm0wVUovV2plZHB2OHdPU0ZHTFdBRG5WCmdBaTBJeVhCc3lHK2Jzam1kUzlSZTNyeTJlUUppWE1KcCsvRGNjekdESDBZQThZV3NjVnF3NHpZcmpmczlaK2YKNGZlZGZyTGFuSG5GSkc1cm9JSmNvNTA9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+              }
+            ],
+            "master_authorized_networks_config": [],
+            "master_version": "1.34.3-gke.1444000",
+            "mesh_certificates": [],
+            "min_master_version": null,
+            "monitoring_config": [
+              {
+                "advanced_datapath_observability_config": [
+                  {
+                    "enable_metrics": false,
+                    "enable_relay": false
+                  }
+                ],
+                "enable_components": [
+                  "SYSTEM_COMPONENTS",
+                  "STORAGE",
+                  "HPA",
+                  "POD",
+                  "DAEMONSET",
+                  "DEPLOYMENT",
+                  "STATEFULSET",
+                  "JOBSET",
+                  "CADVISOR",
+                  "KUBELET",
+                  "DCGM"
+                ],
+                "managed_prometheus": [
+                  {
+                    "auto_monitoring_config": [],
+                    "enabled": true
+                  }
+                ]
+              }
+            ],
+            "monitoring_service": "monitoring.googleapis.com/kubernetes",
+            "name": "flying-coin-gke-cluster",
+            "network": "projects/flying-coin-489803/global/networks/flying-coin-vpc",
+            "network_performance_config": [],
+            "network_policy": [
+              {
+                "enabled": false,
+                "provider": "PROVIDER_UNSPECIFIED"
+              }
+            ],
+            "networking_mode": "VPC_NATIVE",
+            "node_config": [
+              {
+                "advanced_machine_features": [],
+                "boot_disk": [
+                  {
+                    "disk_type": "pd-standard",
+                    "provisioned_iops": 0,
+                    "provisioned_throughput": 0,
+                    "size_gb": 15
+                  }
+                ],
+                "boot_disk_kms_key": "",
+                "confidential_nodes": [],
+                "containerd_config": [],
+                "disk_size_gb": 15,
+                "disk_type": "pd-standard",
+                "effective_taints": [],
+                "enable_confidential_storage": false,
+                "ephemeral_storage_local_ssd_config": [],
+                "fast_socket": [],
+                "flex_start": false,
+                "gcfs_config": [],
+                "guest_accelerator": [],
+                "gvnic": [],
+                "host_maintenance_policy": [],
+                "image_type": "COS_CONTAINERD",
+                "kubelet_config": [
+                  {
+                    "allowed_unsafe_sysctls": [],
+                    "container_log_max_files": 0,
+                    "container_log_max_size": "",
+                    "cpu_cfs_quota": false,
+                    "cpu_cfs_quota_period": "",
+                    "cpu_manager_policy": "",
+                    "eviction_max_pod_grace_period_seconds": 0,
+                    "eviction_minimum_reclaim": [],
+                    "eviction_soft": [],
+                    "eviction_soft_grace_period": [],
+                    "image_gc_high_threshold_percent": 0,
+                    "image_gc_low_threshold_percent": 0,
+                    "image_maximum_gc_age": "",
+                    "image_minimum_gc_age": "",
+                    "insecure_kubelet_readonly_port_enabled": "FALSE",
+                    "max_parallel_image_pulls": 2,
+                    "pod_pids_limit": 0,
+                    "single_process_oom_kill": false
+                  }
+                ],
+                "labels": {},
+                "linux_node_config": [],
+                "local_nvme_ssd_block_config": [],
+                "local_ssd_count": 0,
+                "local_ssd_encryption_mode": "",
+                "logging_variant": "DEFAULT",
+                "machine_type": "e2-medium",
+                "max_run_duration": "",
+                "metadata": {
+                  "disable-legacy-endpoints": "true"
+                },
+                "min_cpu_platform": "",
+                "node_group": "",
+                "oauth_scopes": [
+                  "https://www.googleapis.com/auth/cloud-platform"
+                ],
+                "preemptible": false,
+                "reservation_affinity": [],
+                "resource_labels": {
+                  "goog-gke-node-pool-provisioning-model": "on-demand"
+                },
+                "resource_manager_tags": {},
+                "secondary_boot_disks": [],
+                "service_account": "flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+                "shielded_instance_config": [
+                  {
+                    "enable_integrity_monitoring": true,
+                    "enable_secure_boot": false
+                  }
+                ],
+                "sole_tenant_config": [],
+                "spot": false,
+                "storage_pools": [],
+                "tags": [],
+                "taint": [],
+                "windows_node_config": [
+                  {
+                    "osversion": ""
+                  }
+                ],
+                "workload_metadata_config": [
+                  {
+                    "mode": "GKE_METADATA"
+                  }
+                ]
+              }
+            ],
+            "node_locations": [],
+            "node_pool": [
+              {
+                "autoscaling": [],
+                "initial_node_count": 3,
+                "instance_group_urls": [
+                  "https://www.googleapis.com/compute/v1/projects/flying-coin-489803/zones/asia-southeast1-b/instanceGroupManagers/gke-flying-coin-gke--flying-coin-node-be2cd6df-grp"
+                ],
+                "managed_instance_group_urls": [
+                  "https://www.googleapis.com/compute/v1/projects/flying-coin-489803/zones/asia-southeast1-b/instanceGroups/gke-flying-coin-gke--flying-coin-node-be2cd6df-grp"
+                ],
+                "management": [
+                  {
+                    "auto_repair": true,
+                    "auto_upgrade": true
+                  }
+                ],
+                "max_pods_per_node": 110,
+                "name": "flying-coin-node-pool",
+                "name_prefix": "",
+                "network_config": [
+                  {
+                    "additional_node_network_configs": [],
+                    "additional_pod_network_configs": [],
+                    "create_pod_range": false,
+                    "enable_private_nodes": true,
+                    "network_performance_config": [],
+                    "pod_cidr_overprovision_config": [],
+                    "pod_ipv4_cidr_block": "10.1.0.0/16",
+                    "pod_range": "pods-range",
+                    "subnetwork": "projects/flying-coin-489803/regions/asia-southeast1/subnetworks/flying-coin-gke-subnet"
+                  }
+                ],
+                "node_config": [
+                  {
+                    "advanced_machine_features": [],
+                    "boot_disk": [
+                      {
+                        "disk_type": "pd-standard",
+                        "provisioned_iops": 0,
+                        "provisioned_throughput": 0,
+                        "size_gb": 15
+                      }
+                    ],
+                    "boot_disk_kms_key": "",
+                    "confidential_nodes": [],
+                    "containerd_config": [],
+                    "disk_size_gb": 15,
+                    "disk_type": "pd-standard",
+                    "effective_taints": [],
+                    "enable_confidential_storage": false,
+                    "ephemeral_storage_local_ssd_config": [],
+                    "fast_socket": [],
+                    "flex_start": false,
+                    "gcfs_config": [],
+                    "guest_accelerator": [],
+                    "gvnic": [],
+                    "host_maintenance_policy": [],
+                    "image_type": "COS_CONTAINERD",
+                    "kubelet_config": [
+                      {
+                        "allowed_unsafe_sysctls": [],
+                        "container_log_max_files": 0,
+                        "container_log_max_size": "",
+                        "cpu_cfs_quota": false,
+                        "cpu_cfs_quota_period": "",
+                        "cpu_manager_policy": "",
+                        "eviction_max_pod_grace_period_seconds": 0,
+                        "eviction_minimum_reclaim": [],
+                        "eviction_soft": [],
+                        "eviction_soft_grace_period": [],
+                        "image_gc_high_threshold_percent": 0,
+                        "image_gc_low_threshold_percent": 0,
+                        "image_maximum_gc_age": "",
+                        "image_minimum_gc_age": "",
+                        "insecure_kubelet_readonly_port_enabled": "FALSE",
+                        "max_parallel_image_pulls": 2,
+                        "pod_pids_limit": 0,
+                        "single_process_oom_kill": false
+                      }
+                    ],
+                    "labels": {},
+                    "linux_node_config": [],
+                    "local_nvme_ssd_block_config": [],
+                    "local_ssd_count": 0,
+                    "local_ssd_encryption_mode": "",
+                    "logging_variant": "DEFAULT",
+                    "machine_type": "e2-medium",
+                    "max_run_duration": "",
+                    "metadata": {
+                      "disable-legacy-endpoints": "true"
+                    },
+                    "min_cpu_platform": "",
+                    "node_group": "",
+                    "oauth_scopes": [
+                      "https://www.googleapis.com/auth/cloud-platform"
+                    ],
+                    "preemptible": false,
+                    "reservation_affinity": [],
+                    "resource_labels": {
+                      "goog-gke-node-pool-provisioning-model": "on-demand"
+                    },
+                    "resource_manager_tags": {},
+                    "secondary_boot_disks": [],
+                    "service_account": "flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com",
+                    "shielded_instance_config": [
+                      {
+                        "enable_integrity_monitoring": true,
+                        "enable_secure_boot": false
+                      }
+                    ],
+                    "sole_tenant_config": [],
+                    "spot": false,
+                    "storage_pools": [],
+                    "tags": [],
+                    "taint": [],
+                    "windows_node_config": [
+                      {
+                        "osversion": ""
+                      }
+                    ],
+                    "workload_metadata_config": [
+                      {
+                        "mode": "GKE_METADATA"
+                      }
+                    ]
+                  }
+                ],
+                "node_count": 3,
+                "node_locations": [
+                  "asia-southeast1-b"
+                ],
+                "placement_policy": [],
+                "queued_provisioning": [],
+                "upgrade_settings": [
+                  {
+                    "blue_green_settings": [],
+                    "max_surge": 1,
+                    "max_unavailable": 0,
+                    "strategy": "SURGE"
+                  }
+                ],
+                "version": "1.34.3-gke.1444000"
+              }
+            ],
+            "node_pool_auto_config": [
+              {
+                "linux_node_config": [],
+                "network_tags": [],
+                "node_kubelet_config": [
+                  {
+                    "insecure_kubelet_readonly_port_enabled": "FALSE"
+                  }
+                ],
+                "resource_manager_tags": {}
+              }
+            ],
+            "node_pool_defaults": [
+              {
+                "node_config_defaults": [
+                  {
+                    "containerd_config": [],
+                    "gcfs_config": [],
+                    "insecure_kubelet_readonly_port_enabled": "FALSE",
+                    "logging_variant": "DEFAULT"
+                  }
+                ]
+              }
+            ],
+            "node_version": "1.34.3-gke.1444000",
+            "notification_config": [
+              {
+                "pubsub": [
+                  {
+                    "enabled": false,
+                    "filter": [],
+                    "topic": ""
+                  }
+                ]
+              }
+            ],
+            "operation": null,
+            "pod_autoscaling": [
+              {
+                "hpa_profile": "PERFORMANCE"
+              }
+            ],
+            "private_cluster_config": [
+              {
+                "enable_private_endpoint": false,
+                "enable_private_nodes": true,
+                "master_global_access_config": [
+                  {
+                    "enabled": false
+                  }
+                ],
+                "master_ipv4_cidr_block": "172.16.0.0/28",
+                "peering_name": "",
+                "private_endpoint": "172.16.0.2",
+                "private_endpoint_subnetwork": "projects/flying-coin-489803/regions/asia-southeast1/subnetworks/gke-flying-coin-gke-cluster-2fbb9a1d-pe-subnet",
+                "public_endpoint": "34.21.150.69"
+              }
+            ],
+            "private_ipv6_google_access": "",
+            "project": "flying-coin-489803",
+            "rbac_binding_config": [
+              {
+                "enable_insecure_binding_system_authenticated": true,
+                "enable_insecure_binding_system_unauthenticated": true
+              }
+            ],
+            "release_channel": [
+              {
+                "channel": "REGULAR"
+              }
+            ],
+            "remove_default_node_pool": true,
+            "resource_labels": {},
+            "resource_usage_export_config": [],
+            "secret_manager_config": [
+              {
+                "enabled": false
+              }
+            ],
+            "security_posture_config": [
+              {
+                "mode": "BASIC",
+                "vulnerability_mode": "VULNERABILITY_MODE_UNSPECIFIED"
+              }
+            ],
+            "self_link": "https://container.googleapis.com/v1/projects/flying-coin-489803/zones/asia-southeast1-b/clusters/flying-coin-gke-cluster",
+            "service_external_ips_config": [
+              {
+                "enabled": false
+              }
+            ],
+            "services_ipv4_cidr": "10.2.0.0/20",
+            "subnetwork": "projects/flying-coin-489803/regions/asia-southeast1/subnetworks/flying-coin-gke-subnet",
+            "terraform_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "timeouts": null,
+            "tpu_ipv4_cidr_block": "",
+            "user_managed_keys_config": [],
+            "vertical_pod_autoscaling": [],
+            "workload_identity_config": [
+              {
+                "workload_pool": "flying-coin-489803.svc.id.goog"
+              }
+            ]
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "master_auth"
+              },
+              {
+                "type": "index",
+                "value": {
+                  "value": 0,
+                  "type": "number"
+                }
+              },
+              {
+                "type": "get_attr",
+                "value": "client_key"
+              }
+            ]
+          ],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoyNDAwMDAwMDAwMDAwLCJkZWxldGUiOjI0MDAwMDAwMDAwMDAsInJlYWQiOjI0MDAwMDAwMDAwMDAsInVwZGF0ZSI6MzYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMiJ9",
+          "dependencies": [
+            "google_project_service.enabled_services",
+            "module.networking.google_compute_network.vpc_network",
+            "module.networking.google_compute_subnetwork.gke_subnet"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.kubernetes",
+      "mode": "managed",
+      "type": "kubernetes_storage_class_v1",
+      "name": "gcp_ssd",
+      "provider": "provider[\"registry.terraform.io/hashicorp/kubernetes\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "allow_volume_expansion": true,
+            "allowed_topologies": [],
+            "id": "standard-rwo",
+            "metadata": [
+              {
+                "annotations": {
+                  "components.gke.io/component-name": "pdcsi",
+                  "components.gke.io/component-version": "1.34.37",
+                  "components.gke.io/layer": "addon"
+                },
+                "generate_name": "",
+                "generation": 0,
+                "labels": {
+                  "k8s-app": "gcp-compute-persistent-disk-csi-driver"
+                },
+                "name": "standard-rwo",
+                "resource_version": "1773227425843967007",
+                "uid": "eece938c-3a4b-4842-8a54-18fa5021fa8f"
+              }
+            ],
+            "mount_options": [],
+            "parameters": {
+              "type": "pd-balanced"
+            },
+            "reclaim_policy": "Delete",
+            "storage_provisioner": "pd.csi.storage.gke.io",
+            "volume_binding_mode": "WaitForFirstConsumer"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjAifQ==",
+          "dependencies": [
+            "data.google_client_config.default",
+            "google_project_service.enabled_services",
+            "module.kubernetes.google_container_cluster.gke_cluster",
+            "module.networking.google_compute_network.vpc_network",
+            "module.networking.google_compute_subnetwork.gke_subnet"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.networking",
+      "mode": "managed",
+      "type": "google_compute_network",
+      "name": "vpc_network",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "auto_create_subnetworks": false,
+            "bgp_always_compare_med": false,
+            "bgp_best_path_selection_mode": "LEGACY",
+            "bgp_inter_region_cost": "",
+            "delete_default_routes_on_create": false,
+            "description": "",
+            "enable_ula_internal_ipv6": false,
+            "gateway_ipv4": "",
+            "id": "projects/flying-coin-489803/global/networks/flying-coin-vpc",
+            "internal_ipv6_range": "",
+            "mtu": 0,
+            "name": "flying-coin-vpc",
+            "network_firewall_policy_enforcement_order": "AFTER_CLASSIC_FIREWALL",
+            "network_id": "1665173074432819036",
+            "network_profile": "",
+            "numeric_id": "1665173074432819036",
+            "params": [],
+            "project": "flying-coin-489803",
+            "routing_mode": "REGIONAL",
+            "self_link": "https://www.googleapis.com/compute/v1/projects/flying-coin-489803/global/networks/flying-coin-vpc",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "google_project_service.enabled_services"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.networking",
+      "mode": "managed",
+      "type": "google_compute_subnetwork",
+      "name": "gke_subnet",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "creation_timestamp": "2026-03-11T03:19:54.664-07:00",
+            "description": "",
+            "enable_flow_logs": false,
+            "external_ipv6_prefix": "",
+            "fingerprint": null,
+            "gateway_address": "10.0.0.1",
+            "id": "projects/flying-coin-489803/regions/asia-southeast1/subnetworks/flying-coin-gke-subnet",
+            "internal_ipv6_prefix": "",
+            "ip_cidr_range": "10.0.0.0/20",
+            "ip_collection": null,
+            "ipv6_access_type": "",
+            "ipv6_cidr_range": "",
+            "ipv6_gce_endpoint": "",
+            "log_config": [],
+            "name": "flying-coin-gke-subnet",
+            "network": "https://www.googleapis.com/compute/v1/projects/flying-coin-489803/global/networks/flying-coin-vpc",
+            "params": [],
+            "private_ip_google_access": true,
+            "private_ipv6_google_access": "DISABLE_GOOGLE_ACCESS",
+            "project": "flying-coin-489803",
+            "purpose": "PRIVATE",
+            "region": "asia-southeast1",
+            "reserved_internal_range": "",
+            "role": "",
+            "secondary_ip_range": [
+              {
+                "ip_cidr_range": "10.1.0.0/16",
+                "range_name": "pods-range",
+                "reserved_internal_range": ""
+              },
+              {
+                "ip_cidr_range": "10.2.0.0/20",
+                "range_name": "services-range",
+                "reserved_internal_range": ""
+              }
+            ],
+            "self_link": "https://www.googleapis.com/compute/v1/projects/flying-coin-489803/regions/asia-southeast1/subnetworks/flying-coin-gke-subnet",
+            "send_secondary_ip_range_if_empty": null,
+            "stack_type": "IPV4_ONLY",
+            "state": "",
+            "subnetwork_id": 2399275494619807525,
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "google_project_service.enabled_services",
+            "module.networking.google_compute_network.vpc_network"
+          ]
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}

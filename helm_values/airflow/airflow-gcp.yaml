@@ -1,0 +1,72 @@
+# Airflow Cloud Values for GKE (prod-ready local executor)
+# This file is used for deploying Apache Airflow using the official Helm chart on GKE.
+
+# Use LocalExecutor for simplicity in this phase, similar to local setup.
+executor: "LocalExecutor"
+
+# Image configuration
+images:
+  airflow:
+    repository: apache/airflow
+    tag: 2.10.0-python3.11
+    pullPolicy: IfNotPresent
+
+# Environmental variables
+env:
+  - name: "AIRFLOW__CORE__LOAD_EXAMPLES"
+    value: "False"
+  - name: "AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION"
+    value: "True"
+  - name: "MLFLOW_TRACKING_URI"
+    value: "http://mlflow-tracking-svc.mlops.svc.cluster.local"
+
+# Database configuration (connecting to the Postgres deployed in 'database' namespace)
+data:
+  metadataConnection:
+    user: "airflow"
+    # Reference the secret created by ExternalSecret
+    passSecretName: "airflow-secrets"
+    passSecretKey: "db-password"
+    host: "postgres-postgresql.database.svc.cluster.local"
+    port: 5432
+    db: "airflow"
+    sslmode: "disable"
+
+# Webserver configuration
+webserver:
+  service:
+    type: ClusterIP
+  livenessProbe:
+    initialDelaySeconds: 40
+    timeoutSeconds: 30
+  readinessProbe:
+    initialDelaySeconds: 40
+    timeoutSeconds: 30
+
+# Scheduler configuration
+scheduler:
+  livenessProbe:
+    initialDelaySeconds: 60
+    timeoutSeconds: 30
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+# Create persistence for logs and dags (if not using GCS/S3)
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClassName: "standard-rwo"
+
+# Disable metrics, let prometheus scrape via service monitor if needed
+metrics:
+  enabled: false
+
+# User creation
+auth:
+  passwordSecretName: "airflow-secrets"
+  passwordSecretKey: "admin-password"

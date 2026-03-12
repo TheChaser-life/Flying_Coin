@@ -33,7 +33,8 @@ locals {
     "secretmanager.googleapis.com",
     "iam.googleapis.com",
     "cloudresourcemanager.googleapis.com",
-    "storage.googleapis.com"
+    "storage.googleapis.com",
+    "iamcredentials.googleapis.com"
   ]
 }
 
@@ -107,6 +108,15 @@ module "secrets" {
   source       = "./modules/secrets"
   project_id   = var.project_id
   project_name = var.project_name
+
+  depends_on = [google_project_service.enabled_services]
+}
+
+module "cicd" {
+  source       = "./modules/cicd"
+  project_id   = var.project_id
+  project_name = var.project_name
+  github_repo  = var.github_repo
 
   depends_on = [google_project_service.enabled_services]
 }

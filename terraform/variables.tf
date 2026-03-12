@@ -59,3 +59,9 @@ variable "disk_size" {
 variable "disk_type" {
   type = string
 }
+
+variable "github_repo" {
+  description = "GitHub repository (format: owner/repo) được phép xác thực với GCP qua Workload Identity"
+  type        = string
+  default     = "TheChaser-life/Flying_Coin"
+}

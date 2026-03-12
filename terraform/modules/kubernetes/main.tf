@@ -31,12 +31,6 @@ resource "google_container_cluster" "gke_cluster" {
     # Nó cho phép Google Cloud tin tưởng và chấp nhận danh tính của các Kubernetes Service Account (KSA) đến từ cụm GKE này, mà không cần bất kỳ file key (mật khẩu) nào cả
   }
 
-  # Cấu hình tạm thời để tránh GKE tạo mặc định 100GB SSD gây quá Quota
-  node_config {
-    disk_size_gb = 20
-    disk_type    = "pd-standard"
-  }
-
   deletion_protection = false
 }
 
