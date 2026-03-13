@@ -1,2 +1,0 @@
-# Shell scripts: luôn dùng LF (tránh lỗi trên WSL/Linux)
-*.sh text eol=lf
