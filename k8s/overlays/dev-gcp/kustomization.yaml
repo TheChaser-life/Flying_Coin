@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - api-gateway
   - collectors
+  - external-secrets
   - forecast-service
   - market-data-service
   - mlops

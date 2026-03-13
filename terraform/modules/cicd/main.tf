@@ -7,7 +7,7 @@ resource "google_service_account" "cicd_sa" {
 
 # 2. Tạo Workload Identity Pool - "Phòng chờ" cho danh tính bên ngoài (GitHub)
 resource "google_iam_workload_identity_pool" "github_pool" {
-  workload_identity_pool_id = "${var.project_name}-github-pool"
+  workload_identity_pool_id = "${var.project_name}-github-pool${var.resource_suffix}"
   display_name              = "GitHub Actions Pool"
   description               = "Pool xác thực cho GitHub Actions CI/CD"
 }

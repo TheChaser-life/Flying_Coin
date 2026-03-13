@@ -22,3 +22,9 @@ variable "services_cidr" {
   description = "Dãy IP cho các service (ClusterIP, ...)"
   type        = string
 }
+
+variable "resource_suffix" {
+  description = "Hậu tố cho tên resource (vd: -v2) để tránh conflict"
+  type        = string
+  default     = ""
+}

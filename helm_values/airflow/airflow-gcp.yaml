@@ -4,6 +4,10 @@
 # Use LocalExecutor for simplicity in this phase, similar to local setup.
 executor: "LocalExecutor"
 
+# Disable internal postgres, use external one in 'database' namespace
+postgresql:
+  enabled: false
+
 # Image configuration
 images:
   airflow:
@@ -11,26 +15,15 @@ images:
     tag: 2.10.0-python3.11
     pullPolicy: IfNotPresent
 
-# Environmental variables
-env:
-  - name: "AIRFLOW__CORE__LOAD_EXAMPLES"
-    value: "False"
-  - name: "AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION"
-    value: "True"
-  - name: "MLFLOW_TRACKING_URI"
-    value: "http://mlflow-tracking-svc.mlops.svc.cluster.local"
-
-# Database configuration (connecting to the Postgres deployed in 'database' namespace)
+# Database configuration
 data:
-  metadataConnection:
-    user: "airflow"
-    # Reference the secret created by ExternalSecret
-    passSecretName: "airflow-secrets"
-    passSecretKey: "db-password"
-    host: "postgres-postgresql.database.svc.cluster.local"
-    port: 5432
-    db: "airflow"
-    sslmode: "disable"
+  metadataSecretName: "airflow-secrets"
+
+# Flask secret keys từ GCP Secret Manager qua ExternalSecret
+apiSecretKeySecretName: "airflow-secrets"
+webserverSecretKeySecretName: "airflow-secrets"
+# JWT secret cho API auth (airflow-jwt-secret-key)
+jwtSecretName: "airflow-secrets"
 
 # Webserver configuration
 webserver:
@@ -42,19 +35,32 @@ webserver:
   readinessProbe:
     initialDelaySeconds: 40
     timeoutSeconds: 30
+  defaultUser:
+    role: Admin
+    username: admin
+    email: admin@example.com
+    firstName: admin
+    lastName: user
+    # The password will be set via AIRFLOW_WEBSERVER_DEFAULT_USER_PASSWORD env var,
+    # and expanded by bash -c in the createUserJob.
+    password: "$(AIRFLOW_WEBSERVER_DEFAULT_USER_PASSWORD)"
 
-# Scheduler configuration
-scheduler:
-  livenessProbe:
-    initialDelaySeconds: 60
-    timeoutSeconds: 30
-  resources:
-    requests:
-      cpu: "500m"
-      memory: "512Mi"
-    limits:
-      cpu: "1000m"
-      memory: "1Gi"
+# Extra environment variables
+env:
+  - name: "AIRFLOW__CORE__LOAD_EXAMPLES"
+    value: "False"
+  - name: "AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION"
+    value: "True"
+  - name: "MLFLOW_TRACKING_URI"
+    value: "http://mlflow-tracking-svc.mlops.svc.cluster.local"
+
+# Extra env vars that support valueFrom (must be a string for this chart)
+extraEnv: |
+  - name: "AIRFLOW_WEBSERVER_DEFAULT_USER_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        name: airflow-secrets
+        key: admin-password
 
 # Create persistence for logs and dags (if not using GCS/S3)
 persistence:
@@ -62,11 +68,52 @@ persistence:
   size: 5Gi
   storageClassName: "standard-rwo"
 
+# logs.persistence: TẮT — GKE PD (standard-rwo) chỉ hỗ trợ RWO, không hỗ trợ RWX (multi-writer)
+# Chart tạo PVC RWX cho shared logs → provisioning fail. Dùng emptyDir thay thế.
+# Override size: 5Gi (default 100Gi) — phòng khi enable sau
+logs:
+  persistence:
+    enabled: false
+    size: 5Gi
+
+# workers.persistence: LocalExecutor dùng cho scheduler StatefulSet — default 100Gi quá lớn
+workers:
+  persistence:
+    size: 5Gi
+    storageClassName: "standard-rwo"
+
+# triggerer.persistence: per-pod RWO PVC — tương thích GKE PD
+triggerer:
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClassName: "standard-rwo"
+
 # Disable metrics, let prometheus scrape via service monitor if needed
 metrics:
   enabled: false
 
-# User creation
-auth:
-  passwordSecretName: "airflow-secrets"
-  passwordSecretKey: "admin-password"
+# Tắt Helm hooks — tránh helm install/upgrade bị đơ khi chờ createUserJob, migrateDatabaseJob
+# Jobs vẫn chạy nhưng Helm return ngay, không block
+createUserJob:
+  useHelmHooks: false
+migrateDatabaseJob:
+  useHelmHooks: false
+
+# Tắt waitForMigrations — tránh init container CrashLoopBackOff khi migration job chưa xong
+# Migration job chạy song song, pods start không block. Nếu migration fail, main container sẽ báo lỗi rõ hơn.
+scheduler:
+  waitForMigrations:
+    enabled: false
+triggerer:
+  waitForMigrations:
+    enabled: false
+dagProcessor:
+  waitForMigrations:
+    enabled: false
+# Tắt api-server — Airflow 2.10 dùng webserver cho REST API; api-server chủ yếu cho Airflow 3+
+apiServer:
+  enabled: false
+webserver:
+  waitForMigrations:
+    enabled: false

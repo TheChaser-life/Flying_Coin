@@ -1,6 +1,6 @@
 # Tạo GKE Cluster
 resource "google_container_cluster" "gke_cluster" {
-  name     = "${var.project_name}-gke-cluster"
+  name     = "${var.project_name}-gke-cluster${var.resource_suffix}"
   location = var.zone
 
   remove_default_node_pool = true # Xóa default node pool để tạo pool riêng
@@ -36,7 +36,7 @@ resource "google_container_cluster" "gke_cluster" {
 
 # Tạo node pool, máy chạy các pods
 resource "google_container_node_pool" "primary" {
-  name       = "${var.project_name}-node-pool"
+  name       = "${var.project_name}-node-pool${var.resource_suffix}"
   location   = var.zone
   cluster    = google_container_cluster.gke_cluster.id # Gắn node pool vào cluster đã tạo ở trên
   node_count = var.node_count
@@ -120,6 +120,7 @@ resource "helm_release" "external_secrets" {
   repository = "https://charts.external-secrets.io"
   chart      = "external-secrets"
   namespace  = "external-secrets"
+  timeout    = 600 # 10 phút - tránh context deadline exceeded khi uninstall
   set {
     name  = "serviceAccount.create"
     value = "false"
@@ -165,14 +166,5 @@ resource "google_project_iam_member" "sa_monitoring" {
   member  = "serviceAccount:${google_service_account.gke_service_account.email}"
 }
 
-resource "kubernetes_storage_class_v1" "gcp_ssd" {
-  metadata {
-    name = "standard-rwo"
-  }
-  storage_provisioner = "pd.csi.storage.gke.io"
-  reclaim_policy      = "Retain"
-  volume_binding_mode = "WaitForFirstConsumer"
-  parameters = {
-    type = "pd-ssd"
-  }
-}
+# GKE tạo sẵn StorageClass "standard-rwo" mặc định. Không cần tạo lại.
+# Helm values (postgres, redis, rabbitmq, airflow) dùng storageClassName: "standard-rwo"

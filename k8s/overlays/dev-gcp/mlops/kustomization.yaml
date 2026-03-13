@@ -4,4 +4,5 @@ kind: Kustomization
 namespace: mlops
 
 resources:
-  - ../../../base/mlops
+  - mlflow
+  - ../../../base/mlops/airflow

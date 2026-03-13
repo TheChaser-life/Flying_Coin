@@ -509,10 +509,10 @@ primary:
   ## Example:
   resources:
     requests:
-      cpu: 1
+      cpu: 200m
       memory: 1Gi
     limits:
-      cpu: 2
+      cpu: 500m
       memory: 2Gi
   ## @param primary.fips.openssl Configure OpenSSL FIPS mode: '', 'restricted', 'relaxed', 'off'. If empty (""), 'global.defaultFips' would be used
   ##
@@ -618,16 +618,11 @@ primary:
   ## @param primary.nodeSelector Node labels for PostgreSQL primary pods assignment
   ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
   ##
-  nodeSelector: 
-    cloud.google.com/gke-nodepool: "database-pool"
+  nodeSelector: {}
   ## @param primary.tolerations Tolerations for PostgreSQL primary pods assignment
   ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   ##
-  tolerations: 
-    - key: "cloud.google.com/gke-nodepool"
-      operator: "Equal"
-      value: "true"
-      effect: "NoSchedule"
+  tolerations: []
   ## @param primary.topologySpreadConstraints Topology Spread Constraints for pod assignment spread across your cluster among failure-domains. Evaluated as a template
   ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods
   ##
@@ -888,9 +883,9 @@ readReplicas:
   ## @param readReplicas.name Name of the read replicas database (eg secondary, slave, ...)
   ##
   name: read
-  ## @param readReplicas.replicaCount Number of PostgreSQL read only replicas
+  ## @param readReplicas.replicaCount Number of PostgreSQL read only replicas (1 for dev to save CPU)
   ##
-  replicaCount: 2
+  replicaCount: 1
   ## @param readReplicas.extendedConfiguration Extended PostgreSQL read only replicas configuration (appended to main or default configuration)
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#allow-settings-to-be-loaded-from-files-other-than-the-default-postgresqlconf
   ##
@@ -980,10 +975,10 @@ readReplicas:
   ## Example:
   resources:
     requests:
-      cpu: 500m
+      cpu: 200m
       memory: 512Mi
     limits:
-      cpu: 1
+      cpu: 500m
       memory: 1Gi
   ## @param readReplicas.fips.openssl Configure OpenSSL FIPS mode: '', 'restricted', 'relaxed', 'off'. If empty (""), 'global.defaultFips' would be used
   ##
@@ -1934,7 +1929,7 @@ metrics:
   serviceMonitor:
     ## @param metrics.serviceMonitor.enabled Create ServiceMonitor Resource for scraping metrics using Prometheus Operator
     ##
-    enabled: true
+    enabled: false
     ## @param metrics.serviceMonitor.namespace Namespace for the ServiceMonitor Resource (defaults to the Release Namespace)
     ##
     namespace: ""

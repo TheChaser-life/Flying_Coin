@@ -24,4 +24,4 @@ patchesStrategicMerge:
             - name: market-data-service
               envFrom:
                 - secretRef:
-                    name: market-data-db-config
+                    name: market-data-db-config

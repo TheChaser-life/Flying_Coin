@@ -6,7 +6,7 @@
 # persistence.storageClass: "standard-rwo": balance between performance and cost
 # resourcesPreset: "none": do not use default resource config
 # resources (CPU 500m-1, RAM 1Gi-2Gi)
-# nodeSelector & tolerations: only run on nodes with label database-pool to avoid resource contention with backend services
+# nodeSelector & tolerations: để trống để chạy trên bất kỳ node nào
 # metrics.enabled: true: enable Prometheus metrics
 # metrics.serviceMonitor.enabled: true: enable ServiceMonitor for Prometheus Operator
 ###----------------------------###
@@ -37,7 +37,7 @@ global:
   ##
   security:
     ## @param global.security.allowInsecureImages Allows skipping image verification
-    allowInsecureImages: false
+    allowInsecureImages: true
   ## Compatibility adaptations for Kubernetes platforms
   ##
   compatibility:
@@ -60,7 +60,7 @@ global:
 ##
 image:
   registry: docker.io
-  repository: bitnami/rabbitmq
+  repository: bitnamilegacy/rabbitmq
   tag: 4.1.3-debian-12-r1
   digest: ""
   ## set to true if you would like to see extra information on logs
@@ -683,9 +683,9 @@ extraSecrets: {}
 extraSecretsPrependReleaseName: false
 ## @section Statefulset parameters
 ##
-## @param replicaCount Number of RabbitMQ replicas to deploy
+## @param replicaCount Number of RabbitMQ replicas to deploy (1 for dev to save CPU)
 ##
-replicaCount: 3
+replicaCount: 1
 ## @param schedulerName Use an alternate scheduler, e.g. "stork".
 ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
 ##
@@ -765,16 +765,11 @@ affinity: {}
 ## @param nodeSelector Node labels for pod assignment. Evaluated as a template
 ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
 ##
-nodeSelector: 
-  cloud.google.com/gke-nodepool: "database-pool"
+nodeSelector: {}
 ## @param tolerations Tolerations for pod assignment. Evaluated as a template
 ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
 ##
-tolerations:
-  - key: "cloud.google.com/gke-nodepool"
-    operator: "Equal"
-    value: "true"
-    effect: "NoSchedule"
+tolerations: []
 ## @param topologySpreadConstraints Topology Spread Constraints for pod assignment spread across your cluster among failure-domains. Evaluated as a template
 ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods
 ##
@@ -835,10 +830,10 @@ resourcesPreset: "none"
 ## Example:
 resources:
   requests:
-    cpu: "500m"
+    cpu: "100m"
     memory: "1Gi"
   limits:
-    cpu: "1"
+    cpu: "300m"
     memory: "2Gi"
 ## Configure RabbitMQ containers' extra options for liveness probe
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
@@ -1409,7 +1404,7 @@ metrics:
     default:
       ## @param metrics.serviceMonitor.default.enabled Enable default metrics endpoint (`GET /metrics`) to be scraped by the ServiceMonitor
       ##
-      enabled: true
+      enabled: false
       ## @param metrics.serviceMonitor.default.interval Specify the interval at which metrics should be scraped
       ##
       interval: 30s
@@ -1433,7 +1428,7 @@ metrics:
     perObject:
       ## @param metrics.serviceMonitor.perObject.enabled Enable per-object metrics endpoint (`GET /metrics/per-object`) to be scraped by the ServiceMonitor
       ##
-      enabled: true
+      enabled: false
       ## @param metrics.serviceMonitor.perObject.interval Specify the interval at which metrics should be scraped
       ##
       interval: 30s
@@ -1457,7 +1452,7 @@ metrics:
     detailed:
       ## @param metrics.serviceMonitor.detailed.enabled Enable detailed metrics endpoint (`GET /metrics/detailed`) to be scraped by the ServiceMonitor
       ##
-      enabled: true
+      enabled: false
       ## @param metrics.serviceMonitor.detailed.family List of metric families to get
       ## e.g.
       ## family: ["queue_coarse_metrics", "queue_consumer_count"]
@@ -1485,7 +1480,7 @@ metrics:
       honorLabels: false
     ## @param metrics.serviceMonitor.enabled Deprecated. Please use `metrics.serviceMonitor.{default/perObject/detailed}` instead.
     ##
-    enabled: true
+    enabled: false
     ## @param metrics.serviceMonitor.interval Deprecated. Please use `metrics.serviceMonitor.{default/perObject/detailed}` instead.
     ##
     interval: 30s
