@@ -107,3 +107,5 @@ source_code_issues_*.json
 
 .gitattributes
 .gitignore
+bastion_ed25519
+bastion_id_rsa
