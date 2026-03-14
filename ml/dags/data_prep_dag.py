@@ -49,10 +49,14 @@ def extract_and_upload_to_gcs(symbol="all", **context):
     
     engine = create_engine(db_url)
     
-    # Query mẫu (Bạn có thể tùy chỉnh logic filter theo thời gian)
-    query = "SELECT * FROM market_prices"
+    # Query join với bảng symbols để có tên symbol
+    query = """
+    SELECT m.timestamp, m.close as price, s.symbol
+    FROM market_data m
+    JOIN symbols s ON m.symbol_id = s.id
+    """
     if symbol != "all":
-        query += f" WHERE symbol = '{symbol}'"
+        query += f" WHERE s.symbol = '{symbol}'"
     
     print(f"Extracting data for {symbol}...")
     df = pd.read_sql(query, engine)
