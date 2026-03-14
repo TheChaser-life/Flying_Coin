@@ -41,13 +41,15 @@ gcloud_secret*.txt
 # =============================================================================
 # Terraform — cho phép terraform/ nhưng KHÔNG commit .tfvars (chứa secret)
 # =============================================================================
+.terraform/
+.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 *.tfstate.backup
-.terraform.lock.hcl
 *.tfvars
 terraform/plan_output.txt
 terraform/plan_result.txt
+terraform/tfplan
 
 # =============================================================================
 # Kubernetes / Local
