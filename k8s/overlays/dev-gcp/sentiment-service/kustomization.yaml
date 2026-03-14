@@ -8,8 +8,8 @@ resources:
 
 images:
   - name: sentiment-service
-    newName: asia-southeast1-docker.pkg.dev/flying-coin/flying-coin/sentiment-service
-    newTag: latest
+    newName: asia-southeast1-docker.pkg.dev/flying-coin-489803/flying-coin-docker/sentiment-service
+    newTag: staging
 
 patchesStrategicMerge:
   - |-
@@ -27,8 +27,8 @@ patchesStrategicMerge:
                     name: sentiment-db-config
               resources:
                 requests:
-                  cpu: "200m"
-                  memory: "512Mi"
-                limits:
                   cpu: "500m"
-                  memory: "1Gi"
+                  memory: "2Gi"
+                limits:
+                  cpu: "1000m"
+                  memory: "3Gi"

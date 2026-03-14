@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 $ProjectRoot = if ($PSScriptRoot) { $PSScriptRoot } else { Get-Location }
 Set-Location $ProjectRoot
@@ -26,19 +26,29 @@ $PROJECT_ID = ($env:PROJECT_ID -replace "`r", "" -replace "`n", "").Trim()
 $REGION = ($env:REGION -replace "`r", "" -replace "`n", "").Trim()
 $CLUSTER_NAME = ($env:CLUSTER_NAME -replace "`r", "" -replace "`n", "").Trim()
 
-# 2. Kiểm tra các gcloud components cần thiết
-Write-Host "--- 2. Checking required gcloud components ---"
-$REQUIRED_COMPONENTS = @("kubectl", "gke-gcloud-auth-plugin")
-foreach ($comp in $REQUIRED_COMPONENTS) {
-    $installed = gcloud components list --filter="id:$comp AND state.name:Installed" --format="value(id)" 2>$null
-    if (-not $installed -or $installed -notmatch $comp) {
-        Write-Error "LỖI: Component '$comp' chưa được cài đặt."
-        Write-Host "Vui lòng chạy: gcloud components install $comp"
+Write-Host "=== GKE Setup started. Logging to: $LOG_FILE ==="
+
+# 2. Infrastructure Setup (Terraform)
+Write-Host "--- 2. Checking/Creating Infrastructure with Terraform ---"
+if (Test-Path "terraform") {
+    Push-Location "terraform"
+    try {
+        Write-Host "Running terraform init..."
+        terraform init -input=false
+        Write-Host "Running terraform apply..."
+        terraform apply -auto-approve -input=false
+    } catch {
+        Write-Error "LỖI: Chạy Terraform thất bại!"
+        Pop-Location
         exit 1
     }
+    Pop-Location
+} else {
+    Write-Warning "CẢNH BÁO: Thư mục terraform không tồn tại. Bỏ qua bước tạo hạ tầng."
 }
 
-Write-Host "=== GKE Setup started. Logging to: $LOG_FILE ==="
+# 3. Kiểm tra các gcloud components cần thiết
+Write-Host "--- 3. Checking required gcloud components ---"
 
 # 3. Authenticating with GCP
 Write-Host "--- 3. Authenticating with GCP ---"
@@ -63,15 +73,26 @@ $secrets = @(
     @{ Key = "airflow-session-secret-key"; Value = $airflowSessionKey },
     @{ Key = "airflow-jwt-secret-key"; Value = $airflowJwtKey },
     @{ Key = "mlflow-backend-uri"; Value = $env:MLFLOW_BACKEND_URI },
-    @{ Key = "keycloak-jwt-credential"; Value = $env:KEYCLOAK_JWT_CREDENTIAL }
+    @{ Key = "keycloak-jwt-credential"; Value = $env:KEYCLOAK_JWT_CREDENTIAL },
+    @{ Key = "rabbitmq-url"; Value = $env:RABBITMQ_URL },
+    @{ Key = "redis-url"; Value = $env:REDIS_URL },
+    @{ Key = "newsapi-key"; Value = $env:NEWSAPI_KEY },
+    @{ Key = "market-data-db-url"; Value = "postgresql+asyncpg://${env:POSTGRES_USER}:${env:POSTGRES_PASSWORD}@${env:POSTGRES_HOST}:5432/${env:MARKET_DATA_DB}" }
 )
 
 $tempSecret = Join-Path $env:TEMP "gcloud_secret_$(Get-Random).txt"
 foreach ($s in $secrets) {
     $val = ($s.Value -replace "`r", "" -replace "`n", "").Trim()
+    if ([string]::IsNullOrEmpty($val)) { continue }
+
+    Write-Host "Syncing secret: $($s.Key) ..."
     gcloud secrets create $s.Key --replication-policy=automatic --project=$PROJECT_ID 2>$null
-    [System.IO.File]::WriteAllText($tempSecret, $val)
-    Get-Content $tempSecret -Raw | gcloud secrets versions add $s.Key --data-file=- --project=$PROJECT_ID
+    
+    # Write UTF8 without BOM to avoid corruption
+    $encodedVal = [System.Text.Encoding]::UTF8.GetBytes($val)
+    [System.IO.File]::WriteAllBytes($tempSecret, $encodedVal)
+    
+    gcloud secrets versions add $s.Key --data-file=$tempSecret --project=$PROJECT_ID
 }
 Remove-Item $tempSecret -ErrorAction SilentlyContinue
 
@@ -85,11 +106,14 @@ helm repo update
 # Apply ClusterSecretStore + ExternalSecrets TRƯỚC để tạo các secret
 Write-Host "Apply ClusterSecretStore + ExternalSecrets..."
 kubectl apply -k k8s/overlays/dev-gcp/external-secrets/
-Write-Host "Đợi ESO sync secrets (postgresql-credentials, redis-credentials, rabbitmq-credentials, rabbitmq-erlang-secret, airflow-secrets)..."
-$esList = @("sync-postgres-credentials", "sync-redis-credentials", "sync-rabbitmq-credentials", "sync-rabbitmq-erlang-secret")
-foreach ($es in $esList) {
+Write-Host "Đợi ESO sync secrets (postgresql-credentials, redis-credentials, rabbitmq-credentials, rabbitmq-erlang-secret, infra-credentials)..."
+$esDatabase = @("sync-postgres-credentials", "sync-redis-credentials", "sync-rabbitmq-credentials", "sync-rabbitmq-erlang-secret")
+foreach ($es in $esDatabase) {
+    Write-Host "Waiting for ExternalSecret: $es in namespace: database ..."
     kubectl wait --for=condition=SecretSynced "externalsecret/$es" -n database --timeout=120s 2>$null
 }
+Write-Host "Waiting for ExternalSecret: infra-credentials-sync in namespace: default ..."
+kubectl wait --for=condition=SecretSynced externalsecret/infra-credentials-sync -n default --timeout=120s 2>$null
 # Chờ airflow-secrets trong mlops — tránh CreateContainerConfigError khi Helm install Airflow
 kubectl wait --for=condition=SecretSynced externalsecret/airflow-secrets -n mlops --timeout=120s 2>$null
 Start-Sleep -Seconds 5
@@ -111,5 +135,18 @@ helm upgrade --install kong kong/kong -f helm_values/kong/kong-gcp.yaml -n kong 
 kubectl apply -k k8s/overlays/dev-gcp/
 
 kubectl get pods -A
+
+Write-Host "--- Post-setup cleanup and restarts ---"
+Write-Host "Restarting RabbitMQ to ensure it picks up new credentials..."
+kubectl rollout restart statefulset rabbitmq -n database
+Write-Host "Restarting collectors and services in 'dev' namespace..."
+kubectl rollout restart deployment collectors-deployment -n dev
+kubectl rollout restart deployment market-data-service-deployment -n dev
+kubectl rollout restart deployment sentiment-service-deployment -n dev
+kubectl rollout restart deployment forecast-service-deployment -n dev
+
+Write-Host "Waiting for deployments to be ready..."
+kubectl wait --for=condition=available deployment/market-data-service-deployment -n dev --timeout=300s
+kubectl wait --for=condition=available deployment/sentiment-service-deployment -n dev --timeout=300s
 
 Stop-Transcript

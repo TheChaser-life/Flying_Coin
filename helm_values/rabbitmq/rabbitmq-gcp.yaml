@@ -175,7 +175,7 @@ auth:
   ## @param auth.updatePassword Update RabbitMQ password on secret change
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/rabbitmq#environment-variables
   ##
-  updatePassword: false
+  updatePassword: true
   ## @param auth.existingPasswordSecret Existing secret with RabbitMQ credentials (existing secret must contain a value for `rabbitmq-password` key or override with setting auth.existingSecretPasswordKey)
   ## e.g:
   ## existingPasswordSecret: name-of-existing-secret

@@ -11,28 +11,26 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime
 from pathlib import Path
 
-TRIGGER_URL = "http://host.docker.internal:8765"
+# TRIGGER_URL trỏ đến SSH Bastion service (Tunnel) trong cluster
+TRIGGER_URL = "http://ssh-bastion-svc.mlops.svc.cluster.local:8765"
 
 
 def check_datasets(**context):
-    """Kiểm tra dataset parquet có sẵn (Cách A)."""
-    data_dir = Path("/opt/airflow/outputs/datasets")
-    if not data_dir.exists():
-        raise FileNotFoundError(f"Thư mục dataset không tồn tại: {data_dir}")
+    """Kiểm tra dataset parquet có sẵn trên host (qua SSH Tunnel)."""
+    import urllib.request
+    import json
 
-    parquets = list(data_dir.glob("*.parquet"))
-    if not parquets:
-        raise FileNotFoundError(f"Không có file parquet trong {data_dir}")
-
-    # Cần ít nhất train/val/test cho symbol "all"
-    required = ["training_dataset_all_train", "training_dataset_all_val", "training_dataset_all_test"]
-    found = [p.stem for p in parquets]
-    missing = [r for r in required if not any(r in f for f in found)]
-    if missing:
-        raise FileNotFoundError(f"Thiếu dataset: {missing}. Cần: training_dataset_all_*_train/val/test.parquet")
-
-    print(f"OK: Tìm thấy {len(parquets)} file parquet trong {data_dir}")
-    return True
+    url = f"{TRIGGER_URL}/check-datasets"
+    try:
+        with urllib.request.urlopen(url, timeout=30) as resp:
+            result = json.loads(resp.read().decode())
+            print(f"OK: {result.get('message')}")
+            return True
+    except urllib.error.HTTPError as e:
+        body = e.read().decode() if e.fp else ""
+        raise FileNotFoundError(f"Lỗi kiểm tra dataset (HTTP {e.code}): {body}")
+    except urllib.error.URLError as e:
+        raise ConnectionError(f"Không thể kết nối tới Trigger Server: {e.reason}")
 
 
 def trigger_training(endpoint: str, model_name: str, **context):

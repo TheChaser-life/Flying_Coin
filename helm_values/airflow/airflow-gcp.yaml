@@ -3,6 +3,7 @@
 
 # Use LocalExecutor for simplicity in this phase, similar to local setup.
 executor: "LocalExecutor"
+airflowVersion: "2.10.0"
 
 # Disable internal postgres, use external one in 'database' namespace
 postgresql:
@@ -27,6 +28,8 @@ jwtSecretName: "airflow-secrets"
 
 # Webserver configuration
 webserver:
+  enabled: true
+  replicas: 1
   service:
     type: ClusterIP
   livenessProbe:
@@ -44,6 +47,17 @@ webserver:
     # The password will be set via AIRFLOW_WEBSERVER_DEFAULT_USER_PASSWORD env var,
     # and expanded by bash -c in the createUserJob.
     password: "$(AIRFLOW_WEBSERVER_DEFAULT_USER_PASSWORD)"
+  # Ensure waitForMigrations is disabled for webserver too
+  waitForMigrations:
+    enabled: false
+  extraVolumes:
+    - name: airflow-secrets-vol
+      secret:
+        secretName: airflow-secrets
+  extraVolumeMounts:
+    - name: airflow-secrets-vol
+      mountPath: /opt/airflow/secrets
+      readOnly: true
 
 # Extra environment variables
 env:
@@ -53,6 +67,14 @@ env:
     value: "True"
   - name: "MLFLOW_TRACKING_URI"
     value: "http://mlflow-tracking-svc.mlops.svc.cluster.local"
+  - name: "AIRFLOW__CORE__DAGS_FOLDER"
+    value: "/opt/airflow/dags/repo/ml/dags"
+  - name: "GCS_BUCKET_NAME"
+    value: "flying-coin-ml-datasets"
+  - name: "GCP_PROJECT_ID"
+    value: "flying-coin-489803"
+  - name: "_PIP_ADDITIONAL_DEPENDENCIES"
+    value: "pandas sqlalchemy psycopg2-binary pyarrow fastparquet"
 
 # Extra env vars that support valueFrom (must be a string for this chart)
 extraEnv: |
@@ -62,7 +84,20 @@ extraEnv: |
         name: airflow-secrets
         key: admin-password
 
-# Create persistence for logs and dags (if not using GCS/S3)
+# DAG configuration
+dags:
+  persistence:
+    enabled: false # Use gitSync instead of PVC for DAGs
+  gitSync:
+    enabled: true
+    repo: "https://github.com/TheChaser-life/Flying_Coin.git"
+    branch: "dev"
+    rev: "HEAD"
+    depth: 1
+    # Only sync the ml/dags folder
+    subPath: "ml/dags"
+    wait: 60
+
 persistence:
   enabled: true
   size: 5Gi
@@ -105,6 +140,14 @@ migrateDatabaseJob:
 scheduler:
   waitForMigrations:
     enabled: false
+  extraVolumes:
+    - name: airflow-secrets-vol
+      secret:
+        secretName: airflow-secrets
+  extraVolumeMounts:
+    - name: airflow-secrets-vol
+      mountPath: /opt/airflow/secrets
+      readOnly: true
 triggerer:
   waitForMigrations:
     enabled: false
@@ -114,6 +157,3 @@ dagProcessor:
 # Tắt api-server — Airflow 2.10 dùng webserver cho REST API; api-server chủ yếu cho Airflow 3+
 apiServer:
   enabled: false
-webserver:
-  waitForMigrations:
-    enabled: false

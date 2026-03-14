@@ -8,8 +8,8 @@ resources:
 
 images:
   - name: market-data-service
-    newName: asia-southeast1-docker.pkg.dev/flying-coin/flying-coin/market-data-service
-    newTag: latest
+    newName: asia-southeast1-docker.pkg.dev/flying-coin-489803/flying-coin-docker/market-data-service
+    newTag: staging
 
 patchesStrategicMerge:
   - |-

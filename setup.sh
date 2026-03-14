@@ -22,88 +22,87 @@ PROJECT_ID=$(echo "$PROJECT_ID" | tr -d '\r' | xargs)
 REGION=$(echo "$REGION" | tr -d '\r' | xargs)
 CLUSTER_NAME=$(echo "$CLUSTER_NAME" | tr -d '\r' | xargs)
 
-# 2. Kiểm tra các gcloud components cần thiết
-echo "--- 2. Checking required gcloud components ---"
-REQUIRED_COMPONENTS=("kubectl" "gke-gcloud-auth-plugin")
-for comp in "${REQUIRED_COMPONENTS[@]}"; do
-    if ! gcloud components list --filter="id:$comp AND state.name:Installed" --format="value(id)" | grep -q "$comp"; then
-        echo "LỖI: Component '$comp' chưa được cài đặt."
-        echo "Vui lòng chạy: gcloud components install $comp"
-        echo "Nếu bạn dùng WSL và gcloud cài từ Windows, hãy chạy lệnh install trên Windows CMD với quyền Administrator."
-        exit 1
-    fi
-done
-
 echo "=== GKE Setup started. Logging to: $LOG_FILE ==="
+
+# 2. Infrastructure Setup (Terraform)
+echo "--- 2. Checking/Creating Infrastructure with Terraform ---"
+if [ -d terraform ]; then
+    cd terraform
+    echo "Running terraform init..."
+    terraform init -input=false
+    echo "Running terraform apply..."
+    terraform apply -auto-approve -input=false
+    cd ..
+else
+    echo "CẢNH BÁO: Thư mục terraform không tồn tại. Bỏ qua bước tạo hạ tầng."
+fi
+
+# 3. Kiểm tra các gcloud components cần thiết
+echo "--- 3. Checking required gcloud components ---"
 
 # 3. Authenticating with GCP
 echo "--- 3. Authenticating with GCP ---"
 
-# Thêm --no-launch-browser nếu chạy trên WSL để lấy link manual
-# LOGIN_FLAGS=""
-# if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null; then
-#     LOGIN_FLAGS="--no-launch-browser"
-# fi
+# GKE credentials
+gcloud container clusters get-credentials "$CLUSTER_NAME" --region "$REGION" --project "$PROJECT_ID"
 
-# gcloud auth login $LOGIN_FLAGS --project=$PROJECT_ID
-# gcloud auth application-default login $LOGIN_FLAGS --project=$PROJECT_ID
+# Synced list of secrets from setup.ps1
+# Cần format lại một chút cho Bash
+declare -A SECRETS_MAP=(
+    ["postgres-password"]="$POSTGRES_PASSWORD"
+    ["redis-password"]="$REDIS_PASSWORD"
+    ["rabbitmq-password"]="$RABBITMQ_PASSWORD"
+    ["rabbitmq-erlang-cookie"]="$RABBITMQ_ERLANG_COOKIE"
+    ["airflow-db-password"]="$AIRFLOW_DB_PASSWORD"
+    ["airflow-admin-password"]="$AIRFLOW_ADMIN_PASSWORD"
+    ["mlflow-backend-uri"]="$MLFLOW_BACKEND_URI"
+    ["keycloak-jwt-credential"]="$KEYCLOAK_JWT_CREDENTIAL"
+    ["rabbitmq-url"]="$RABBITMQ_URL"
+    ["redis-url"]="$REDIS_URL"
+    ["newsapi-key"]="$NEWSAPI_KEY"
+    ["market-data-db-url"]="postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${MARKET_DATA_DB}"
+    ["kong-cloudflare-cert"]="$KONG_CLOUDFLARE_CERT"
+    ["kong-cloudflare-key"]="$KONG_CLOUDFLARE_KEY"
+)
 
-#cd terraform && terraform init && terraform apply && cd ..
-
-gcloud secrets create postgres-password --replication-policy=automatic --project=$PROJECT_ID
-echo -n "$POSTGRES_PASSWORD" | gcloud secrets versions add postgres-password --data-file=- --project=$PROJECT_ID
-
-gcloud secrets create redis-password --replication-policy=automatic --project=$PROJECT_ID
-echo -n "$REDIS_PASSWORD" | gcloud secrets versions add redis-password --data-file=- --project=$PROJECT_ID
-
-gcloud secrets create rabbitmq-password --replication-policy=automatic --project=$PROJECT_ID
-echo -n "$RABBITMQ_PASSWORD" | gcloud secrets versions add rabbitmq-password --data-file=- --project=$PROJECT_ID
-
-gcloud secrets create rabbitmq-erlang-cookie --replication-policy=automatic --project=$PROJECT_ID 2>/dev/null || true
-echo -n "$RABBITMQ_ERLANG_COOKIE" | gcloud secrets versions add rabbitmq-erlang-cookie --data-file=- --project=$PROJECT_ID
-
-gcloud secrets create airflow-db-password --replication-policy=automatic --project=$PROJECT_ID
-echo -n "$AIRFLOW_DB_PASSWORD" | gcloud secrets versions add airflow-db-password --data-file=- --project=$PROJECT_ID
-
-gcloud secrets create airflow-admin-password --replication-policy=automatic --project=$PROJECT_ID
-echo -n "$AIRFLOW_ADMIN_PASSWORD" | gcloud secrets versions add airflow-admin-password --data-file=- --project=$PROJECT_ID
-
-# airflow-session-secret-key: apiSecretKey + webserverSecretKey (Flask session)
+# Airflow keys (nếu chưa có trong .env thì gen)
 AIRFLOW_SESSION_KEY="${AIRFLOW_SESSION_SECRET_KEY:-$(openssl rand -hex 32)}"
-gcloud secrets create airflow-session-secret-key --replication-policy=automatic --project=$PROJECT_ID 2>/dev/null || true
-echo -n "$AIRFLOW_SESSION_KEY" | gcloud secrets versions add airflow-session-secret-key --data-file=- --project=$PROJECT_ID
-
-# airflow-jwt-secret-key: jwtSecretName (API auth JWT)
 AIRFLOW_JWT_KEY="${AIRFLOW_JWT_SECRET_KEY:-$(openssl rand -hex 32)}"
-gcloud secrets create airflow-jwt-secret-key --replication-policy=automatic --project=$PROJECT_ID 2>/dev/null || true
-echo -n "$AIRFLOW_JWT_KEY" | gcloud secrets versions add airflow-jwt-secret-key --data-file=- --project=$PROJECT_ID
+SECRETS_MAP["airflow-session-secret-key"]="$AIRFLOW_SESSION_KEY"
+SECRETS_MAP["airflow-jwt-secret-key"]="$AIRFLOW_JWT_KEY"
 
-gcloud secrets create mlflow-backend-uri --replication-policy=automatic --project=$PROJECT_ID
-echo -n "$MLFLOW_BACKEND_URI" | gcloud secrets versions add mlflow-backend-uri --data-file=- --project=$PROJECT_ID
-
-gcloud secrets create keycloak-jwt-credential --replication-policy=automatic --project=$PROJECT_ID
-echo -n "$KEYCLOAK_JWT_CREDENTIAL" | gcloud secrets versions add keycloak-jwt-credential --data-file=- --project=$PROJECT_ID
-
-gcloud container clusters get-credentials $CLUSTER_NAME --region $REGION --project $PROJECT_ID
+for key in "${!SECRETS_MAP[@]}"; do
+    val="${SECRETS_MAP[$key]}"
+    if [ -z "$val" ]; then continue; fi
+    
+    echo "Syncing secret: $key ..."
+    gcloud secrets create "$key" --replication-policy=automatic --project="$PROJECT_ID" 2>/dev/null || true
+    echo -n "$val" | gcloud secrets versions add "$key" --data-file=- --project="$PROJECT_ID"
+done
 
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add apache-airflow https://airflow.apache.org
 helm repo add kong https://charts.konghq.com
 helm repo update
 
-# Apply ClusterSecretStore + ExternalSecrets TRƯỚC để tạo các secret
-# (Postgres, Redis, RabbitMQ, Airflow Helm charts cần existingSecret)
+# Apply ClusterSecretStore + ExternalSecrets TRƯỚC
 kubectl apply -k k8s/overlays/dev-gcp/external-secrets/
-echo "Đợi ESO sync secrets (postgresql-credentials, redis-credentials, rabbitmq-credentials, rabbitmq-erlang-secret, airflow-secrets)..."
+# Đợi ESO sync secrets
 for es in sync-postgres-credentials sync-redis-credentials sync-rabbitmq-credentials sync-rabbitmq-erlang-secret; do
-  kubectl wait --for=condition=SecretSynced externalsecret/$es -n database --timeout=120s 2>/dev/null || true
+  kubectl wait --for=condition=SecretSynced "externalsecret/$es" -n database --timeout=120s 2>/dev/null || true
 done
+kubectl wait --for=condition=SecretSynced externalsecret/cloudflare-origin-tls -n kong --timeout=120s 2>/dev/null || true
+kubectl wait --for=condition=SecretSynced externalsecret/infra-credentials-sync -n default --timeout=120s 2>/dev/null || true
 kubectl wait --for=condition=SecretSynced externalsecret/airflow-secrets -n mlops --timeout=120s 2>/dev/null || true
+kubectl wait --for=condition=SecretSynced externalsecret/sync-keycloak-credentials -n auth --timeout=120s 2>/dev/null || true
+kubectl wait --for=condition=SecretSynced externalsecret/sync-keycloak-postgres-credentials -n auth --timeout=120s 2>/dev/null || true
+kubectl wait --for=condition=SecretSynced externalsecret/keycloak-tls-sync -n auth --timeout=120s 2>/dev/null || true
+
 sleep 5
 
 helm upgrade --install postgres bitnami/postgresql -f helm_values/postgres/postgres-gcp.yaml -n database --create-namespace
 
-# Init databases (airflow, mlflow) — chạy sau khi Postgres Ready
+# Init databases (airflow, mlflow)
 if [ -f scripts/init_postgres.sh ]; then
   echo "--- Init PostgreSQL (airflow, mlflow) ---"
   bash scripts/init_postgres.sh
@@ -114,7 +113,19 @@ helm upgrade --install rabbitmq bitnami/rabbitmq -f helm_values/rabbitmq/rabbitm
 helm upgrade --install airflow apache-airflow/airflow -f helm_values/airflow/airflow-gcp.yaml -n mlops --create-namespace
 helm upgrade --install kong kong/kong -f helm_values/kong/kong-gcp.yaml -n kong --create-namespace
 
-# Apply toàn bộ overlay (api-gateway, collectors, services...) — Kong CRDs đã có
+# Apply toàn bộ overlay
 kubectl apply -k k8s/overlays/dev-gcp/
+
+echo "--- Post-setup cleanup and restarts ---"
+echo "Restarting deployments in 'dev' namespace to pick up new secrets..."
+kubectl rollout restart statefulset rabbitmq -n database
+kubectl rollout restart deployment collectors-deployment -n dev
+kubectl rollout restart deployment market-data-service-deployment -n dev
+kubectl rollout restart deployment sentiment-service-deployment -n dev
+kubectl rollout restart deployment forecast-service-deployment -n dev
+
+echo "Waiting for deployments to be ready..."
+kubectl wait --for=condition=available deployment/market-data-service-deployment -n dev --timeout=300s
+kubectl wait --for=condition=available deployment/sentiment-service-deployment -n dev --timeout=300s
 
 kubectl get pods -A

@@ -1,3 +1,35 @@
+# Tạo service account cho GKE nodes TRƯỚC cluster + node pool
+# Node pool phải dùng SA này — nếu dùng default sẽ 403 khi pull Artifact Registry
+resource "google_service_account" "gke_service_account" {
+  account_id   = "${var.project_name}-gke-sa"
+  display_name = "GKE Service Account for ${var.project_name}"
+}
+
+# Cấp quyền cho GKE node SA
+resource "google_project_iam_member" "sa_registry" {
+  project = var.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_project_iam_member" "sa_storage" {
+  project = var.project_id
+  role    = "roles/storage.objectAdmin"
+  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_project_iam_member" "sa_logging" {
+  project = var.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_project_iam_member" "sa_monitoring" {
+  project = var.project_id
+  role    = "roles/monitoring.metricWriter"
+  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
 # Tạo GKE Cluster
 resource "google_container_cluster" "gke_cluster" {
   name     = "${var.project_name}-gke-cluster${var.resource_suffix}"
@@ -34,12 +66,18 @@ resource "google_container_cluster" "gke_cluster" {
   deletion_protection = false
 }
 
-# Tạo node pool, máy chạy các pods
+# Tạo node pool — phải dùng flying-coin-gke-sa, không dùng default (sẽ 403 pull Artifact Registry)
 resource "google_container_node_pool" "primary" {
   name       = "${var.project_name}-node-pool${var.resource_suffix}"
   location   = var.zone
-  cluster    = google_container_cluster.gke_cluster.id # Gắn node pool vào cluster đã tạo ở trên
+  cluster    = google_container_cluster.gke_cluster.id
   node_count = var.node_count
+
+  depends_on = [
+    google_project_iam_member.sa_registry,
+    google_project_iam_member.sa_storage,
+  ]
+
   node_config {
     machine_type    = var.machine_type                                 # Loại máy (VD: e2-standard-2, ...)
     service_account = google_service_account.gke_service_account.email # Chỉ định service account cho node
@@ -131,40 +169,15 @@ resource "helm_release" "external_secrets" {
   }
 }
 
-# Tạo service account, cấp quyền tối thiểu cho GKE nodes
-resource "google_service_account" "gke_service_account" {
-  account_id   = "${var.project_name}-gke-sa"
-  display_name = "GKE Service Account for ${var.project_name}"
+# Tự định nghĩa StorageClass "standard-rwo" để kiểm soát ReclaimPolicy
+resource "kubernetes_storage_class_v1" "gcp_ssd" {
+  metadata {
+    name = "standard-rwo"
+  }
+  storage_provisioner = "pd.csi.storage.gke.io"
+  reclaim_policy      = "Delete" # Tự động xóa ổ đĩa vật lý khi PVC/Cluster bị xóa (Tiết kiệm chi phí Dev)
+  volume_binding_mode = "WaitForFirstConsumer"
+  parameters = {
+    type = "pd-ssd"
+  }
 }
-
-# Cấp các quyền cần thiêt cho service account ở trên
-# Pull Docker images
-resource "google_project_iam_member" "sa_registry" {
-  project = var.project_id
-  role    = "roles/artifactregistry.reader"
-  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
-}
-
-# Đọc/ghi MLflow model files trên Cloud storage
-resource "google_project_iam_member" "sa_storage" {
-  project = var.project_id
-  role    = "roles/storage.objectAdmin"
-  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
-}
-
-# Ghi logs
-resource "google_project_iam_member" "sa_logging" {
-  project = var.project_id
-  role    = "roles/logging.logWriter"
-  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
-}
-
-# Ghi metrics
-resource "google_project_iam_member" "sa_monitoring" {
-  project = var.project_id
-  role    = "roles/monitoring.metricWriter"
-  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
-}
-
-# GKE tạo sẵn StorageClass "standard-rwo" mặc định. Không cần tạo lại.
-# Helm values (postgres, redis, rabbitmq, airflow) dùng storageClassName: "standard-rwo"

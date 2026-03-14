@@ -8,8 +8,8 @@ resources:
 
 images:
   - name: forecast-service
-    newName: asia-southeast1-docker.pkg.dev/flying-coin/flying-coin/forecast-service
-    newTag: latest
+    newName: asia-southeast1-docker.pkg.dev/flying-coin-489803/flying-coin-docker/forecast-service
+    newTag: staging
 
 patchesStrategicMerge:
   - |-

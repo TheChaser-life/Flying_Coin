@@ -5,4 +5,4 @@ namespace: mlops
 
 resources:
   - mlflow
-  - ../../../base/mlops/airflow
+  # airflow-external-secret đã apply qua external-secrets overlay

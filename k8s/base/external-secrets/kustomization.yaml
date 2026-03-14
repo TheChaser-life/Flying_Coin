@@ -8,3 +8,7 @@ resources:
   - redis-external-secret.yaml
   - rabbitmq-external-secret.yaml
   - airflow-external-secret.yaml
+  - keycloak-external-secret.yaml
+  - kong-external-secret.yaml
+  - keycloak-tls-external-secret.yaml
+

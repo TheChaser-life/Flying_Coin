@@ -86,6 +86,25 @@ def create_app():
     def health():
         return jsonify({"status": "ok", "message": "Trigger server running"})
 
+    @app.route("/check-datasets", methods=["GET"])
+    def check_datasets_endpoint():
+        """Kiểm tra dataset parquet có sẵn trên host."""
+        if not DATASETS_DIR.exists():
+            return jsonify({"status": "error", "message": f"Thư mục dataset không tồn tại: {DATASETS_DIR}"}), 404
+
+        parquets = list(DATASETS_DIR.glob("*.parquet"))
+        if not parquets:
+            return jsonify({"status": "error", "message": f"Không có file parquet trong {DATASETS_DIR}"}), 404
+
+        required = ["training_dataset_all_train", "training_dataset_all_val", "training_dataset_all_test"]
+        found = [p.stem for p in parquets]
+        missing = [r for r in required if not any(r in f for f in found)]
+
+        if missing:
+            return jsonify({"status": "error", "message": f"Thiếu dataset: {missing}"}), 400
+
+        return jsonify({"status": "ok", "message": f"Tìm thấy {len(parquets)} file parquet"}), 200
+
     @app.route("/train-arima", methods=["POST"])
     def train_arima():
         symbol = request.json.get("symbol", "all") if request.is_json else "all"
