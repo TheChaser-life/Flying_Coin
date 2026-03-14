@@ -51,12 +51,12 @@ def extract_and_upload_to_gcs(symbol="all", **context):
     
     # Query join với bảng symbols để có tên symbol
     query = """
-    SELECT m.timestamp, m.close as price, s.symbol
+    SELECT m.timestamp, m.close as price, s.ticker as symbol
     FROM market_data m
     JOIN symbols s ON m.symbol_id = s.id
     """
     if symbol != "all":
-        query += f" WHERE s.symbol = '{symbol}'"
+        query += f" WHERE s.ticker = '{symbol}'"
     
     print(f"Extracting data for {symbol}...")
     df = pd.read_sql(query, engine)
