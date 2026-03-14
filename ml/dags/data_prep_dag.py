@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.hooks.gcs import GCSHook
-from sqlalchemy import create_all, create_engine
+from sqlalchemy import create_engine
 import pyarrow.parquet as pq
 import pyarrow as pa
 
