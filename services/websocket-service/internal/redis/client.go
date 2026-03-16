@@ -24,6 +24,10 @@ func (r *RedisClient) Subscribe(ctx context.Context, channels ...string) *redis.
 	return r.Client.Subscribe(ctx, channels...)
 }
 
+func (r *RedisClient) PSubscribe(ctx context.Context, patterns ...string) *redis.PubSub {
+	return r.Client.PSubscribe(ctx, patterns...)
+}
+
 func (r *RedisClient) Listen(ctx context.Context, ps *redis.PubSub, msgChan chan<- []byte) {
 	defer ps.Close()
 	ch := ps.Channel()

@@ -80,6 +80,25 @@ async def predict(req: ForecastRequest) -> ForecastResponse:
             # Record the first prediction value as a sample
             PREDICTION_VALUE.labels(model_type=req.model_type, run_id=req.run_id).set(float(preds[0]))
 
+            # Publish to Redis Pub/Sub (Unified Architecture Task 11.6)
+            try:
+                from app.core.dependencies import get_redis_pool
+                import json
+                redis_client = get_redis_pool()
+                # We use the ticker/symbol from the run_id or features if available. 
+                # Assuming run_id contains ticker info for now if not available elsewhere.
+                ticker = req.run_id.split('_')[0] if '_' in req.run_id else "unknown"
+                payload = {
+                    "ticker": ticker,
+                    "model_type": req.model_type,
+                    "predictions": preds,
+                    "horizon": req.horizon,
+                    "timestamp": time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+                }
+                await redis_client.publish(f"forecast:{ticker}", json.dumps(payload))
+            except Exception as e:
+                logger.error("Failed to publish forecast to Redis: %s", e)
+
         return ForecastResponse(
             predictions=preds,
             horizon=req.horizon,
