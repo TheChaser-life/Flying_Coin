@@ -97,6 +97,7 @@ def run_lstm_and_evaluate(
     val: pd.DataFrame,
     test: pd.DataFrame,
     feature_cols: list[str],
+    target_col: str = "close",
     seq_len: int = 21,
     hidden_size: int = 64,
     num_layers: int = 2,
@@ -108,9 +109,9 @@ def run_lstm_and_evaluate(
     """Fit LSTM, forecast test, return metrics và model state."""
     from torch.utils.data import DataLoader, TensorDataset
 
-    X_train, y_train = create_sequences(train, feature_cols, seq_len=seq_len)
-    _, _ = create_sequences(val, feature_cols, seq_len=seq_len)  # validation not used in training loop
-    X_test, y_test = create_sequences(test, feature_cols, seq_len=seq_len)
+    X_train, y_train = create_sequences(train, feature_cols, target_col=target_col, seq_len=seq_len)
+    _, _ = create_sequences(val, feature_cols, target_col=target_col, seq_len=seq_len)  # validation not used in training loop
+    X_test, y_test = create_sequences(test, feature_cols, target_col=target_col, seq_len=seq_len)
 
     device = torch.device("cuda" if use_cuda and torch.cuda.is_available() else "cpu")
     logger.info("Device: %s", device)
@@ -206,6 +207,7 @@ def compare_with_naive(metrics: BaselineMetrics, naive_metrics: dict) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description="LSTM Model (PyTorch CUDA)")
     parser.add_argument("-d", "--data-dir", help="Thư mục dataset (train/val/test)")
+    parser.add_argument("-i", "--input", help="File dataset đơn (sẽ split)")
     parser.add_argument("-s", "--symbol", default="all")
     parser.add_argument("--seq-len", type=int, default=21, help="Lookback window")
     parser.add_argument("--hidden-size", type=int, default=64)
@@ -220,26 +222,39 @@ def main() -> int:
     parser.add_argument("--no-compare", action="store_true")
     args = parser.parse_args()
 
-    if not args.data_dir:
-        logger.error("Cần -d/--data-dir (ví dụ: ml/outputs/datasets)")
+    if args.data_dir:
+        train, val, test = load_dataset_from_dir(args.data_dir, args.symbol)
+    elif args.input:
+        df = pd.read_parquet(args.input) if args.input.endswith(".parquet") else pd.read_csv(args.input)
+        df = df.sort_values("timestamp").reset_index(drop=True)
+        n = len(df)
+        train_end = int(n * 0.7)
+        val_end = int(n * 0.85)
+        train, val, test = df.iloc[:train_end], df.iloc[train_end:val_end], df.iloc[val_end:]
+    else:
+        logger.error("Cần -d/--data-dir hoặc -i/--input")
         return 1
 
-    train, val, test = load_dataset_from_dir(args.data_dir, args.symbol)
-
+    close_col = "close"
     if "close" not in train.columns:
-        logger.error("Dataset thiếu cột 'close'")
-        return 1
+        if "price" in train.columns:
+            logger.info("Cột 'close' không có, dùng 'price' thay thế.")
+            close_col = "price"
+        else:
+            logger.error("Dataset thiếu cột 'close' và 'price'")
+            return 1
 
     feature_cols = get_feature_columns(train)
     if not feature_cols:
-        feature_cols = ["close"]
-    if "close" not in feature_cols:
-        feature_cols = ["close"] + feature_cols
+        feature_cols = [close_col]
+    if close_col not in feature_cols:
+        feature_cols = [close_col] + feature_cols
     logger.info("Features: %s", feature_cols[:10] if len(feature_cols) > 10 else feature_cols)
 
     metrics, model = run_lstm_and_evaluate(
         train, val, test,
         feature_cols=feature_cols,
+        target_col=close_col,
         seq_len=args.seq_len,
         hidden_size=args.hidden_size,
         num_layers=args.num_layers,
@@ -253,7 +268,7 @@ def main() -> int:
                 metrics.rmse, metrics.mae, metrics.directional_accuracy, metrics.mape)
 
     if not args.no_compare:
-        naive_metrics = evaluate_baselines(train, val, test)
+        naive_metrics = evaluate_baselines(train, val, test, close_col=close_col)
         compare_with_naive(metrics, naive_metrics)
 
     if not args.no_mlflow:

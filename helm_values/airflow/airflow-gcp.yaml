@@ -75,6 +75,8 @@ env:
     value: "flying-coin-489803"
   - name: "_PIP_ADDITIONAL_DEPENDENCIES"
     value: "pandas sqlalchemy psycopg2-binary pyarrow fastparquet"
+  - name: "AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT"
+    value: "google-cloud-platform://"
 
 # Extra env vars that support valueFrom (must be a string for this chart)
 extraEnv: |
@@ -126,7 +128,7 @@ triggerer:
 
 # Disable metrics, let prometheus scrape via service monitor if needed
 metrics:
-  enabled: false
+  enabled: true
 
 # Tắt Helm hooks — tránh helm install/upgrade bị đơ khi chờ createUserJob, migrateDatabaseJob
 # Jobs vẫn chạy nhưng Helm return ngay, không block
@@ -138,6 +140,9 @@ migrateDatabaseJob:
 # Tắt waitForMigrations — tránh init container CrashLoopBackOff khi migration job chưa xong
 # Migration job chạy song song, pods start không block. Nếu migration fail, main container sẽ báo lỗi rõ hơn.
 scheduler:
+  serviceAccount:
+    annotations:
+      iam.gke.io/gcp-service-account: "flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com"
   waitForMigrations:
     enabled: false
   extraVolumes:

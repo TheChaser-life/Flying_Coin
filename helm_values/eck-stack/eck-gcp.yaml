@@ -1,0 +1,87 @@
+# GCP-optimized values for eck-stack.
+# This configuration is tailored for GKE with Kong Ingress.
+
+# Elasticsearch Configuration
+eck-elasticsearch:
+  enabled: true
+  fullnameOverride: elasticsearch
+  version: 8.12.0 # Khuyên dùng bản ổn định 8.x
+  nodeSets:
+  - name: default
+    count: 1
+    config:
+      node.store.allow_mmap: false
+    # 1. Cấu hình Storage cho GKE
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi # Kích thước disk tối thiểu khuyên dùng cho dev
+        storageClassName: standard-rwo # StorageClass mặc định của GKE
+    # 2. Cấu hình Resource (RAM/CPU)
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+          resources:
+            limits:
+              memory: 2Gi # Elasticsearch cần ít nhất 2Gi-4Gi để chạy ổn định
+            requests:
+              cpu: 500m
+              memory: 2Gi
+
+# Kibana Configuration
+eck-kibana:
+  enabled: true
+  version: 8.12.0 # Đảm bảo version khớp với Elasticsearch
+  elasticsearchRef:
+    name: elasticsearch
+  podTemplate:
+    spec:
+      containers:
+      - name: kibana
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 1Gi
+  # 3. Vô hiệu hóa TLS nội bộ của Kibana để Kong proxy dễ dàng (Fix 502)
+  config:
+    server.publicBaseurl: "https://kibana.thinhopsops.win"
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: true
+  
+  # 4. Cấu hình Ingress cho GCP (Sử dụng Kong theo cấu hình hiện tại của bạn)
+  ingress:
+    enabled: true
+    ingressClassName: kong # Thêm dòng này để đảm bảo Kong Controller nhận diện
+    annotations:
+      kubernetes.io/ingress.class: kong
+      konghq.com/strip-path: "true"
+      
+      # Lựa chọn 2: Nếu muốn dùng GKE Ingress (Load Balancer của Google)
+      # kubernetes.io/ingress.class: gce
+      # kubernetes.io/ingress.allow-http: "false" # Chỉ cho phép HTTPS
+    
+    hosts:
+      - host: kibana.thinhopsops.win
+        path: /
+
+# Disable các thành phần không cần thiết để tiết kiệm tài nguyên
+eck-agent:
+  enabled: false
+eck-beats:
+  enabled: false
+eck-logstash:
+  enabled: false
+eck-apm-server:
+  enabled: false
+eck-fleet-server:
+  enabled: false

@@ -1,0 +1,67 @@
+# GCP-optimized values for Vector
+# Vai trò Agent sẽ cài đặt Vector dưới dạng DaemonSet trên mỗi Node
+role: "Agent"
+
+# Cấp quyền cho Vector để đọc log từ Kubernetes API
+rbac:
+  create: true
+
+# Cấu hình tài nguyên (Resource limits)
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+# Cấu hình đường ống dẫn dữ liệu (Pipeline)
+customConfig:
+  data_dir: "/var/lib/vector"
+  
+  # Bật API để cung cấp port cho Service (Fix lỗi spec.ports: Required value)
+  api:
+    enabled: true
+    address: 0.0.0.0:8686
+    playground: false
+
+  sources:
+    # Thu thập log từ toàn bộ Pods trong Cluster
+    kubernetes_logs:
+      type: "kubernetes_logs"
+
+  transforms:
+    # Parse JSON logs into a subfield to avoid overwriting metadata
+    parse_json:
+      type: "remap"
+      inputs: ["kubernetes_logs"]
+      source: |
+        .@timestamp = .timestamp
+        parsed, err = parse_json(.message)
+        if err == null {
+            .json = parsed
+        }
+
+  sinks:
+    # Đẩy dữ liệu về cụm Elasticsearch đã cài ở bước trước
+    elasticsearch:
+      type: "elasticsearch"
+      inputs: ["parse_json"]
+      endpoint: "https://elasticsearch-es-http.logging-monitoring.svc.cluster.local:9200"
+      compression: "gzip"
+      tls:
+        verify_certificate: false
+      
+      # Xác thực bằng user elastic (lấy password từ secret của ECK)
+      auth:
+        strategy: "basic"
+        user: "elastic"
+        password: "${ELASTIC_PASSWORD}"
+
+# Lấy password từ Secret do ECK tạo ra
+env:
+  - name: ELASTIC_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: elasticsearch-es-elastic-user
+        key: elastic

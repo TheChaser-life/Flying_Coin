@@ -912,7 +912,7 @@ metrics:
   ## @param metrics.enabled Enable exposing Keycloak metrics
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/keycloak#enabling-metrics
   ##
-  enabled: false
+  enabled: true
   ## Keycloak metrics service parameters
   ##
   service:

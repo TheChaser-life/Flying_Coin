@@ -14,6 +14,13 @@ Airflow gọi: curl -X POST http://host.docker.internal:8765/train-xgboost
 
 from __future__ import annotations
 
+import sys
+# Force line buffering for stdout/stderr to ensure logs appear in antigravity
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(line_buffering=True)
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(line_buffering=True)
+
 import logging
 import os
 import subprocess
@@ -36,24 +43,54 @@ logger = logging.getLogger(__name__)
 MLFLOW_URI = "http://localhost:5000"
 
 
-def run_training(script_name: str, symbol: str = "all") -> tuple[int, str]:
+def download_from_gcs(bucket_name: str, gcs_path: str, local_dest: Path):
+    """Tải file từ GCS về local."""
+    try:
+        from google.cloud import storage
+        # Lấy project_id từ env hoặc mặc định flying-coin-489803
+        project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "flying-coin-489803")
+        client = storage.Client(project=project_id)
+        bucket = client.bucket(bucket_name)
+        blob = bucket.blob(gcs_path)
+        
+        local_dest.parent.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Downloading gs://{bucket_name}/{gcs_path} to {local_dest}...")
+        blob.download_to_filename(str(local_dest))
+        return True
+    except Exception as e:
+        logger.error(f"GCS Download Error: {e}")
+        return False
+
+
+def run_training(script_name: str, symbol: str = "all", dataset_file: str = None) -> tuple[int, str]:
     """Chạy training script trong venv của host. Trả về (exit_code, output)."""
     script_path = ML_SCRIPTS / script_name
     if not script_path.exists():
         return 1, f"Script không tồn tại: {script_path}"
 
-    cmd = [
-        sys.executable,
-        str(script_path),
-        "-d", str(DATASETS_DIR),
-        "-s", symbol,
-    ]
+    if dataset_file:
+        # Nếu có dataset_file từ GCS, dùng -i và không dùng -d
+        input_file = DATASETS_DIR / dataset_file
+        cmd = [
+            sys.executable,
+            str(script_path),
+            "-i", str(input_file),
+            "-s", symbol,
+        ]
+    else:
+        cmd = [
+            sys.executable,
+            str(script_path),
+            "-d", str(DATASETS_DIR),
+            "-s", symbol,
+        ]
+
     env = {
         **os.environ,
         "MLFLOW_TRACKING_URI": MLFLOW_URI,
-        "PYTHONIOENCODING": "utf-8",  # Tránh lỗi charmap với emoji (🏃) trong output MLflow
+        "PYTHONIOENCODING": "utf-8",
     }
-    logger.info("Chạy: %s (MLFLOW_TRACKING_URI=%s)", " ".join(cmd), MLFLOW_URI)
+    logger.info("Chạy: %s", " ".join(cmd))
     try:
         result = subprocess.run(
             cmd,
@@ -62,13 +99,11 @@ def run_training(script_name: str, symbol: str = "all") -> tuple[int, str]:
             text=True,
             encoding="utf-8",
             errors="replace",
-            timeout=3600,  # 1 giờ
+            timeout=3600,
             env=env,
         )
         out = (result.stdout or "") + (result.stderr or "")
         return result.returncode, out
-    except subprocess.TimeoutExpired:
-        return 1, "Timeout (quá 1 giờ)"
     except Exception as e:
         return 1, str(e)
 
@@ -86,42 +121,41 @@ def create_app():
     def health():
         return jsonify({"status": "ok", "message": "Trigger server running"})
 
-    @app.route("/check-datasets", methods=["GET"])
-    def check_datasets_endpoint():
-        """Kiểm tra dataset parquet có sẵn trên host."""
-        if not DATASETS_DIR.exists():
-            return jsonify({"status": "error", "message": f"Thư mục dataset không tồn tại: {DATASETS_DIR}"}), 404
-
-        parquets = list(DATASETS_DIR.glob("*.parquet"))
-        if not parquets:
-            return jsonify({"status": "error", "message": f"Không có file parquet trong {DATASETS_DIR}"}), 404
-
-        required = ["training_dataset_all_train", "training_dataset_all_val", "training_dataset_all_test"]
-        found = [p.stem for p in parquets]
-        missing = [r for r in required if not any(r in f for f in found)]
-
-        if missing:
-            return jsonify({"status": "error", "message": f"Thiếu dataset: {missing}"}), 400
-
-        return jsonify({"status": "ok", "message": f"Tìm thấy {len(parquets)} file parquet"}), 200
+    def handle_train_request(script_name):
+        data = request.json or {}
+        symbol = data.get("symbol", "all")
+        bucket = data.get("gcs_bucket")
+        gcs_path = data.get("gcs_path")
+        
+        dataset_file = None
+        if bucket and gcs_path:
+            local_name = gcs_path.split("/")[-1]
+            local_dest = DATASETS_DIR / local_name
+            if download_from_gcs(bucket, gcs_path, local_dest):
+                dataset_file = local_name
+            else:
+                return jsonify({"exit_code": 1, "output": "Failed to download dataset from GCS"}), 500
+        
+        try:
+            code, out = run_training(script_name, symbol, dataset_file)
+            if code != 0:
+                logger.error(f"Training failed with code {code}. Output:\n{out}")
+            return jsonify({"exit_code": code, "output": out}), 200 if code == 0 else 500
+        except Exception as e:
+            logger.error(f"Unexpected error in handle_train_request: {e}", exc_info=True)
+            return jsonify({"exit_code": 1, "output": str(e)}), 500
 
     @app.route("/train-arima", methods=["POST"])
     def train_arima():
-        symbol = request.json.get("symbol", "all") if request.is_json else "all"
-        code, out = run_training("train_arima.py", symbol)
-        return jsonify({"exit_code": code, "output": out}), 200 if code == 0 else 500
+        return handle_train_request("train_arima.py")
 
     @app.route("/train-xgboost", methods=["POST"])
     def train_xgboost():
-        symbol = request.json.get("symbol", "all") if request.is_json else "all"
-        code, out = run_training("train_xgboost.py", symbol)
-        return jsonify({"exit_code": code, "output": out}), 200 if code == 0 else 500
+        return handle_train_request("train_xgboost.py")
 
     @app.route("/train-lstm", methods=["POST"])
     def train_lstm():
-        symbol = request.json.get("symbol", "all") if request.is_json else "all"
-        code, out = run_training("train_lstm.py", symbol)
-        return jsonify({"exit_code": code, "output": out}), 200 if code == 0 else 500
+        return handle_train_request("train_lstm.py")
 
     @app.route("/fetch-news", methods=["POST"])
     def fetch_news():

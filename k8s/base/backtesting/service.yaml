@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backtesting-service
+  namespace: dev
+spec:
+  selector:
+    app: backtesting-service
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000

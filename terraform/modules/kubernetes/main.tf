@@ -169,6 +169,20 @@ resource "helm_release" "external_secrets" {
   }
 }
 
+# Workload Identity cho Airflow
+# Cho phép airflow-scheduler và airflow-worker (nếu có) đóng vai GKE Node SA
+resource "google_service_account_iam_member" "airflow_scheduler_wi" {
+  service_account_id = google_service_account.gke_service_account.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "serviceAccount:${var.project_id}.svc.id.goog[mlops/airflow-scheduler]"
+}
+
+resource "google_service_account_iam_member" "airflow_worker_wi" {
+  service_account_id = google_service_account.gke_service_account.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "serviceAccount:${var.project_id}.svc.id.goog[mlops/airflow-worker]"
+}
+
 # Tự định nghĩa StorageClass "standard-rwo" để kiểm soát ReclaimPolicy
 resource "kubernetes_storage_class_v1" "gcp_ssd" {
   metadata {

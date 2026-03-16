@@ -48,3 +48,10 @@ config:
   - Authorization
   credentials: true
   max_age: 3600    # Tuổi thọ lưu giữ kết quả Pre-flight (Của lệnh gọi OPTIONS rào trước) trong máy client là 3600 giây (1h). Giúp tăng tốc FE.
+---
+# 4. Plugin Giám sát (Prometheus)
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: prometheus
+plugin: prometheus

@@ -189,9 +189,14 @@ def main() -> int:
         logger.warning("No input — tạo sample dataset")
         train, val, test = create_sample_dataset()
 
+    close_col = "close"
     if "close" not in train.columns:
-        logger.error("Dataset thiếu cột 'close'")
-        return 1
+        if "price" in train.columns:
+            logger.info("Cột 'close' không có, dùng 'price' thay thế.")
+            close_col = "price"
+        else:
+            logger.error("Dataset thiếu cột 'close' và 'price'")
+            return 1
 
     order = tuple(args.order)
     if len(order) != 3:
@@ -199,14 +204,14 @@ def main() -> int:
         return 1
 
     # Fit & evaluate
-    arima_metrics, fitted = run_arima_and_evaluate(train, val, test, order=order)
+    arima_metrics, fitted = run_arima_and_evaluate(train, val, test, close_col=close_col, order=order)
     logger.info("ARIMA(%d,%d,%d): RMSE=%.4f MAE=%.4f DA=%.1f%% MAPE=%.2f%%",
                 order[0], order[1], order[2], arima_metrics.rmse, arima_metrics.mae,
                 arima_metrics.directional_accuracy, arima_metrics.mape)
 
     # So sánh với naive
     if not args.no_compare:
-        naive_metrics = evaluate_baselines(train, val, test)
+        naive_metrics = evaluate_baselines(train, val, test, close_col=close_col)
         compare_with_naive(arima_metrics, naive_metrics)
 
     # Log MLflow

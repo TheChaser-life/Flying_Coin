@@ -98,12 +98,16 @@ diary/
 node_modules/
 sonar_scan/
 source_code_issues_*.json
+alembic.ini
+check.sh
+full_mapping.json
+log_dump.json
+sample_log.json
 
 # Temp / Cache
 *.tmp
 *.temp
 *.bak
-*.cache
 
 .gitattributes
 .gitignore

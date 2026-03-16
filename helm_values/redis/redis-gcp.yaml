@@ -1797,7 +1797,7 @@ tls:
 metrics:
   ## @param metrics.enabled Start a sidecar prometheus exporter to expose Redis(R) metrics
   ##
-  enabled: false
+  enabled: true
   ## Bitnami Redis(R) Exporter image
   ## ref: https://hub.docker.com/r/bitnami/redis-exporter/tags/
   ## @param metrics.image.registry [default: REGISTRY_NAME] Redis(R) Exporter image registry

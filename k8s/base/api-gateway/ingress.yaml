@@ -12,6 +12,7 @@ metadata:
     # httpbin nhận /get thay vì /api/v1/get
     konghq.com/strip-path: "true"
 spec:
+  ingressClassName: kong
   rules:
     # Backend thuần không hardcode domain (Domain sẽ được vá/patch qua Overlays)
     - http:
@@ -30,9 +31,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: market-data-service # Tên thực của Service Python sau này ta sẽ Deploy
+                name: market-data-service-service # Tên thực của Service Python sau này ta sẽ Deploy
                 port:
-                  number: 80
+                  number: 8001
           
           # Route 3: Phục vụ Sentiment Analysis service
           - path: /api/v1/sentiment

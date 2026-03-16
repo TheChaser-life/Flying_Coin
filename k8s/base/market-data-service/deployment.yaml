@@ -9,6 +9,10 @@ spec:
       app: market-data-service
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8001"
+        prometheus.io/path: "/metrics"
       labels:
         app: market-data-service
     spec:

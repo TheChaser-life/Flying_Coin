@@ -259,9 +259,9 @@
 | M.4 | Migrate data (nếu cần) | 👤 Bạn | 30 phút | Task duy trì |
 | M.5 | Đổi kubectl context | 👤 Bạn | ✅ Done | `gcloud container clusters get-credentials` |
 | M.6 | `kubectl apply -k overlays/dev-gcp/` | 👤 Bạn | ✅ Done | Deploy Cloud overlays |
-| M.7 | **Deploy Airflow trên GKE** | 👤 Bạn | 30 phút | Đang tiến hành |
-| M.8 | **Cấu hình Airflow cloud** | 👤 Bạn | 30 phút | Đang tiến hành |
-| M.9 | **Setup SSH cho remote training** | 👤 Bạn | 30 phút | |
+| M.7 | **Deploy Airflow trên GKE** | 👤 Bạn | ✅ Done | Helm: Apache Airflow deployed in `mlops` ns |
+| M.8 | **Cấu hình Airflow cloud** | 👤 Bạn | ✅ Done | Workload Identity, DAGs (Stage 1 & 2 integration) |
+| M.9 | **Setup SSH cho remote training** | 👤 Bạn | ✅ Done | Reverse Tunnel via Bastion (GatewayPorts enabled) |
 | M.10 | Verify tất cả services | 👤 Bạn | ✅ Done | Collectors, Sentiment, Market-Data services OK |
 | M.11 | Cập nhật CI/CD target | 👤 Bạn | ✅ Done | Deploy → GKE target |
 | M.12 | **Cost-Saving & Automation** | 👤 Bạn | ✅ Done | `destroy.sh` + setup integrated with Terraform |
@@ -413,9 +413,9 @@ Tổng 4 tháng: ~$100-180 (~2.6-4.6 triệu VNĐ)
 ## Checklist Tổng Thể
 
 - [x] Thiết kế kiến trúc hệ thống (Microservice)
-- [x] **Phase 1:** 👤 GKE + CI/CD + Keycloak | 🤖 Gateway + Market Data ✅ Done
-- [x] **Phase 2:** 👤 MLOps cloud-ready | 🤖 3 ML Models + Sentiment ✅ Done
-- [x] ⬆️ **Migration:** Local → GKE Cloud ✅ Done
+- [ ] **Phase 1:** 👤 Minikube + CI/CD + Keycloak | 🤖 Gateway + Market Data *(tuần 1-4, $0)*
+- [ ] **Phase 2:** 👤 MLOps local | 🤖 3 ML Models + Sentiment *(tuần 5-8, ~$0-15)*
+- [ ] ⬆️ **Migration:** Local → GKE Cloud *(~2-4 giờ)*
 - [ ] **Phase 3:** 👤 Monitoring + Logging trên cloud | 🤖 Portfolio + WS *(tuần 9-11)*
 - [ ] **Phase 4:** 👤 DevSecOps | 🤖 Frontend + Tests *(tuần 12-15)*
 - [ ] **Phase 5:** 👤 Deployment Strategies | 🤖 Docs *(tuần 16-17)*
