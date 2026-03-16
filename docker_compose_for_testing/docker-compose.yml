@@ -23,7 +23,6 @@ services:
     build:
       context: ..
       dockerfile: services/collectors/Dockerfile
-    # THÊM DÒNG NÀY ĐỂ PUSH:
     image: ${ARTIFACT_REGISTRY}/collectors:${TAG}
     ports:
       - "8000:8000"
@@ -37,7 +36,6 @@ services:
     build:
       context: ..
       dockerfile: services/forecast-service/Dockerfile
-    # THÊM DÒNG NÀY ĐỂ PUSH:
     image: ${ARTIFACT_REGISTRY}/forecast-service:${TAG}
     ports:
       - "8001:8000"
@@ -46,7 +44,6 @@ services:
     build:
       context: ..
       dockerfile: services/sentiment-service/Dockerfile
-    # THÊM DÒNG NÀY ĐỂ PUSH:
     image: ${ARTIFACT_REGISTRY}/sentiment-service:${TAG}
     ports:
       - "8002:8002"
@@ -63,7 +60,6 @@ services:
     build:
       context: ..
       dockerfile: services/market-data-service/Dockerfile
-    # THÊM DÒNG NÀY ĐỂ PUSH:
     image: ${ARTIFACT_REGISTRY}/market-data-service:${TAG}
     ports:
       - "8003:8001"

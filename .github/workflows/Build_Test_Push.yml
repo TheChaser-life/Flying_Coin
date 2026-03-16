@@ -27,24 +27,30 @@ jobs:
           
           echo "Waiting for services to be healthy..."
           # Đợi tối đa 120s cho các service ổn định
-          timeout 120s bash -c 'until curl -s http://localhost:8000/health && \
-                                     curl -s http://localhost:8001/health && \
-                                     curl -s http://localhost:8002/health && \
-                                     curl -s http://localhost:8003/health && \
-                                     curl -s http://localhost:8004/health && \
-                                     curl -s http://localhost:8005/health && \
-                                     curl -s http://localhost:8006/health; do sleep 5; done'
+          for i in {1..24}; do
+            echo "Attempt $i: Checking health endpoints..."
+            COMPLETED=true
+            for port in 8000 8001 8002 8003 8004 8005 8006; do
+              if ! curl -s --fail http://localhost:$port/health; then
+                echo "Service on port $port is NOT healthy yet."
+                COMPLETED=false
+              else
+                echo "Service on port $port is HEALTHY."
+              fi
+            done
+            if [ "$COMPLETED" = true ]; then
+              echo "All services are healthy!"
+              break
+            fi
+            sleep 5
+          done
           
-          echo "Verifying health endpoints..."
-          curl --fail http://localhost:8000/health || exit -1
-          curl --fail http://localhost:8001/health || exit -1
-          curl --fail http://localhost:8002/health || exit -1
-          curl --fail http://localhost:8003/health || exit -1
-          curl --fail http://localhost:8004/health || exit -1
-          curl --fail http://localhost:8005/health || exit -1
-          curl --fail http://localhost:8006/health || exit -1
-          
-          echo "All services are healthy!"
+          if [ "$COMPLETED" = false ]; then
+            echo "Timeout reached. Some services are still unhealthy."
+            docker compose -f docker_compose_for_testing/docker-compose.yml logs
+            exit 1
+          fi
+
           docker compose -f docker_compose_for_testing/docker-compose.yml ps
 
       - name: authentication with google
