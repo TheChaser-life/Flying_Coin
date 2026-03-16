@@ -2,12 +2,13 @@ FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
-# Paths must be relative to the build context (root of repo)
-COPY services/websocket-service/go.mod ./
-# Generating go.sum during build as it's missing from the repository
+# Copy the entire service directory first so go mod tidy can scan the source code
+COPY services/websocket-service .
+
+# Generate go.sum and download dependencies
 RUN go mod tidy
 
-COPY services/websocket-service .
+# Build the binary
 RUN go build -o main ./cmd/main.go
 
 FROM alpine:latest
