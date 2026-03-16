@@ -12,3 +12,4 @@ numpy>=1.26.0
 pandas>=2.2.0
 scipy>=1.12.0
 PyPortfolioOpt>=1.5.0
+packaging>=24.0
