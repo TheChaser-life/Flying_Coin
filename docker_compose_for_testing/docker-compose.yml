@@ -80,4 +80,19 @@ services:
     image: ${ARTIFACT_REGISTRY}/backtesting-service:${TAG}
     ports: 
       - "8004:8000"
-    
+
+  portfolio-service:
+    build:
+      context: ..
+      dockerfile: services/portfolio-service
+    image: ${ARTIFACT_REGISTRY}/portfolio-service:${TAG}
+    ports:
+      - "8005:8000"
+
+  websocket-service:
+    build:
+      context: ..
+      dockerfile: services/websocket-service
+    image: ${ARTIFACT_REGISTRY}/websocket-service:${TAG}
+    ports:
+      - "8006:8080"
