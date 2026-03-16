@@ -4,8 +4,8 @@ WORKDIR /app
 
 # Paths must be relative to the build context (root of repo)
 COPY services/websocket-service/go.mod ./
-# COPY services/websocket-service/go.sum ./
-RUN go mod download
+# Generating go.sum during build as it's missing from the repository
+RUN go mod tidy
 
 COPY services/websocket-service .
 RUN go build -o main ./cmd/main.go
