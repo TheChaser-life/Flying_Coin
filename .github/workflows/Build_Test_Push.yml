@@ -26,16 +26,19 @@ jobs:
           docker compose -f docker_compose_for_testing/docker-compose.yml up -d
           
           echo "Waiting for services to be healthy..."
+          declare -A services=( [8000]="collectors" [8001]="forecast-service" [8002]="sentiment-service" [8003]="market-data-service" [8004]="backtesting-service" [8005]="portfolio-service" [8006]="websocket-service" )
+          
           # Đợi tối đa 120s cho các service ổn định
           for i in {1..24}; do
             echo "Attempt $i: Checking health endpoints..."
             COMPLETED=true
             for port in 8000 8001 8002 8003 8004 8005 8006; do
               if ! curl -s --fail http://localhost:$port/health; then
-                echo "Service on port $port is NOT healthy yet."
+                # Only print "not healthy" message every few attempts to avoid spam
+                if [ $((i % 4)) -eq 0 ] || [ $i -eq 24 ]; then
+                  echo "Service ${services[$port]} (port $port) is NOT healthy yet."
+                fi
                 COMPLETED=false
-              else
-                echo "Service on port $port is HEALTHY."
               fi
             done
             if [ "$COMPLETED" = true ]; then
@@ -46,8 +49,16 @@ jobs:
           done
           
           if [ "$COMPLETED" = false ]; then
-            echo "Timeout reached. Some services are still unhealthy."
-            docker compose -f docker_compose_for_testing/docker-compose.yml logs
+            echo "Timeout reached. Logging only unhealthy services (last 50 lines):"
+            for port in 8000 8001 8002 8003 8004 8005 8006; do
+              if ! curl -s --fail http://localhost:$port/health; then
+                service_name=${services[$port]}
+                echo "--------------------------------------------------------"
+                echo "Logs for UNHEALTHY service: $service_name"
+                echo "--------------------------------------------------------"
+                docker compose -f docker_compose_for_testing/docker-compose.yml logs --tail=50 $service_name
+              fi
+            done
             exit 1
           fi
 
