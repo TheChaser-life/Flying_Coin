@@ -26,8 +26,8 @@ jobs:
           docker compose -f docker_compose_for_testing/docker-compose.yml up -d
           
           echo "Waiting for services to be healthy..."
-          # Đợi tối đa 60s cho các service ổn định
-          timeout 60s bash -c 'until curl -s http://localhost:8000/health && \
+          # Đợi tối đa 120s cho các service ổn định
+          timeout 120s bash -c 'until curl -s http://localhost:8000/health && \
                                      curl -s http://localhost:8001/health && \
                                      curl -s http://localhost:8002/health && \
                                      curl -s http://localhost:8003/health && \
@@ -45,6 +45,7 @@ jobs:
           curl --fail http://localhost:8006/health || exit -1
           
           echo "All services are healthy!"
+          docker compose -f docker_compose_for_testing/docker-compose.yml ps
 
       - name: authentication with google
         uses: google-github-actions/auth@v2
@@ -62,4 +63,4 @@ jobs:
           password: '${{ steps.auth.outputs.access_token }}'
 
       - name: Push images to Artifact Registry
-        run: docker compose -f docker_compose_for_testing/docker-compose.yml push collectors forecast-service sentiment-service market-data-service
+        run: docker compose -f docker_compose_for_testing/docker-compose.yml push collectors forecast-service sentiment-service market-data-service backtesting-service portfolio-service websocket-service
