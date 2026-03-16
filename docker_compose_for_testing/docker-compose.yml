@@ -1,13 +1,13 @@
 services:
-  # rabbitmq:
-  #   image: rabbitmq:alpine
-  #   ports:
-  #     - "5672:5672"
-  #   healthcheck:
-  #     test: ["CMD", "rabbitmqctl", "status"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
+  rabbitmq:
+    image: rabbitmq:alpine
+    ports:
+      - "5672:5672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   
   redis:
     image: redis:7.2-alpine
@@ -19,96 +19,96 @@ services:
       timeout: 5s
       retries: 5
 
-  # collectors:
-  #   build:
-  #     context: ..
-  #     dockerfile: services/collectors/Dockerfile
-  #   image: ${ARTIFACT_REGISTRY}/collectors:${TAG}
-  #   ports:
-  #     - "8000:8000"
-  #   environment:
-  #     - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
+  collectors:
+    build:
+      context: ..
+      dockerfile: services/collectors/Dockerfile
+    image: ${ARTIFACT_REGISTRY}/collectors:${TAG}
+    ports:
+      - "8000:8000"
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
   
-  # forecast-service:
-  #   build:
-  #     context: ..
-  #     dockerfile: services/forecast-service/Dockerfile
-  #   image: ${ARTIFACT_REGISTRY}/forecast-service:${TAG}
-  #   ports:
-  #     - "8001:8000"
+  forecast-service:
+    build:
+      context: ..
+      dockerfile: services/forecast-service/Dockerfile
+    image: ${ARTIFACT_REGISTRY}/forecast-service:${TAG}
+    ports:
+      - "8001:8000"
   
-  # sentiment-service:
-  #   build:
-  #     context: ..
-  #     dockerfile: services/sentiment-service/Dockerfile
-  #   image: ${ARTIFACT_REGISTRY}/sentiment-service:${TAG}
-  #   ports:
-  #     - "8002:8002"
-  #   environment:
-  #     - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-  #     - REDIS_URL=redis://redis:6379
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
+  sentiment-service:
+    build:
+      context: ..
+      dockerfile: services/sentiment-service/Dockerfile
+    image: ${ARTIFACT_REGISTRY}/sentiment-service:${TAG}
+    ports:
+      - "8002:8002"
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
   
-  # market-data-service:
-  #   build:
-  #     context: ..
-  #     dockerfile: services/market-data-service/Dockerfile
-  #   image: ${ARTIFACT_REGISTRY}/market-data-service:${TAG}
-  #   ports:
-  #     - "8003:8001"
-  #   environment:
-  #     - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
+  market-data-service:
+    build:
+      context: ..
+      dockerfile: services/market-data-service/Dockerfile
+    image: ${ARTIFACT_REGISTRY}/market-data-service:${TAG}
+    ports:
+      - "8003:8001"
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
-  # backtesting-service:
-  #   build:
-  #     context: ..
-  #     dockerfile: services/backtesting-service/Dockerfile
-  #   image: ${ARTIFACT_REGISTRY}/backtesting-service:${TAG}
-  #   ports: 
-  #     - "8004:8000"
-  #   environment:
-  #     - MARKET_DATA_SERVICE_URL=http://market-data-service:8001
-  #   depends_on:
-  #     - market-data-service
+  backtesting-service:
+    build:
+      context: ..
+      dockerfile: services/backtesting-service/Dockerfile
+    image: ${ARTIFACT_REGISTRY}/backtesting-service:${TAG}
+    ports: 
+      - "8004:8000"
+    environment:
+      - MARKET_DATA_SERVICE_URL=http://market-data-service:8001
+    depends_on:
+      - market-data-service
 
-  # portfolio-service:
-  #   build:
-  #     context: ..
-  #     dockerfile: services/portfolio-service/Dockerfile
-  #   image: ${ARTIFACT_REGISTRY}/portfolio-service:${TAG}
-  #   ports:
-  #     - "8005:8000"
-  #   environment:
-  #     - REDIS_URL=redis://redis:6379/0
-  #     - MARKET_DATA_SERVICE_URL=http://market-data-service:8001
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #     market-data-service:
-  #       condition: service_started
+  portfolio-service:
+    build:
+      context: ..
+      dockerfile: services/portfolio-service/Dockerfile
+    image: ${ARTIFACT_REGISTRY}/portfolio-service:${TAG}
+    ports:
+      - "8005:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - MARKET_DATA_SERVICE_URL=http://market-data-service:8001
+    depends_on:
+      redis:
+        condition: service_healthy
+      market-data-service:
+        condition: service_started
 
-  # websocket-service:
-  #   build:
-  #     context: ..
-  #     dockerfile: services/websocket-service/Dockerfile
-  #   image: ${ARTIFACT_REGISTRY}/websocket-service:${TAG}
-  #   ports:
-  #     - "8006:8080"
-  #   environment:
-  #     - REDIS_URL=redis://redis:6379/0
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
+  websocket-service:
+    build:
+      context: ..
+      dockerfile: services/websocket-service/Dockerfile
+    image: ${ARTIFACT_REGISTRY}/websocket-service:${TAG}
+    ports:
+      - "8006:8080"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
 
   notification-service:
     build:
