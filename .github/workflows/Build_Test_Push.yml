@@ -30,13 +30,19 @@ jobs:
           timeout 60s bash -c 'until curl -s http://localhost:8000/health && \
                                      curl -s http://localhost:8001/health && \
                                      curl -s http://localhost:8002/health && \
-                                     curl -s http://localhost:8003/health; do sleep 5; done'
+                                     curl -s http://localhost:8003/health && \
+                                     curl -s http://localhost:8004/health && \
+                                     curl -s http://localhost:8005/health && \
+                                     curl -s http://localhost:8006/health; do sleep 5; done'
           
           echo "Verifying health endpoints..."
           curl --fail http://localhost:8000/health || exit -1
           curl --fail http://localhost:8001/health || exit -1
           curl --fail http://localhost:8002/health || exit -1
           curl --fail http://localhost:8003/health || exit -1
+          curl --fail http://localhost:8004/health || exit -1
+          curl --fail http://localhost:8005/health || exit -1
+          curl --fail http://localhost:8006/health || exit -1
           
           echo "All services are healthy!"
 
