@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: portfolio-service
-  namespace: dev
 spec:
   replicas: 1
   selector:
@@ -25,6 +24,9 @@ spec:
               name: postgres-secret
               key: url
         - name: REDIS_URL
-          value: "redis://redis-master.database.svc.cluster.local:6379/0"
+          valueFrom:
+            secretKeyRef:
+              name: infra-credentials
+              key: REDIS_URL
         - name: MARKET_DATA_SERVICE_URL
           value: "http://market-data-service.dev.svc.cluster.local:8000"
