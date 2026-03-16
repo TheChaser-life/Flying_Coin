@@ -18,7 +18,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  
+
   collectors:
     build:
       context: ..
@@ -76,23 +76,40 @@ services:
   backtesting-service:
     build:
       context: ..
-      dockerfile: services/backtesting-service
+      dockerfile: services/backtesting-service/Dockerfile
     image: ${ARTIFACT_REGISTRY}/backtesting-service:${TAG}
     ports: 
       - "8004:8000"
+    environment:
+      - MARKET_DATA_SERVICE_URL=http://market-data-service:8001
+    depends_on:
+      - market-data-service
 
   portfolio-service:
     build:
       context: ..
-      dockerfile: services/portfolio-service
+      dockerfile: services/portfolio-service/Dockerfile
     image: ${ARTIFACT_REGISTRY}/portfolio-service:${TAG}
     ports:
       - "8005:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - MARKET_DATA_SERVICE_URL=http://market-data-service:8001
+    depends_on:
+      redis:
+        condition: service_healthy
+      market-data-service:
+        condition: service_started
 
   websocket-service:
     build:
       context: ..
-      dockerfile: services/websocket-service
+      dockerfile: services/websocket-service/Dockerfile
     image: ${ARTIFACT_REGISTRY}/websocket-service:${TAG}
     ports:
       - "8006:8080"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
