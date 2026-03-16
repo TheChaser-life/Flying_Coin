@@ -73,3 +73,11 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  backtesting-service:
+    build:
+      context: ..
+      dockerfile: services/backtesting-service
+    image: ${ARTIFACT_REGISTRY}/backtesting-service:${TAG}
+    ports: 
+      - "8004:8000"
+    
