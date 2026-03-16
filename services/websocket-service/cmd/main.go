@@ -63,7 +63,7 @@ func main() {
 	ctx := context.Background()
 
 	// Subscribe to relevant channels
-	ps := rClient.PSubscribe(ctx, "price:*", "sentiment:*", "forecast:*")
+	ps := rClient.PSubscribe(ctx, "price:*", "sentiment:*", "forecast:*", "alerts:*")
 	msgChan := make(chan []byte)
 
 	go rClient.Listen(ctx, ps, msgChan)

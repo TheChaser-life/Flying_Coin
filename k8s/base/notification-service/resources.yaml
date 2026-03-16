@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: notification-service
-        image: notification-service:latest
+        image: notification-service
         ports:
         - containerPort: 8080
         env:
@@ -45,7 +45,7 @@ spec:
               name: notification-secrets
               key: SMTP_PASS
         - name: FROM_EMAIL
-          value: "alerts@flying-coin.com"
+          value: "alerts@flying-coin.thinhopsops.win"
 ---
 apiVersion: v1
 kind: Service
@@ -66,5 +66,5 @@ metadata:
   name: notification-config
   namespace: dev
 data:
-  smtp_host: "smtp.gmail.com"
+  smtp_host: "smtp.resend.com"
   smtp_port: "587"

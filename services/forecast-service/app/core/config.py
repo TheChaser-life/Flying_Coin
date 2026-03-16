@@ -8,6 +8,7 @@ class ForecastConfig(BaseSettings):
     MLFLOW_TRACKING_URI: str = "http://localhost:5000"
     RABBITMQ_URL: str = "amqp://admin:admin@localhost:5672/"
     DATABASE_URL: str = ""
+    REDIS_URL: str = "redis://localhost:6379/0"
 
     model_config = SettingsConfigDict(
         env_file=".env",

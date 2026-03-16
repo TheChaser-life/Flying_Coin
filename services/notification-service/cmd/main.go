@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"syscall"
 
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/thechaser-life/flying-coin/notification-service/internal/email"
 	"github.com/thechaser-life/flying-coin/notification-service/internal/redis"
@@ -53,6 +55,21 @@ func main() {
 			log.Printf("Sending email to %s: %s", payload.To, payload.Subject)
 			if err := mailer.Send(payload.To, payload.Subject, payload.Body); err != nil {
 				log.Printf("Error sending email: %v", err)
+			} else {
+				// Broadcast alert for real-time UI (Task 11.5)
+				timestamp := os.Getenv("CURRENT_TIME")
+				if timestamp == "" {
+					timestamp = time.Now().UTC().Format(time.RFC3339)
+				}
+
+				alertPayload := map[string]interface{}{
+					"type":      "email",
+					"to":        payload.To,
+					"subject":   payload.Subject,
+					"timestamp": timestamp,
+				}
+				alertJson, _ := json.Marshal(alertPayload)
+				redisClient.Publish(ctx, "alerts:email", alertJson)
 			}
 		}
 	}()

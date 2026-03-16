@@ -292,20 +292,20 @@
 
 | # | Task | Người | Phụ thuộc | Chi tiết |
 |---|------|-------|-----------|----------|
-| 11.1 | VEK Stack | 👤 Bạn | 9.1 | [Done] Helm: vector + elasticsearch + kibana |
-| 11.2 | Health Checks | 👤 Bạn | 9.7 | [Done] Readiness & Liveness for all services |
-| 11.3 | Grafana ML Dashboard | 👤 Bạn | 9.2 | Dashboard cho ML model metrics |
-| 11.4 | **Notification Service (Go)** | 🤖 AI | Phase 1 | Email alerts (Gin + gomail) |
-| 11.5 | **Real-time integration** | 🤖 AI | 9.6 | WS channels: price, sentiment, forecast, alerts |
-| 11.6 | **Pub/Sub tích hợp** | 🤖 AI | 11.4, 11.5 | Redis Pub/Sub giữa tất cả services |
-| 11.7 | Deploy Notification trên GKE | 👤 Bạn | 11.4 | Deploy, verify email alerts |
+| 11.1 | VEK Stack | 👤 Bạn | 9.1 | ✅ [Done] Helm: vector + elasticsearch + kibana |
+| 11.2 | Health Checks | 👤 Bạn | 9.7 | ✅ [Done] Readiness & Liveness for all services |
+| 11.3 | Grafana ML Dashboard | 👤 Bạn | 9.2 | ✅ [Done] Dashboard cho ML model metrics |
+| 11.4 | **Notification Service (Go)** | 🤖 AI | Phase 1 | ✅ [Done] Email alerts (Resend SMTP) |
+| 11.5 | **Real-time integration** | 🤖 AI | 9.6 | ✅ [Done] WS channels: price, sentiment, forecast, alerts |
+| 11.6 | **Pub/Sub tích hợp** | 🤖 AI | 11.4, 11.5 | ✅ [Done] Redis Pub/Sub giữa tất cả services |
+| 11.7 | Deploy Notification trên GKE | 👤 Bạn | 11.4 | ✅ [Done] Deploy, verify email alerts |
 | 11.8 | **Terraform bật/tắt script** | 👤 Bạn | 9.1 | Script tự động destroy/apply GKE ngoài giờ làm việc |
 
 **✅ Deliverable Phase 3:**
 
-- [ ] 🤖 Portfolio + Backtesting + WebSocket + Notification hoạt động
-- [ ] 👤 Toàn bộ hệ thống chạy trên GKE Cloud
-- [ ] 👤 Prometheus + Grafana + ELK monitoring/logging
+- [x] 🤖 Portfolio + Backtesting + WebSocket + Notification hoạt động
+- [x] 👤 Toàn bộ hệ thống chạy trên GKE Cloud
+- [x] 👤 Prometheus + Grafana + ELK monitoring/logging
 - [ ] 👤 Terraform bật/tắt script tiết kiệm chi phí
 
 ---

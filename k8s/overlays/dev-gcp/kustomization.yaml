@@ -10,6 +10,7 @@ resources:
   - forecast-service
   - market-data-service
   - mlops
+  - notification-service
   - portfolio-service
   - sentiment-service
   - websocket-service

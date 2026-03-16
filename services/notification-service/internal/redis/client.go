@@ -22,3 +22,7 @@ func NewClient(url string) *Client {
 func (c *Client) Subscribe(ctx context.Context, channel string) *redis.PubSub {
 	return c.client.Subscribe(ctx, channel)
 }
+
+func (c *Client) Publish(ctx context.Context, channel string, message interface{}) error {
+	return c.client.Publish(ctx, channel, message).Err()
+}
