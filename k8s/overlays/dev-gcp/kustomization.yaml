@@ -4,9 +4,12 @@ kind: Kustomization
 # Aggregates all services for the dev environment on GCP
 resources:
   - api-gateway
+  - backtesting-service
   - collectors
   - external-secrets
   - forecast-service
   - market-data-service
   - mlops
+  - portfolio-service
   - sentiment-service
+  - websocket-service
