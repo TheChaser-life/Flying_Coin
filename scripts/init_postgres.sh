@@ -46,7 +46,7 @@ fi
 
 echo "=== Init PostgreSQL ==="
 echo "Postgres pod: $POSTGRES_POD"
-echo "Databases: airflow, mlflow, market_data"
+echo "Databases: airflow, mlflow, market_data, portfolio"
 
 # Chờ Postgres Ready
 echo "Đợi Postgres pod Ready..."
@@ -101,6 +101,11 @@ echo "Tạo market_data database..."
 run_sql "SELECT 1 FROM pg_database WHERE datname='$MARKET_DATA_DB'" | grep -q 1 || exec_sql "CREATE DATABASE $MARKET_DATA_DB OWNER postgres;"
 exec_sql "GRANT ALL PRIVILEGES ON DATABASE $MARKET_DATA_DB TO postgres;"
 
+# portfolio — dùng postgres admin
+echo "Tạo portfolio database..."
+run_sql "SELECT 1 FROM pg_database WHERE datname='portfolio'" | grep -q 1 || exec_sql "CREATE DATABASE portfolio OWNER postgres;"
+exec_sql "GRANT ALL PRIVILEGES ON DATABASE portfolio TO postgres;"
+
 # Automated Table Creation (Schema)
 echo "--- Khởi tạo Table Schema cho market_data ---"
 POD=$(kubectl get pod -n dev -l app=market-data-service --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
@@ -121,4 +126,4 @@ else
 fi
 
 echo "=== Init PostgreSQL xong ==="
-echo "Databases: airflow, mlflow, market_data"
+echo "Databases: airflow, mlflow, market_data, portfolio"

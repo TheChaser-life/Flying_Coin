@@ -280,20 +280,20 @@
 
 | # | Task | Người | Phụ thuộc | Chi tiết |
 |---|------|-------|-----------|----------|
-| 9.1 | ⬆️ **Migration Local → GKE** | 👤 Bạn | Phase 2 | Xem Migration Checkpoint ở trên |
-| 9.2 | Prometheus + Grafana | 👤 Bạn | 9.1 | Helm: kube-prometheus-stack trên GKE |
-| 9.3 | Service Monitors | 👤 Bạn | 9.2 | Scrape metrics từ mọi service |
-| 9.4 | **Portfolio Service** | 🤖 AI | Phase 1 | Markowitz, Efficient Frontier, risk analysis |
-| 9.5 | **Backtesting Engine** | 🤖 AI | 9.4 | Backtesting với equity curve |
-| 9.6 | **WebSocket Service (Go)** | 🤖 AI | Phase 1 | Gorilla WebSocket + go-redis, fan-out |
-| 9.7 | Deploy Portfolio + WS trên GKE | 👤 Bạn | 9.4, 9.6 | K8s manifests, deploy cloud, verify |
+| 9.1 | ⬆️ **Migration Local → GKE** | 👤 Bạn | Phase 2 | [Done] Migration complete |
+| 9.2 | Prometheus + Grafana | 👤 Bạn | 9.1 | [Done] Running in logging-monitoring |
+| 9.3 | Service Monitors | 👤 Bạn | 9.2 | [Done] Configured via annotations |
+| 9.4 | **Portfolio Service** | 🤖 AI | Phase 1 | [Done] Implemented & Deployed |
+| 9.5 | **Backtesting Engine** | 🤖 AI | 9.4 | [Done] Implemented & Deployed |
+| 9.6 | **WebSocket Service (Go)** | 🤖 AI | Phase 1 | [Done] Implemented & Deployed |
+| 9.7 | Deploy Portfolio + WS trên GKE | 👤 Bạn | 9.4, 9.6 | [Done] Verified on dev namespace |
 
 ### Tuần 11 — Notification, ELK & Logging
 
 | # | Task | Người | Phụ thuộc | Chi tiết |
 |---|------|-------|-----------|----------|
-| 11.1 | ELK Stack | 👤 Bạn | 9.1 | Helm: elasticsearch + logstash + kibana |
-| 11.2 | Health Checks | 👤 Bạn | 9.7 | Readiness & Liveness probes cho tất cả services |
+| 11.1 | VEK Stack | 👤 Bạn | 9.1 | [Done] Helm: vector + elasticsearch + kibana |
+| 11.2 | Health Checks | 👤 Bạn | 9.7 | [Done] Readiness & Liveness for all services |
 | 11.3 | Grafana ML Dashboard | 👤 Bạn | 9.2 | Dashboard cho ML model metrics |
 | 11.4 | **Notification Service (Go)** | 🤖 AI | Phase 1 | Email alerts (Gin + gomail) |
 | 11.5 | **Real-time integration** | 🤖 AI | 9.6 | WS channels: price, sentiment, forecast, alerts |

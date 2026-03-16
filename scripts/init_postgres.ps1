@@ -47,7 +47,7 @@ $NAMESPACE = $POSTGRES_NAMESPACE
 
 Write-Host "=== Init PostgreSQL ==="
 Write-Host "Postgres pod: $POSTGRES_POD"
-Write-Host "Databases: airflow, mlflow, market_data"
+Write-Host "Databases: airflow, mlflow, market_data, portfolio"
 
 Write-Host "Đợi Postgres pod Ready..."
 kubectl wait --for=condition=Ready "pod/$POSTGRES_POD" -n $NAMESPACE --timeout=120s
@@ -112,6 +112,14 @@ if (-not $dbExists) {
 }
 Run-Sql "GRANT ALL PRIVILEGES ON DATABASE $MARKET_DATA_DB TO postgres;"
 
+# portfolio — dùng postgres admin
+Write-Host "Tạo portfolio database..."
+$dbExists = Exec-Sql "SELECT 1 FROM pg_database WHERE datname='portfolio'"
+if (-not $dbExists) {
+    Run-Sql "CREATE DATABASE portfolio OWNER postgres;"
+}
+Run-Sql "GRANT ALL PRIVILEGES ON DATABASE portfolio TO postgres;"
+
 # Automated Table Creation (Schema)
 Write-Host "--- Khởi tạo Table Schema cho market_data ---"
 # Thử tìm một pod bất kỳ có thể chạy SQLAlchemy init (market-data-service là tốt nhất)
@@ -133,5 +141,4 @@ asyncio.run(init_db())
 }
 
 Write-Host "=== Init PostgreSQL xong ==="
-Write-Host "Databases: airflow, mlflow, market_data"
-Stop-Transcript
+Write-Host "Databases: airflow, mlflow, market_data, portfolio"

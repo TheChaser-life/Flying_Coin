@@ -1,0 +1,106 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Inference Latency (Forecast)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "rate(ml_inference_latency_seconds_sum[5m]) / rate(ml_inference_latency_seconds_count[5m])",
+          "legendFormat": "{{model_type}} (avg)"
+        }
+      ]
+    },
+    {
+      "title": "Prediction Requests (Forecast)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(ml_prediction_requests_total[5m])) by (model_type)",
+          "legendFormat": "{{model_type}}"
+        }
+      ]
+    },
+    {
+      "title": "Sentiment Processing Latency",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "rate(ml_sentiment_latency_seconds_sum[5m]) / rate(ml_sentiment_latency_seconds_count[5m])",
+          "legendFormat": "{{source}}"
+        }
+      ]
+    },
+    {
+      "title": "Sentiment Volume",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(ml_sentiment_processed_total[5m])) by (symbol)",
+          "legendFormat": "{{symbol}}"
+        }
+      ]
+    },
+    {
+      "title": "Latest Sentiment Scores",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "ml_sentiment_score",
+          "legendFormat": "{{symbol}} ({{source}})"
+        }
+      ],
+      "fieldConfig": {
+        "values": true,
+        "defaults": {
+          "min": -1,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": -0.2 },
+              { "color": "green", "value": 0.2 }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": ["ML"],
+  "templating": { "list": [] },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "ML Model Insights",
+  "uid": "ml-model-insights",
+  "version": 1
+}

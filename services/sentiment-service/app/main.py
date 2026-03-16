@@ -12,6 +12,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from app.core.config import config
 from app.core.dependencies import get_redis, close_redis
 from app.services.news_consumer import NewsConsumer
@@ -97,3 +99,6 @@ async def readiness_check():
 
 
 app.include_router(sentiment.router, prefix="/api/v1")
+
+# Instrument Prometheus metrics
+Instrumentator().instrument(app).expose(app)

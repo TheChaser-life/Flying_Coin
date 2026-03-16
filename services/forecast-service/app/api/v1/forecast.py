@@ -8,8 +8,27 @@ from app.core.config import config
 from app.schemas.forecast import ForecastRequest, ForecastResponse
 from app.services.model_loader import ForecastModelLoader
 
+from prometheus_client import Counter, Histogram, Gauge
+
 router = APIRouter(prefix="/forecast", tags=["forecast"])
 logger = logging.getLogger(__name__)
+
+# ML Metrics
+INFERENCE_LATENCY = Histogram(
+    "ml_inference_latency_seconds",
+    "Time spent in model inference",
+    ["model_type", "run_id"]
+)
+PREDICTION_VALUE = Gauge(
+    "ml_prediction_value",
+    "Predicted value from the model",
+    ["model_type", "run_id"]
+)
+PREDICTION_REQUESTS = Counter(
+    "ml_prediction_requests_total",
+    "Total number of prediction requests",
+    ["model_type", "run_id"]
+)
 
 _loader: ForecastModelLoader | None = None
 
@@ -36,6 +55,8 @@ async def predict(req: ForecastRequest) -> ForecastResponse:
     - XGBoost: features = 1 row [f1, f2, ...].
     - LSTM: features = seq_len rows.
     """
+    import time
+    start_time = time.time()
     loader = get_loader()
     try:
         if req.model_type == "arima":
@@ -50,6 +71,14 @@ async def predict(req: ForecastRequest) -> ForecastResponse:
             preds = loader.predict_lstm(req.run_id, req.features, req.horizon)
         else:
             raise HTTPException(400, f"model_type không hỗ trợ: {req.model_type}")
+
+        # Metrics recording
+        latency = time.time() - start_time
+        INFERENCE_LATENCY.labels(model_type=req.model_type, run_id=req.run_id).observe(latency)
+        PREDICTION_REQUESTS.labels(model_type=req.model_type, run_id=req.run_id).inc()
+        if preds:
+            # Record the first prediction value as a sample
+            PREDICTION_VALUE.labels(model_type=req.model_type, run_id=req.run_id).set(float(preds[0]))
 
         return ForecastResponse(
             predictions=preds,

@@ -21,7 +21,26 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from app.core.config import config
 from app.services.finbert_service import predict_sentiment
 
+from prometheus_client import Counter, Histogram, Gauge
+
 logger = logging.getLogger(__name__)
+
+# Sentiment Metrics
+SENTIMENT_LATENCY = Histogram(
+    "ml_sentiment_latency_seconds",
+    "Time spent in FinBERT inference",
+    ["source"]
+)
+SENTIMENT_SCORE = Gauge(
+    "ml_sentiment_score",
+    "Latest sentiment score per symbol",
+    ["symbol", "source"]
+)
+SENTIMENT_PROCESSED_TOTAL = Counter(
+    "ml_sentiment_processed_total",
+    "Total number of news articles processed",
+    ["symbol", "source"]
+)
 
 QUEUE_NEWS = "news.raw"
 
@@ -85,10 +104,18 @@ class NewsConsumer:
             return
 
         # FinBERT inference (CPU, sync — run in executor to not block)
+        import time
+        start_time = time.time()
         loop = asyncio.get_running_loop()
         result = await loop.run_in_executor(
             None, predict_sentiment, text
         )
+
+        # Metrics recording
+        latency = time.time() - start_time
+        SENTIMENT_LATENCY.labels(source=source).observe(latency)
+        SENTIMENT_PROCESSED_TOTAL.labels(symbol=symbol, source=source).inc()
+        SENTIMENT_SCORE.labels(symbol=symbol, source=source).set(float(result["sentiment_score"]))
 
         sentiment_score = result["sentiment_score"]
         sentiment_label = result["sentiment_label"]
