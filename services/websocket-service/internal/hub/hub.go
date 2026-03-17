@@ -1,6 +1,7 @@
 package hub
 
 import (
+	"log"
 	"sync"
 	"github.com/gorilla/websocket"
 )
@@ -34,15 +35,18 @@ func (h *Hub) Run() {
 			h.mu.Lock()
 			h.clients[client] = true
 			h.mu.Unlock()
+			log.Printf("WebSocket | Client registered. Total clients: %d", len(h.clients))
 		case client := <-h.unregister:
 			h.mu.Lock()
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)
 				close(client.Send)
+				log.Printf("WebSocket | Client unregistered. Remaining clients: %d", len(h.clients))
 			}
 			h.mu.Unlock()
 		case message := <-h.broadcast:
 			h.mu.Lock()
+			clientCount := len(h.clients)
 			for client := range h.clients {
 				select {
 				case client.Send <- message:
@@ -52,6 +56,9 @@ func (h *Hub) Run() {
 				}
 			}
 			h.mu.Unlock()
+			if clientCount > 0 {
+				log.Printf("WebSocket | Broadcasted message to %d clients: %s", clientCount, string(message))
+			}
 		}
 	}
 }

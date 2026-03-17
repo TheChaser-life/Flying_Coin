@@ -22,3 +22,10 @@ spec:
                 name: web-frontend-service
                 port:
                   number: 3000
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: websocket-service
+                port:
+                  number: 8080

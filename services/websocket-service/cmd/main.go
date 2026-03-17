@@ -63,7 +63,9 @@ func main() {
 	ctx := context.Background()
 
 	// Subscribe to relevant channels
-	ps := rClient.PSubscribe(ctx, "price:*", "sentiment:*", "forecast:*", "alerts:*")
+	channels := []string{"price:*", "sentiment:*", "forecast:*", "alerts:*"}
+	ps := rClient.PSubscribe(ctx, channels...)
+	log.Printf("WebSocket | Subscribed to patterns: %v", channels)
 	msgChan := make(chan []byte)
 
 	go rClient.Listen(ctx, ps, msgChan)
@@ -71,6 +73,7 @@ func main() {
 	// Broadcast Redis messages to all WS clients
 	go func() {
 		for msg := range msgChan {
+			// log.Printf("WebSocket | Received message from Redis: %s", string(msg))
 			h.Broadcast(msg)
 		}
 	}()

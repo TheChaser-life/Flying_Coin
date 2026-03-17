@@ -45,4 +45,4 @@ class RedisPublisher:
         pipe.publish(key, json_payload)
         await pipe.execute()
 
-        logger.debug("Redis | published price:%s close=%s", ticker, close)
+        logger.info("Redis | published price:%s close=%s", ticker, close)

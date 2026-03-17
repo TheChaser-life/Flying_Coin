@@ -86,12 +86,3 @@ spec:
                 name: notification-service
                 port:
                   number: 80
-          
-          # Route 10: WebSocket service
-          - path: /ws
-            pathType: Prefix
-            backend:
-              service:
-                name: websocket-service
-                port:
-                  number: 8080
