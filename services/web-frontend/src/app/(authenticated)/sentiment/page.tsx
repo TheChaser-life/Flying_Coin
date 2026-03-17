@@ -20,10 +20,11 @@ export default function SentimentPage() {
       if (status !== "authenticated" || !session?.accessToken) return
 
       try {
-        const data = await sentimentApi.getSentiment("BTCUSDT", session.accessToken)
+        const simpleTicker = "BTC" // Map BTCUSDT to BTC
+        const data = await sentimentApi.getSentiment(simpleTicker, session.accessToken)
         setAiSentiment({
-          score: Math.round((data.score + 1) * 50), // Map -1..1 to 0..100
-          label: data.sentiment || (data.score > 0.5 ? "Bullish" : data.score < -0.5 ? "Bearish" : "Neutral")
+          score: Math.round((data.sentiment_score + 1) * 50), // Map -1..1 to 0..100
+          label: data.sentiment_label || (data.sentiment_score > 0.5 ? "Bullish" : data.sentiment_score < -0.5 ? "Bearish" : "Neutral")
         })
       } catch (err) {
         console.error("Failed to fetch sentiment:", err)
@@ -34,10 +35,10 @@ export default function SentimentPage() {
   }, [session])
 
   useEffect(() => {
-    if (lastMessage?.channel?.startsWith("sentiment:BTCUSDT")) {
+    if (lastMessage?.channel?.startsWith("sentiment:BTC")) {
       setAiSentiment({
-        score: Math.round((lastMessage.score + 1) * 50),
-        label: lastMessage.sentiment || (lastMessage.score > 0.5 ? "Bullish" : lastMessage.score < -0.5 ? "Bearish" : "Neutral")
+        score: Math.round(((lastMessage.sentiment_score || lastMessage.score) + 1) * 50),
+        label: lastMessage.sentiment_label || lastMessage.sentiment || ((lastMessage.sentiment_score || lastMessage.score) > 0.5 ? "Bullish" : (lastMessage.sentiment_score || lastMessage.score) < -0.5 ? "Bearish" : "Neutral")
       })
     }
   }, [lastMessage])
