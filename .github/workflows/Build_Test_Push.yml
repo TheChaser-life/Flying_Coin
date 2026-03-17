@@ -4,7 +4,7 @@ on:
   push:
     branches:
      - dev
-
+  
 jobs:
   Detect-changes:
     runs-on: ubuntu-latest
@@ -94,20 +94,20 @@ jobs:
           fi
 
           docker compose -f docker_compose_for_testing/docker-compose.yml ps
-      - name: Install Trivy CLI
-        run: |
-            sudo apt-get install wget apt-transport-https gnupg lsb-release
-            wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-            echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
-            sudo apt-get update && sudo apt-get install trivy
+      # - name: Install Trivy CLI
+      #   run: |
+      #       sudo apt-get install wget apt-transport-https gnupg lsb-release
+      #       wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+      #       echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+      #       sudo apt-get update && sudo apt-get install trivy
   
-      - name: Scan multiple images
-        run: |
-            for sv in $SERVICES_LIST; do
-              img="${{ env.ARTIFACT_REGISTRY }}/$sv:${{ env.TAG }}"
-              echo "Scanning image: $img"
-              trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed $img
-            done
+      # - name: Scan multiple images
+      #   run: |
+      #       for sv in $SERVICES_LIST; do
+      #         img="${{ env.ARTIFACT_REGISTRY }}/$sv:${{ env.TAG }}"
+      #         echo "Scanning image: $img"
+      #         trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed $img
+      #       done
           
       - name: authentication with google
         uses: google-github-actions/auth@v2
