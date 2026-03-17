@@ -30,9 +30,9 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
 }
 
 export const marketApi = {
-  getLatestPrice: (ticker: string, token?: string) => apiFetch(`/market/symbols/${ticker}/latest`, {}, token),
-  listSymbols: (token?: string) => apiFetch("/market/symbols", {}, token),
-  getHistory: (ticker: string, token?: string) => apiFetch(`/market/symbols/${ticker}/history`, {}, token),
+  getLatestPrice: (ticker: string, token?: string) => apiFetch(`/market-data/symbols/${ticker}/latest`, {}, token),
+  listSymbols: (token?: string) => apiFetch("/market-data/symbols", {}, token),
+  getHistory: (ticker: string, token?: string) => apiFetch(`/market-data/symbols/${ticker}/history`, {}, token),
 };
 
 export const sentimentApi = {
