@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useWebSocket } from "@/hooks/use-websocket"
 import { marketApi, sentimentApi } from "@/lib/api"
+import TradingViewChart from "@/components/trading-view-chart"
 
 export default function DashboardPage() {
   const [btcPrice, setBtcPrice] = useState(0)
@@ -110,11 +111,8 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Market Activity</CardTitle>
           </CardHeader>
-          <CardContent className="h-[300px]">
-             {/* Reusing a simplified version of ForecastChart or similar here would be good */}
-             <div className="h-full flex items-center justify-center text-muted-foreground italic bg-accent/5 rounded-lg border-dashed border-2">
-                Real-time chart stream active
-             </div>
+          <CardContent className="h-[600px] p-0 overflow-hidden">
+             <TradingViewChart />
           </CardContent>
         </Card>
         <Card className="col-span-3">

@@ -8,8 +8,8 @@ import { sentimentApi } from "@/lib/api"
 import { useWebSocket } from "@/hooks/use-websocket"
 
 export default function SentimentPage() {
-  const [globalSentiment, setGlobalSentiment] = useState({ score: 72, label: "Greed" })
-  const [aiSentiment, setAiSentiment] = useState({ score: 0, label: "Neutral" })
+  const [globalSentiment, setGlobalSentiment] = useState({ score: 0, label: "Loading..." })
+  const [aiSentiment, setAiSentiment] = useState({ score: 0, label: "Loading..." })
 
   const { lastMessage } = useWebSocket(process.env.NEXT_PUBLIC_WS_URL || null)
 
