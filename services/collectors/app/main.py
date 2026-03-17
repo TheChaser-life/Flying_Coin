@@ -74,7 +74,7 @@ class CollectorOrchestrator:
             feeds=config.RSS_FEEDS,
         )
         self._binance_ws = BinanceWebSocketCollector(
-            rabbitmq_url=config.RABBITMQ_URL,
+            redis_url=config.REDIS_URL,
             symbols=config.BINANCE_SYMBOLS,
         )
         self._running = False
@@ -87,7 +87,7 @@ class CollectorOrchestrator:
     async def _connect_all(self) -> None:
         await self._yahoo.connect()
         await self._binance.connect()
-        await self._binance_ws.connect()
+        await self._binance_ws.connect()  # Redis connection for WS collector
         await self._newsapi.connect()
         await self._rss.connect()
 
@@ -127,7 +127,7 @@ class CollectorOrchestrator:
         self._running = False
         await self._yahoo.disconnect()
         await self._binance.disconnect()
-        await self._binance_ws.disconnect()
+        await self._binance_ws.disconnect()  # Closes Redis connection
         await self._newsapi.disconnect()
         await self._rss.disconnect()
         logger.info("Collectors stopped")
