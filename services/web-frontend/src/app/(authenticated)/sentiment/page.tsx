@@ -6,8 +6,10 @@ import { NewsFeed } from "@/components/news-feed"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { sentimentApi } from "@/lib/api"
 import { useWebSocket } from "@/hooks/use-websocket"
+import { useSession } from "next-auth/react"
 
 export default function SentimentPage() {
+  const { data: session }: any = useSession()
   const [globalSentiment, setGlobalSentiment] = useState({ score: 0, label: "Loading..." })
   const [aiSentiment, setAiSentiment] = useState({ score: 0, label: "Loading..." })
 
@@ -15,8 +17,10 @@ export default function SentimentPage() {
 
   useEffect(() => {
     const fetchSentiment = async () => {
+      if (!session?.accessToken) return
+
       try {
-        const data = await sentimentApi.getSentiment("BTCUSDT")
+        const data = await sentimentApi.getSentiment("BTCUSDT", session.accessToken)
         setAiSentiment({
           score: Math.round((data.score + 1) * 50), // Map -1..1 to 0..100
           label: data.sentiment || (data.score > 0.5 ? "Bullish" : data.score < -0.5 ? "Bearish" : "Neutral")
@@ -27,7 +31,7 @@ export default function SentimentPage() {
     }
 
     fetchSentiment()
-  }, [])
+  }, [session])
 
   useEffect(() => {
     if (lastMessage?.channel?.startsWith("sentiment:BTCUSDT")) {

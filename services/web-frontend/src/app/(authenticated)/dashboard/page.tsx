@@ -5,8 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useWebSocket } from "@/hooks/use-websocket"
 import { marketApi, sentimentApi } from "@/lib/api"
 import TradingViewChart from "@/components/trading-view-chart"
+import { useSession } from "next-auth/react"
 
 export default function DashboardPage() {
+  const { data: session }: any = useSession()
   const [btcPrice, setBtcPrice] = useState(0)
   const [ethPrice, setEthPrice] = useState(0)
   const [sentiment, setSentiment] = useState({ score: 0, label: "Loading..." })
@@ -16,10 +18,12 @@ export default function DashboardPage() {
   useEffect(() => {
     // Initial fetch for latest data
     const fetchInitialData = async () => {
+      if (!session?.accessToken) return
+
       try {
-        const btcData = await marketApi.getLatestPrice("BTCUSDT")
-        const ethData = await marketApi.getLatestPrice("ETHUSDT")
-        const sentData = await sentimentApi.getSentiment("BTCUSDT")
+        const btcData = await marketApi.getLatestPrice("BTCUSDT", session.accessToken)
+        const ethData = await marketApi.getLatestPrice("ETHUSDT", session.accessToken)
+        const sentData = await sentimentApi.getSentiment("BTCUSDT", session.accessToken)
         
         setBtcPrice(btcData.close)
         setEthPrice(ethData.close)
@@ -33,7 +37,7 @@ export default function DashboardPage() {
     }
 
     fetchInitialData()
-  }, [])
+  }, [session])
 
   // Handle WebSocket updates
   useEffect(() => {
