@@ -16,8 +16,8 @@ jobs:
     steps:
       - id: set-matrix
         run: |
-          if [ "${{ inputs.service }}" == "all" ]; then
-            echo 'matrix=["collectors", "forecast-service", "sentiment-service", "market-data-service", "backtesting-service", "portfolio-service", "websocket-service", "notification-service"]' >> $GITHUB_OUTPUT
+          if [ "${{ inputs.services }}" == "all" ]; then
+            echo 'matrix=["collectors", "forecast-service", "sentiment-service", "market-data-service", "backtesting-service", "portfolio-service", "websocket-service", "notification-service", "web-frontend"]' >> $GITHUB_OUTPUT
           else
             JSON_ARRAY=$(echo "${{ inputs.services }}" | jq -R -c 'split(",") | map(sub("^\\s+"; "") | sub("\\s+$"; "")) | map(select(length > 0))')
             echo "matrix=$JSON_ARRAY" >> $GITHUB_OUTPUT
@@ -53,6 +53,6 @@ jobs:
 
       - name: Deploy ${{ matrix.service }}
         run: |
-          echo "Deploying ${{ matrix.service }} to dev namespace }}
+          echo "Deploying ${{ matrix.service }} to dev namespace"
           kubectl apply -k k8s/overlays/dev-gcp/${{ matrix.service }}
           kubectl rollout status deployment/${{ matrix.service }} -n dev

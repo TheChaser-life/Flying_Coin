@@ -96,6 +96,23 @@ Desktop.ini
 # =============================================================================
 diary/
 node_modules/
+.next/
+out/
+build/
+dist/
+.npm
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache
+
 sonar_scan/
 source_code_issues_*.json
 alembic.ini

@@ -122,3 +122,15 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+
+  web-frontend:
+    build:
+      context: ..
+      dockerfile: services/web-frontend/Dockerfile
+    image: ${ARTIFACT_REGISTRY}/web-frontend:${TAG}
+    ports:
+      - "8008:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://collectors:8000
+    depends_on:
+      - collectors
