@@ -44,12 +44,14 @@ export default function SentimentPage() {
   }, [session])
 
   useEffect(() => {
-    if (lastMessage?.channel?.startsWith("sentiment:BTC")) {
+    const symbol = lastMessage?.symbol || lastMessage?.ticker || (lastMessage?.channel?.split(":")[1]);
+
+    if (symbol === "BTC" || lastMessage?.channel?.startsWith("sentiment:BTC")) {
       setAiSentiment({
         score: Math.round(((lastMessage.sentiment_score || lastMessage.score) + 1) * 50),
         label: lastMessage.sentiment_label || lastMessage.sentiment || ((lastMessage.sentiment_score || lastMessage.score) > 0.5 ? "Bullish" : (lastMessage.sentiment_score || lastMessage.score) < -0.5 ? "Bearish" : "Neutral")
       })
-    } else if (lastMessage?.channel?.startsWith("sentiment:GENERAL")) {
+    } else if (symbol === "GENERAL" || lastMessage?.channel?.startsWith("sentiment:GENERAL")) {
       setGlobalSentiment({
         score: Math.round(((lastMessage.sentiment_score || lastMessage.score) + 1) * 50),
         label: lastMessage.sentiment_label || lastMessage.sentiment || "Neutral"

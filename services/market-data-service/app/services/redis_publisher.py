@@ -29,6 +29,7 @@ class RedisPublisher:
     ) -> None:
         """Cache latest price and broadcast to subscribers."""
         payload: dict[str, Any] = {
+            "channel": f"price:{ticker}",
             "ticker": ticker,
             "close": close,
             "timestamp": timestamp.isoformat(),

@@ -59,11 +59,13 @@ export default function DashboardPage() {
   // Handle WebSocket updates
   useEffect(() => {
     if (lastMessage) {
-      if (lastMessage.symbol === "BTCUSDT" || lastMessage.channel === "price:BTCUSDT") {
+      const ticker = lastMessage.ticker || lastMessage.symbol || (lastMessage.channel?.split(":")[1]);
+      
+      if (ticker === "BTCUSDT" || lastMessage.channel === "price:BTCUSDT") {
         setBtcPrice(lastMessage.close || lastMessage.price)
-      } else if (lastMessage.symbol === "ETHUSDT" || lastMessage.channel === "price:ETHUSDT") {
+      } else if (ticker === "ETHUSDT" || lastMessage.channel === "price:ETHUSDT") {
         setEthPrice(lastMessage.close || lastMessage.price)
-      } else if (lastMessage.channel?.startsWith("sentiment:BTC")) {
+      } else if (ticker === "BTC" || lastMessage.channel?.startsWith("sentiment:BTC")) {
         setSentiment({
             score: lastMessage.sentiment_score || lastMessage.score,
             label: (lastMessage.sentiment_score || lastMessage.score) > 0.5 ? "Bullish" : (lastMessage.sentiment_score || lastMessage.score) < -0.5 ? "Bearish" : "Neutral"

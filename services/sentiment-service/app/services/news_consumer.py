@@ -121,6 +121,7 @@ class NewsConsumer:
         sentiment_label = result["sentiment_label"]
 
         payload = {
+            "channel": f"sentiment:{symbol}",
             "symbol": symbol,
             "sentiment_score": sentiment_score,
             "sentiment_label": sentiment_label,
