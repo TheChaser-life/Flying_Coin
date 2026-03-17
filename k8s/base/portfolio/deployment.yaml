@@ -15,6 +15,7 @@ spec:
       containers:
       - name: portfolio-service
         image: portfolio-service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8000
         env:

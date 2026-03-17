@@ -15,6 +15,7 @@ spec:
       containers:
       - name: websocket-service
         image: websocket-service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
         env:

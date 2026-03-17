@@ -16,7 +16,7 @@ jobs:
       - uses: dorny/paths-filter@v3
         id: filter
         with:
-          base: ${{ github.ref }}
+# base: ${{ github.ref }} # Removed to allow default comparison with previous commit
           filters: |
             collectors: 'services/collectors/**'
             forecast-service: 'services/forecast-service/**'
@@ -40,6 +40,9 @@ jobs:
         ARTIFACT_REGISTRY: ${{ secrets.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}
         TAG: staging
         CHANGED_SERVICES_JSON: ${{ needs.Detect-changes.outputs.services }}
+        # Build-time variables for Next.js frontend
+        NEXT_PUBLIC_API_URL: https://flying-coin.thinhopsops.win/api/v1
+        NEXT_PUBLIC_WS_URL: wss://flying-coin.thinhopsops.win/ws
     
     steps:
       - name: clone_code

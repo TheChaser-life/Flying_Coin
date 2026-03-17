@@ -20,6 +20,12 @@ COPY services/web-frontend/ ./
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Add build-time environment variables for Next.js client-side
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_WS_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
+
 RUN npm run build
 
 # Stage 3: Production image

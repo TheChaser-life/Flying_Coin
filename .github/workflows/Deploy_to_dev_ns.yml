@@ -55,4 +55,5 @@ jobs:
         run: |
           echo "Deploying ${{ matrix.service }} to dev namespace"
           kubectl apply -k k8s/overlays/dev-gcp/${{ matrix.service }}
+          kubectl rollout restart deployment/${{ matrix.service }} -n dev
           kubectl rollout status deployment/${{ matrix.service }} -n dev

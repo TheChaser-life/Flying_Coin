@@ -127,6 +127,9 @@ services:
     build:
       context: ..
       dockerfile: services/web-frontend/Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+        - NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL}
     image: ${ARTIFACT_REGISTRY}/web-frontend:${TAG}
     ports:
       - "8008:3000"
