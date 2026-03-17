@@ -80,6 +80,34 @@ if (-not (Test-SecretExists "market-data-db-url")) {
     Write-Host "market-data-db-url đã tồn tại"
 }
 
+# 4. Kong JWT Credential (keycloak-jwt-credential) - BẮT BUỘC để Kong verify token từ Keycloak
+# Kong dùng claim "iss" trong JWT để tra cứu credential. Trường "key" phải KHỚP CHÍNH XÁC với iss trong token.
+$KEYCLOAK_ISSUER = if ($env:AUTH_KEYCLOAK_ISSUER) { $env:AUTH_KEYCLOAK_ISSUER } else { "https://keycloak.thinhopsops.win/realms/flying-coin" }
+Write-Host ""
+Write-Host "=== Kong JWT Credential (keycloak-jwt-credential) ===" -ForegroundColor Cyan
+Write-Host "Lấy public key từ Keycloak realm: $KEYCLOAK_ISSUER"
+try {
+    $realmResponse = Invoke-RestMethod -Uri $KEYCLOAK_ISSUER -Method Get -ErrorAction Stop
+    $publicKeyB64 = $realmResponse.public_key
+    if ($publicKeyB64) {
+        $jwtCredentialJson = @{ algorithm = "RS256"; key = $KEYCLOAK_ISSUER; rsa_public_key = $publicKeyB64 } | ConvertTo-Json -Compress
+        if (-not (Test-SecretExists "keycloak-jwt-credential")) {
+            Write-Host "Tạo keycloak-jwt-credential..."
+            $jwtCredentialJson | gcloud secrets create keycloak-jwt-credential --project=$PROJECT_ID --replication-policy=automatic --data-file=-
+            Write-Host "  -> OK" -ForegroundColor Green
+        } else {
+            Write-Host "Cập nhật keycloak-jwt-credential (issuer phải khớp với JWT)..."
+            $jwtCredentialJson | gcloud secrets versions add keycloak-jwt-credential --project=$PROJECT_ID --data-file=-
+            Write-Host "  -> Đã thêm version mới" -ForegroundColor Green
+        }
+    } else {
+        Write-Host "  CẢNH BÁO: Không lấy được public_key từ Keycloak" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "  CẢNH BÁO: Không kết nối được Keycloak tại $KEYCLOAK_ISSUER" -ForegroundColor Yellow
+    Write-Host "  Tạo keycloak-jwt-credential thủ công. Lấy public_key từ: Invoke-RestMethod $KEYCLOAK_ISSUER"
+}
+
 Write-Host ""
 Write-Host "=== Hoàn tất ===" -ForegroundColor Cyan
 Write-Host "Chạy 'kubectl get externalsecret -n dev' để kiểm tra sync status"

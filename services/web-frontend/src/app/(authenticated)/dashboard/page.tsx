@@ -20,24 +20,41 @@ export default function DashboardPage() {
     const fetchInitialData = async () => {
       if (status !== "authenticated" || !session?.accessToken) return
 
+      // Helper to map tickers for sentiment API
+      const getSentimentTicker = (ticker: string) => ticker.replace("USDT", "")
+
+      // Fetch prices
       try {
         const btcData = await marketApi.getLatestPrice("BTCUSDT", session.accessToken)
-        const ethData = await marketApi.getLatestPrice("ETHUSDT", session.accessToken)
-        const sentData = await sentimentApi.getSentiment("BTCUSDT", session.accessToken)
-        
         setBtcPrice(btcData.close)
+      } catch (err) {
+        console.error("Failed to fetch BTC price:", err)
+      }
+
+      try {
+        const ethData = await marketApi.getLatestPrice("ETHUSDT", session.accessToken)
         setEthPrice(ethData.close)
+      } catch (err) {
+        console.error("Failed to fetch ETH price:", err)
+      }
+
+      // Fetch sentiment
+      try {
+        const btcSentimentTicker = getSentimentTicker("BTCUSDT")
+        const sentData = await sentimentApi.getSentiment(btcSentimentTicker, session.accessToken)
+        
         setSentiment({ 
-            score: sentData.score, 
-            label: sentData.score > 0.5 ? "Bullish" : sentData.score < -0.5 ? "Bearish" : "Neutral" 
+            score: sentData.sentiment_score, 
+            label: sentData.sentiment_score > 0.5 ? "Bullish" : sentData.sentiment_score < -0.5 ? "Bearish" : "Neutral" 
         })
       } catch (err) {
-        console.error("Failed to fetch initial market data:", err)
+        console.error("Failed to fetch initial sentiment data:", err)
+        setSentiment({ score: 0, label: "Neutral" })
       }
     }
 
     fetchInitialData()
-  }, [session])
+  }, [session, status])
 
   // Handle WebSocket updates
   useEffect(() => {
@@ -46,10 +63,10 @@ export default function DashboardPage() {
         setBtcPrice(lastMessage.close || lastMessage.price)
       } else if (lastMessage.symbol === "ETHUSDT" || lastMessage.channel === "price:ETHUSDT") {
         setEthPrice(lastMessage.close || lastMessage.price)
-      } else if (lastMessage.channel?.startsWith("sentiment:BTCUSDT")) {
+      } else if (lastMessage.channel?.startsWith("sentiment:BTC")) {
         setSentiment({
-            score: lastMessage.score,
-            label: lastMessage.score > 0.5 ? "Bullish" : lastMessage.score < -0.5 ? "Bearish" : "Neutral"
+            score: lastMessage.sentiment_score || lastMessage.score,
+            label: (lastMessage.sentiment_score || lastMessage.score) > 0.5 ? "Bullish" : (lastMessage.sentiment_score || lastMessage.score) < -0.5 ? "Bearish" : "Neutral"
         })
       }
     }

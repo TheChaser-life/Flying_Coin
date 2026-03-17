@@ -8,9 +8,7 @@ metadata:
     # Kích hoạt các Plugin đã định nghĩa sẵn cho toàn bộ các Route nằm trong Ingress này
     # Ở đây ta bật CORS (để Frontend gọi API không bị chặn cross-origin) và Rate Limit (chống Spam)
     konghq.com/plugins: "global-cors, global-rate-limit, keycloak-jwt-auth"
-    # Tự động cắt prefix path (/api/v1) trước khi forward request đến backend service
-    # httpbin nhận /get thay vì /api/v1/get
-    konghq.com/strip-path: "true"
+    konghq.com/strip-path: "false"
 spec:
   ingressClassName: kong
   tls:
@@ -21,17 +19,9 @@ spec:
     # Backend thuần không hardcode domain (Domain sẽ được vá/patch qua Overlays)
     - http:
         paths:
-          # Route 1: Dùng để giả lập Endpoint nhận Request thử nghiệm chặn/bỏ chặn Token (Mồi ngon cho việc Test JWT)
-          - path: /api/v1
-            pathType: Prefix
-            backend:
-              service:
-                name: httpbin-service # Trỏ vào Service giả chuyên trả về thông tin cấu trúc HTTP Request
-                port:
-                  number: 80
           
           # Route 2: Phục vụ riêng cho Market Data Service (Scrape/Feed giá crypto, CP sau này)
-          - path: /api/v1/market
+          - path: /api/v1/market-data
             pathType: Prefix
             backend:
               service:

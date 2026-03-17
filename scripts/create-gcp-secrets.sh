@@ -123,6 +123,37 @@ else
   echo "web-frontend-url đã tồn tại"
 fi
 
+# 8. Kong JWT Credential (keycloak-jwt-credential) - BẮT BUỘC để Kong verify token từ Keycloak
+# Kong dùng claim "iss" trong JWT để tra cứu credential. Trường "key" phải KHỚP CHÍNH XÁC với iss trong token.
+echo ""
+echo "=== Kong JWT Credential (keycloak-jwt-credential) ==="
+KEYCLOAK_ISSUER="${AUTH_KEYCLOAK_ISSUER:-https://keycloak.thinhopsops.win/realms/flying-coin}"
+echo "Lấy public key từ Keycloak realm: $KEYCLOAK_ISSUER"
+REALM_JSON=$(curl -sf "${KEYCLOAK_ISSUER}" 2>/dev/null || echo "")
+if [ -n "$REALM_JSON" ]; then
+  PUBLIC_KEY_B64=$(echo "$REALM_JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('public_key',''))" 2>/dev/null || echo "$REALM_JSON" | jq -r '.public_key // empty' 2>/dev/null)
+  if [ -n "$PUBLIC_KEY_B64" ]; then
+    JWT_CREDENTIAL_JSON=$(printf '{"algorithm":"RS256","key":"%s","rsa_public_key":"%s"}' "$KEYCLOAK_ISSUER" "$PUBLIC_KEY_B64")
+    if ! gcloud secrets describe keycloak-jwt-credential --project="$PROJECT_ID" 2>/dev/null; then
+      echo "Tạo keycloak-jwt-credential..."
+      echo -n "$JWT_CREDENTIAL_JSON" | gcloud secrets create keycloak-jwt-credential \
+        --project="$PROJECT_ID" --replication-policy=automatic --data-file=-
+      echo "  -> OK"
+    else
+      echo "Cập nhật keycloak-jwt-credential (issuer phải khớp với JWT)..."
+      echo -n "$JWT_CREDENTIAL_JSON" | gcloud secrets versions add keycloak-jwt-credential \
+        --project="$PROJECT_ID" --data-file=-
+      echo "  -> Đã thêm version mới"
+    fi
+  else
+    echo "  CẢNH BÁO: Không lấy được public_key từ Keycloak. Tạo secret thủ công với JSON:"
+    echo "  {\"algorithm\":\"RS256\",\"key\":\"$KEYCLOAK_ISSUER\",\"rsa_public_key\":\"<base64 từ Keycloak realm>\"}"
+  fi
+else
+  echo "  CẢNH BÁO: Không kết nối được Keycloak tại $KEYCLOAK_ISSUER"
+  echo "  Tạo keycloak-jwt-credential thủ công. Lấy public_key từ: curl $KEYCLOAK_ISSUER"
+fi
+
 echo ""
 echo "=== Hoàn tất ==="
 echo "Chạy 'kubectl get externalsecret -n dev' để kiểm tra sync status"
