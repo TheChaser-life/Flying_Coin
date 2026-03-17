@@ -87,7 +87,7 @@ class MarketDataConsumer:
 
         async with AsyncSessionLocal() as db:
             try:
-                record = await _market_service.upsert_market_data(db, cleaned)
+                await _market_service.upsert_market_data(db, cleaned)
                 await db.commit()
             except Exception:
                 await db.rollback()
@@ -98,19 +98,20 @@ class MarketDataConsumer:
                 )
                 raise   # re-raise so aio-pika requeues the message
 
-        if record is not None:
-            await self._publisher.publish_price(
-                ticker=cleaned["ticker"],
-                close=cleaned["close"],
-                timestamp=cleaned["timestamp"],
-                extra={
-                    "open": cleaned["open"],
-                    "high": cleaned["high"],
-                    "low": cleaned["low"],
-                    "volume": cleaned["volume"],
-                    "source": cleaned["source"],
-                },
-            )
+        # Always publish latest price to Redis for real-time updates
+        # regardless of whether the record was a DB duplicate or not
+        await self._publisher.publish_price(
+            ticker=cleaned["ticker"],
+            close=cleaned["close"],
+            timestamp=cleaned["timestamp"],
+            extra={
+                "open": cleaned["open"],
+                "high": cleaned["high"],
+                "low": cleaned["low"],
+                "volume": cleaned["volume"],
+                "source": cleaned["source"],
+            },
+        )
 
     async def close(self) -> None:
         if self._connection and not self._connection.is_closed:
