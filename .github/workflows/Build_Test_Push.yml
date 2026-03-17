@@ -134,4 +134,4 @@ jobs:
         run: |
           SERVICES_ARRAY=$(echo "$SERVICES_LIST" | tr ' ' ', ')
           echo "Pushing completed, trigger deploy to dev namespace pipeline"
-          gh workflow run Deploy_to_dev_ns.yml -f services="$SERVICES_ARRAY" 
+          gh workflow run Deploy_to_dev_ns.yml -ref ${{ github.ref_name }} -f services="$SERVICES_ARRAY" 
