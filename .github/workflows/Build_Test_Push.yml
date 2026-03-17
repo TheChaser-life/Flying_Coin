@@ -52,7 +52,7 @@ jobs:
     
       - name: build_and_health_check
         run: | 
-          docker compose -f docker_compose_for_te sting/docker-compose.yml up -d ${{ env.SERVICES_LIST }}
+          docker compose -f docker_compose_for_testing/docker-compose.yml up -d ${{ env.SERVICES_LIST }}
 
           echo "Waiting for services to be healthy..."
           declare -A port_map=( ["collectors"]=8000 ["forecast-service"]=8001 ["sentiment-service"]=8002 ["market-data-service"]=8003 ["backtesting-service"]=8004 ["portfolio-service"]=8005 ["websocket-service"]=8006 )
@@ -62,7 +62,7 @@ jobs:
             echo "Attempt $i: Checking health endpoints..."
             COMPLETED=true
             for sv in ${{ env.SERVICES_LIST }}; do
-              ports=${port_map[$sv]}
+              port=${port_map[$sv]}
               if ! curl -s --fail http://localhost:$port/health; then
                 # Only print "not healthy" message every few attempts to avoid spam
                 if [ $((i % 4)) -eq 0 ] || [ $i -eq 24 ]; then
@@ -81,7 +81,7 @@ jobs:
           if [ "$COMPLETED" = false ]; then
             echo "Timeout reached. Logging only unhealthy services (last 50 lines):"
             for sv in ${{ env.SERVICES_LIST }}; do
-              ports=${port_map[$sv]}
+              port=${port_map[$sv]}
               if ! curl -s --fail http://localhost:$port/health; then
                 echo "--------------------------------------------------------"
                 echo "Logs for UNHEALTHY service: $sv"
@@ -102,7 +102,7 @@ jobs:
   
       - name: Scan multiple images
         run: |
-            for sv in ${{ env.SERVICES_LIST }}
+            for sv in ${{ env.SERVICES_LIST }}; do
               img="${{ env.ARTIFACT_REGISTRY }}/$sv:${{ env.TAG }}"
               echo "Scanning image: $img"
               trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed $img
@@ -126,3 +126,11 @@ jobs:
       - name: Push images to Artifact Registry
         run: |
           docker compose -f docker_compose_for_testing/docker-compose.yml push ${{ env.SERVICES_LIST }}
+
+      - name: Trigger deploy to dev ns pipeline
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          SERVICES_ARRAY=$(echo "${{ env.SERVICES_LIST }}" | tr ' ' ', ')
+          echo "Pushing completed, trigger deploy to dev namespace pipeline"
+          gh workflow run Deploy_to_dev_ns.yml -f services="$SERVICES_ARRAY" 
