@@ -6,7 +6,29 @@ on:
      - dev
 
 jobs:
+  Detect-changes:
+    runs-on: ubuntu-latest
+    outputs: 
+      services: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            collectors: 'services/collectors/**'
+            forecast-service: 'services/forecast-service/**'
+            sentiment-service: 'services/sentiment-service/**'
+            market-data-service: 'services/market-data-service/**'
+            backtesting-service: 'services/backtesting-service/**'
+            portfolio-service: 'services/portfolio-service/**'
+            websocket-service: 'services/websocket-service/**'
+            notification-service: 'services/notification-service/**'
+            web-frontend: 'services/web-frontend/**'
+
   Build-Test-Push:
+    needs: Detect-changes
     runs-on: ubuntu-latest
 
     permissions:
@@ -16,43 +38,35 @@ jobs:
     env:
         ARTIFACT_REGISTRY: ${{ secrets.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}
         TAG: staging
+        CHANGED_SERVICES_JSON: ${{ needs.Detect-changes.outputs.services }}
     
     steps:
       - name: clone_code
         uses: actions/checkout@v4
+
+      - name: Make list of changed services
+        run: |
+          SERVICES_LIST=$(echo '${{ env.CHANGED_SERVICES_JSON }}' | jq -r '. | join(" ")')
+          echo "SERVICES_LIST=$SERVICES_LIST" >> $GITHUB_ENV
+          echo "Changed services: $SERVICES_LIST"
     
       - name: build_and_health_check
         run: | 
-          docker compose -f docker_compose_for_testing/docker-compose.yml up -d
-          
-          # echo "Waiting for notification-service to be healthy..."
-          # # Đợi tối đa 60s cho service ổn định
-          # for i in {1..12}; do
-          #   if curl -s --fail http://localhost:8007/health; then
-          #     echo "Notification Service is healthy!"
-          #     break
-          #   fi
-          #   echo "Attempt $i: Service is NOT healthy yet..."
-          #   if [ $i -eq 12 ]; then
-          #     echo "Timeout reached. Showing logs:"
-          #     docker compose -f docker_compose_for_testing/docker-compose.yml logs notification-service
-          #     exit 1
-          #   fi
-          #   sleep 5
-          # done
+          docker compose -f docker_compose_for_te sting/docker-compose.yml up -d ${{ env.SERVICES_LIST }}
 
           echo "Waiting for services to be healthy..."
-          declare -A services=( [8000]="collectors" [8001]="forecast-service" [8002]="sentiment-service" [8003]="market-data-service" [8004]="backtesting-service" [8005]="portfolio-service" [8006]="websocket-service" )
+          declare -A port_map=( ["collectors"]=8000 ["forecast-service"]=8001 ["sentiment-service"]=8002 ["market-data-service"]=8003 ["backtesting-service"]=8004 ["portfolio-service"]=8005 ["websocket-service"]=8006 )
           
           # Đợi tối đa 120s cho các service ổn định
           for i in {1..24}; do
             echo "Attempt $i: Checking health endpoints..."
             COMPLETED=true
-            for port in 8000 8001 8002 8003 8004 8005 8006; do
+            for sv in ${{ env.SERVICES_LIST }}; do
+              ports=${port_map[$sv]}
               if ! curl -s --fail http://localhost:$port/health; then
                 # Only print "not healthy" message every few attempts to avoid spam
                 if [ $((i % 4)) -eq 0 ] || [ $i -eq 24 ]; then
-                  echo "Service ${services[$port]} (port $port) is NOT healthy yet."
+                  echo "Service $sv (port $port) is NOT healthy yet."
                 fi
                 COMPLETED=false
               fi
@@ -66,13 +80,13 @@ jobs:
           
           if [ "$COMPLETED" = false ]; then
             echo "Timeout reached. Logging only unhealthy services (last 50 lines):"
-            for port in 8000 8001 8002 8003 8004 8005 8006; do
+            for sv in ${{ env.SERVICES_LIST }}; do
+              ports=${port_map[$sv]}
               if ! curl -s --fail http://localhost:$port/health; then
-                service_name=${services[$port]}
                 echo "--------------------------------------------------------"
-                echo "Logs for UNHEALTHY service: $service_name"
+                echo "Logs for UNHEALTHY service: $sv"
                 echo "--------------------------------------------------------"
-                docker compose -f docker_compose_for_testing/docker-compose.yml logs --tail=50 $service_name
+                docker compose -f docker_compose_for_testing/docker-compose.yml logs --tail=50 $sv
               fi
             done
             exit 1
@@ -88,16 +102,8 @@ jobs:
   
       - name: Scan multiple images
         run: |
-            IMAGES=("${{ env.ARTIFACT_REGISTRY }}/collectors:${{ env.TAG }}" \
-                    "${{ env.ARTIFACT_REGISTRY }}/forecast-service:${{ env.TAG }}" \
-                    "${{ env.ARTIFACT_REGISTRY }}/sentiment-service:${{ env.TAG }}" \
-                    "${{ env.ARTIFACT_REGISTRY }}/market-data-service:${{ env.TAG }}" \
-                    "${{ env.ARTIFACT_REGISTRY }}/backtesting-service:${{ env.TAG }}" \
-                    "${{ env.ARTIFACT_REGISTRY }}/portfolio-service:${{ env.TAG }}" \
-                    "${{ env.ARTIFACT_REGISTRY }}/websocket-service:${{ env.TAG }}" \
-                    "${{ env.ARTIFACT_REGISTRY }}/notification-service:${{ env.TAG }}")
-            
-            for img in "${IMAGES[@]}"; do
+            for sv in ${{ env.SERVICES_LIST }}
+              img="${{ env.ARTIFACT_REGISTRY }}/$sv:${{ env.TAG }}"
               echo "Scanning image: $img"
               trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed $img
             done
@@ -117,7 +123,6 @@ jobs:
           username: 'oauth2accesstoken'
           password: '${{ steps.auth.outputs.access_token }}'
 
-      # - name: Push images to Artifact Registry
-      #   run: |
-      #     docker compose -f docker_compose_for_testing/docker-compose.yml push notification-service
-          # docker compose -f docker_compose_for_testing/docker-compose.yml push collectors forecast-service sentiment-service market-data-service backtesting-service portfolio-service websocket-service notification-service
+      - name: Push images to Artifact Registry
+        run: |
+          docker compose -f docker_compose_for_testing/docker-compose.yml push ${{ env.SERVICES_LIST }}
