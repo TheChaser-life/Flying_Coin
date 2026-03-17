@@ -19,6 +19,7 @@ spec:
       containers:
         - name: market-data-service
           image: market-data-service
+          imagePullPolicy: Always
           ports: 
             - containerPort: 8001
           livenessProbe: # Kiểm tra container còn sống không
