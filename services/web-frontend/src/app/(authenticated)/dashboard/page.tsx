@@ -8,7 +8,7 @@ import TradingViewChart from "@/components/trading-view-chart"
 import { useSession } from "next-auth/react"
 
 export default function DashboardPage() {
-  const { data: session }: any = useSession()
+  const { data: session, status }: any = useSession()
   const [btcPrice, setBtcPrice] = useState(0)
   const [ethPrice, setEthPrice] = useState(0)
   const [sentiment, setSentiment] = useState({ score: 0, label: "Loading..." })
@@ -18,7 +18,7 @@ export default function DashboardPage() {
   useEffect(() => {
     // Initial fetch for latest data
     const fetchInitialData = async () => {
-      if (!session?.accessToken) return
+      if (status !== "authenticated" || !session?.accessToken) return
 
       try {
         const btcData = await marketApi.getLatestPrice("BTCUSDT", session.accessToken)

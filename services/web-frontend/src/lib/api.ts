@@ -1,4 +1,3 @@
-import { auth } from "@/auth";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://flying-coin.thinhopsops.win/api/v1";
 
@@ -9,7 +8,10 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
   };
 
   if (token) {
+    console.log(`[API] Sending request with token: ${token.substring(0, 10)}...`);
     headers["Authorization"] = `Bearer ${token}`;
+  } else {
+    console.warn(`[API] Sending request WITHOUT token to: ${endpoint}`);
   }
 
   const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;

@@ -9,7 +9,7 @@ import { useWebSocket } from "@/hooks/use-websocket"
 import { useSession } from "next-auth/react"
 
 export default function SentimentPage() {
-  const { data: session }: any = useSession()
+  const { data: session, status }: any = useSession()
   const [globalSentiment, setGlobalSentiment] = useState({ score: 0, label: "Loading..." })
   const [aiSentiment, setAiSentiment] = useState({ score: 0, label: "Loading..." })
 
@@ -17,7 +17,7 @@ export default function SentimentPage() {
 
   useEffect(() => {
     const fetchSentiment = async () => {
-      if (!session?.accessToken) return
+      if (status !== "authenticated" || !session?.accessToken) return
 
       try {
         const data = await sentimentApi.getSentiment("BTCUSDT", session.accessToken)
