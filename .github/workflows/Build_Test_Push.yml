@@ -16,7 +16,7 @@ jobs:
       - uses: dorny/paths-filter@v3
         id: filter
         with:
-# base: ${{ github.ref }} # Removed to allow default comparison with previous commit
+          base: ${{ github.ref }}
           filters: |
             collectors: 'services/collectors/**'
             forecast-service: 'services/forecast-service/**'
