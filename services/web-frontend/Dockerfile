@@ -15,7 +15,7 @@ WORKDIR /app
 
 COPY --from=dependencies /app/node_modules ./node_modules
 
-# Copy source code relative to the project root context
+# Copy source code relative to the project root context .
 COPY services/web-frontend/ ./
 
 ENV NEXT_TELEMETRY_DISABLED=1
