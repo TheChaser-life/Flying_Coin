@@ -1,8 +1,43 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { SentimentGauge } from "@/components/sentiment-gauge"
 import { NewsFeed } from "@/components/news-feed"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { sentimentApi } from "@/lib/api"
+import { useWebSocket } from "@/hooks/use-websocket"
 
 export default function SentimentPage() {
+  const [globalSentiment, setGlobalSentiment] = useState({ score: 72, label: "Greed" })
+  const [aiSentiment, setAiSentiment] = useState({ score: 0, label: "Neutral" })
+
+  const { lastMessage } = useWebSocket(process.env.NEXT_PUBLIC_WS_URL || null)
+
+  useEffect(() => {
+    const fetchSentiment = async () => {
+      try {
+        const data = await sentimentApi.getSentiment("BTCUSDT")
+        setAiSentiment({
+          score: Math.round((data.score + 1) * 50), // Map -1..1 to 0..100
+          label: data.sentiment || (data.score > 0.5 ? "Bullish" : data.score < -0.5 ? "Bearish" : "Neutral")
+        })
+      } catch (err) {
+        console.error("Failed to fetch sentiment:", err)
+      }
+    }
+
+    fetchSentiment()
+  }, [])
+
+  useEffect(() => {
+    if (lastMessage?.channel?.startsWith("sentiment:BTCUSDT")) {
+      setAiSentiment({
+        score: Math.round((lastMessage.score + 1) * 50),
+        label: lastMessage.sentiment || (lastMessage.score > 0.5 ? "Bullish" : lastMessage.score < -0.5 ? "Bearish" : "Neutral")
+      })
+    }
+  }, [lastMessage])
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -16,21 +51,21 @@ export default function SentimentPage() {
         <div className="lg:col-span-1 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Global Fear & Greed</CardTitle>
-              <CardDescription>Current market emotional state</CardDescription>
+              <CardTitle>Fear & Greed Index</CardTitle>
+              <CardDescription>Overall market emotional state</CardDescription>
             </CardHeader>
             <CardContent className="relative">
-              <SentimentGauge value={72} label="Greed" />
+              <SentimentGauge value={globalSentiment.score} label={globalSentiment.label} />
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>AI Sentiment Score</CardTitle>
-              <CardDescription>Aggregated news score (FinBERT)</CardDescription>
+              <CardTitle>AI Sentiment (BTC)</CardTitle>
+              <CardDescription>FinBERT analysis of latest news</CardDescription>
             </CardHeader>
             <CardContent>
-               <SentimentGauge value={85} label="Bullish" />
+               <SentimentGauge value={aiSentiment.score} label={aiSentiment.label} />
             </CardContent>
           </Card>
         </div>

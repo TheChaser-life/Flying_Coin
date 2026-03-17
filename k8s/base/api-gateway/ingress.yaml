@@ -13,6 +13,10 @@ metadata:
     konghq.com/strip-path: "true"
 spec:
   ingressClassName: kong
+  tls:
+    - hosts:
+        - flying-coin.thinhopsops.win # Sẽ được ghi đè nếu cần, nhưng để mặc định ở đây cho tiện
+      secretName: cloudflare-origin-tls
   rules:
     # Backend thuần không hardcode domain (Domain sẽ được vá/patch qua Overlays)
     - http:
@@ -43,3 +47,61 @@ spec:
                 name: sentiment-service-service
                 port:
                   number: 8002
+          
+          # Route 4: Web Frontend (Moved to public-ingress.yaml)
+          # - path: /
+          #   ...
+          
+          # Route 5: Collectors service
+          - path: /api/v1/collectors
+            pathType: Prefix
+            backend:
+              service:
+                name: collectors-service
+                port:
+                  number: 8000
+          
+          # Route 6: Forecast service
+          - path: /api/v1/forecast
+            pathType: Prefix
+            backend:
+              service:
+                name: forecast-service-service
+                port:
+                  number: 8000
+          
+          # Route 7: Backtesting service
+          - path: /api/v1/backtesting
+            pathType: Prefix
+            backend:
+              service:
+                name: backtesting-service
+                port:
+                  number: 8000
+          
+          # Route 8: Portfolio service
+          - path: /api/v1/portfolio
+            pathType: Prefix
+            backend:
+              service:
+                name: portfolio-service
+                port:
+                  number: 8000
+          
+          # Route 9: Notification service
+          - path: /api/v1/notification
+            pathType: Prefix
+            backend:
+              service:
+                name: notification-service
+                port:
+                  number: 80
+          
+          # Route 10: WebSocket service
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: websocket-service
+                port:
+                  number: 8080

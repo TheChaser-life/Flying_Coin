@@ -14,3 +14,4 @@ resources:
   - portfolio-service
   - sentiment-service
   - websocket-service
+  - web-frontend

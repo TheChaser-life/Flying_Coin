@@ -3,20 +3,52 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useWebSocket } from "@/hooks/use-websocket"
+import { marketApi, sentimentApi } from "@/lib/api"
 
 export default function DashboardPage() {
-  const [btcPrice, setBtcPrice] = useState(68432.12)
-  const [ethPrice, setEthPrice] = useState(3842.50)
+  const [btcPrice, setBtcPrice] = useState(0)
+  const [ethPrice, setEthPrice] = useState(0)
+  const [sentiment, setSentiment] = useState({ score: 0, label: "Loading..." })
   
-  // Real-world: const { lastMessage } = useWebSocket("wss://stream.binance.com:9443/ws/btcusdt@ticker")
-  // For demo, we simulate the hook result
+  const { lastMessage } = useWebSocket(process.env.NEXT_PUBLIC_WS_URL || null)
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setBtcPrice(prev => prev + (Math.random() - 0.5) * 10)
-      setEthPrice(prev => prev + (Math.random() - 0.5) * 5)
-    }, 2000)
-    return () => clearInterval(interval)
+    // Initial fetch for latest data
+    const fetchInitialData = async () => {
+      try {
+        const btcData = await marketApi.getLatestPrice("BTCUSDT")
+        const ethData = await marketApi.getLatestPrice("ETHUSDT")
+        const sentData = await sentimentApi.getSentiment("BTCUSDT")
+        
+        setBtcPrice(btcData.close)
+        setEthPrice(ethData.close)
+        setSentiment({ 
+            score: sentData.score, 
+            label: sentData.score > 0.5 ? "Bullish" : sentData.score < -0.5 ? "Bearish" : "Neutral" 
+        })
+      } catch (err) {
+        console.error("Failed to fetch initial market data:", err)
+      }
+    }
+
+    fetchInitialData()
   }, [])
+
+  // Handle WebSocket updates
+  useEffect(() => {
+    if (lastMessage) {
+      if (lastMessage.symbol === "BTCUSDT" || lastMessage.channel === "price:BTCUSDT") {
+        setBtcPrice(lastMessage.close || lastMessage.price)
+      } else if (lastMessage.symbol === "ETHUSDT" || lastMessage.channel === "price:ETHUSDT") {
+        setEthPrice(lastMessage.close || lastMessage.price)
+      } else if (lastMessage.channel?.startsWith("sentiment:BTCUSDT")) {
+        setSentiment({
+            score: lastMessage.score,
+            label: lastMessage.score > 0.5 ? "Bullish" : lastMessage.score < -0.5 ? "Bearish" : "Neutral"
+        })
+      }
+    }
+  }, [lastMessage])
 
   return (
     <div className="flex flex-col gap-6">
@@ -34,8 +66,10 @@ export default function DashboardPage() {
             <CardTitle className="text-sm font-medium">BTC/USDT</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${btcPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-            <p className="text-xs text-green-500">+2.4% last 24h</p>
+            <div className="text-2xl font-bold">
+                {btcPrice > 0 ? `$${btcPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "Loading..."}
+            </div>
+            <p className="text-xs text-green-500">+Real-time</p>
           </CardContent>
         </Card>
         <Card>
@@ -43,8 +77,10 @@ export default function DashboardPage() {
             <CardTitle className="text-sm font-medium">ETH/USDT</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${ethPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-            <p className="text-xs text-red-500">-1.2% last 24h</p>
+            <div className="text-2xl font-bold">
+                {ethPrice > 0 ? `$${ethPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "Loading..."}
+            </div>
+            <p className="text-xs text-red-500">+Real-time</p>
           </CardContent>
         </Card>
         <Card>
@@ -61,8 +97,10 @@ export default function DashboardPage() {
             <CardTitle className="text-sm font-medium">Market Sentiment</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-500">Bullish</div>
-            <p className="text-xs text-muted-foreground">Index: 72/100</p>
+            <div className={`text-2xl font-bold ${sentiment.score > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {sentiment.label}
+            </div>
+            <p className="text-xs text-muted-foreground">Score: {sentiment.score.toFixed(2)}</p>
           </CardContent>
         </Card>
       </div>

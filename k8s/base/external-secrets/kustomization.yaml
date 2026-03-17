@@ -12,4 +12,6 @@ resources:
   - kong-external-secret.yaml
   - keycloak-tls-external-secret.yaml
   - external-secret.yaml
+  - web-frontend-external-secret.yaml
+  - dev-tls-external-secret.yaml
 

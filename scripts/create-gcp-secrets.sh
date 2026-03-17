@@ -78,6 +78,51 @@ else
   echo "market-data-db-url đã tồn tại"
 fi
 
+# 4. Web Frontend Secrets
+if ! gcloud secrets describe web-frontend-auth-secret --project="$PROJECT_ID" 2>/dev/null; then
+  echo "Tạo web-frontend-auth-secret..."
+  AUTH_SECRET=$(openssl rand -base64 32)
+  echo -n "$AUTH_SECRET" | gcloud secrets create web-frontend-auth-secret \
+    --project="$PROJECT_ID" --replication-policy=automatic --data-file=-
+  echo "  -> OK"
+else
+  echo "web-frontend-auth-secret đã tồn tại"
+fi
+
+# 5. Keycloak Client Secret for Frontend
+AUTH_KEYCLOAK_SECRET="${AUTH_KEYCLOAK_SECRET:-keycloak-secret-change-in-prod}"
+if ! gcloud secrets describe web-frontend-keycloak-secret --project="$PROJECT_ID" 2>/dev/null; then
+  echo "Tạo web-frontend-keycloak-secret..."
+  echo -n "$AUTH_KEYCLOAK_SECRET" | gcloud secrets create web-frontend-keycloak-secret \
+    --project="$PROJECT_ID" --replication-policy=automatic --data-file=-
+  echo "  -> OK"
+else
+  echo "web-frontend-keycloak-secret đã tồn tại"
+fi
+
+# 6. Keycloak Client ID and Issuer
+AUTH_KEYCLOAK_ID="${AUTH_KEYCLOAK_ID:-flying-coin-web}"
+AUTH_KEYCLOAK_ISSUER="${AUTH_KEYCLOAK_ISSUER:-https://keycloak.thinhopsops.win/realms/flying-coin}"
+
+if ! gcloud secrets describe web-frontend-keycloak-id --project="$PROJECT_ID" 2>/dev/null; then
+  echo -n "$AUTH_KEYCLOAK_ID" | gcloud secrets create web-frontend-keycloak-id --project="$PROJECT_ID" --replication-policy=automatic --data-file=-
+fi
+
+if ! gcloud secrets describe web-frontend-keycloak-issuer --project="$PROJECT_ID" 2>/dev/null; then
+  echo -n "$AUTH_KEYCLOAK_ISSUER" | gcloud secrets create web-frontend-keycloak-issuer --project="$PROJECT_ID" --replication-policy=automatic --data-file=-
+fi
+
+# 7. Web Frontend Public URL (AUTH_URL)
+AUTH_URL="${AUTH_URL:-https://flying-coin.thinhopsops.win}"
+if ! gcloud secrets describe web-frontend-url --project="$PROJECT_ID" 2>/dev/null; then
+  echo "Tạo web-frontend-url..."
+  echo -n "$AUTH_URL" | gcloud secrets create web-frontend-url \
+    --project="$PROJECT_ID" --replication-policy=automatic --data-file=-
+  echo "  -> OK"
+else
+  echo "web-frontend-url đã tồn tại"
+fi
+
 echo ""
 echo "=== Hoàn tất ==="
 echo "Chạy 'kubectl get externalsecret -n dev' để kiểm tra sync status"
