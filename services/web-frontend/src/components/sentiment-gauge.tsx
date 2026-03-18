@@ -52,4 +52,4 @@ export const SentimentGauge = memo(function SentimentGauge({ value, label }: Sen
       </div>
     </div>
   )
-}
+})
