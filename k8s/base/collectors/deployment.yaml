@@ -15,6 +15,7 @@ spec:
       containers:
         - name: collectors
           image: collectors
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
           livenessProbe:

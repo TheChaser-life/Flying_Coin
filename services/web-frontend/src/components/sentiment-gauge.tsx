@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { PieChart, Pie, Cell, ResponsiveContainer, Label } from "recharts"
 
 export interface SentimentGaugeProps {
@@ -7,7 +8,7 @@ export interface SentimentGaugeProps {
   label: string
 }
 
-export function SentimentGauge({ value, label }: SentimentGaugeProps) {
+export const SentimentGauge = memo(function SentimentGauge({ value, label }: SentimentGaugeProps) {
   const data = [
     { name: "score", value: value },
     { name: "remaining", value: 100 - value },

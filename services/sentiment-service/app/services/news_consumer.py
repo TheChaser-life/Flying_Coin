@@ -120,19 +120,61 @@ class NewsConsumer:
         sentiment_score = result["sentiment_score"]
         sentiment_label = result["sentiment_label"]
 
+        # Lưu điểm số vào Redis List theo ngày để tính trung bình cộng (Rolling Daily Average)
+        today = datetime.now().strftime("%Y-%m-%d")
+        list_key = f"sentiment:scores:{symbol}:{today}"
+        
+        try:
+            # 1. Thêm điểm số mới vào danh sách
+            # 2. Đặt TTL cho danh sách (ví dụ 48h để đảm bảo dọn dẹp)
+            # 3. Lấy toàn bộ danh sách để tính trung bình
+            pipe = self._redis.pipeline()
+            pipe.rpush(list_key, sentiment_score)
+            pipe.expire(list_key, 172800)  # 48 hours
+            pipe.lrange(list_key, 0, -1)
+            results = await pipe.execute()
+            
+            all_scores = [float(s) for s in results[2]] # results[2] là kết quả của lrange
+            avg_score = round(sum(all_scores) / len(all_scores), 4) if all_scores else sentiment_score
+            count = len(all_scores)
+        except (redis.RedisError, OSError) as e:
+            logger.error("Redis list operation failed: %s", e)
+            avg_score = sentiment_score
+            count = 1
+
         payload = {
             "channel": f"sentiment:{symbol}",
             "symbol": symbol,
-            "sentiment_score": sentiment_score,
+            "sentiment_score": avg_score,
             "sentiment_label": sentiment_label,
             "source": source,
             "timestamp": timestamp_str,
             "url": url,
             "title": title[:200],
+            "daily_count": count,
+            "latest_score": sentiment_score
         }
 
-        key = f"sentiment:{symbol}"
-        json_payload = json.dumps(payload)
+        # 2. Lưu lịch sử vào Redis Sorted Set (ZSET) - Giữ trong 24h hoặc tối đa 1000 tin
+        history_key = f"sentiment:history:{symbol}"
+        try:
+            now_ts = time.time()
+            cutoff_ts = now_ts - 86400  # 24 hours ago
+            history_payload = json.dumps(payload)
+            
+            pipe = self._redis.pipeline()
+            # Thêm tin mới (score là timestamp)
+            pipe.zadd(history_key, {history_payload: now_ts})
+            # Xóa tin cũ hơn 24 giờ
+            pipe.zremrangebyscore(history_key, "-inf", cutoff_ts)
+            # Giữ tối đa 1000 tin mới nhất (xóa các tin có rank thấp nhất)
+            # ZREMRANGEBYRANK dùng index 0-based, -1001 là phần tử thứ 1001 từ cuối lên
+            pipe.zremrangebyrank(history_key, 0, -1001)
+            # Đặt expiry cho toàn bộ key (để dọn dẹp nếu không có tin mới)
+            pipe.expire(history_key, 172800) # 48h
+            await pipe.execute()
+        except (redis.RedisError, OSError) as e:
+            logger.error("Failed to store sentiment history in ZSET: %s", e)
 
         try:
             pipe = self._redis.pipeline()
@@ -144,8 +186,8 @@ class NewsConsumer:
             raise
 
         logger.info(
-            "Sentiment | %s → score=%.3f label=%s",
-            symbol, sentiment_score, sentiment_label,
+            "Sentiment | %s → avg_score=%.3f (count=%d) latest=%.3f",
+            symbol, avg_score, count, sentiment_score,
         )
 
     async def close(self) -> None:
