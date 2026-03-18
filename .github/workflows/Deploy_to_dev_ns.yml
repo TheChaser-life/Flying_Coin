@@ -1,0 +1,59 @@
+name: 3. Deploy application to dev namespace
+
+on:
+  workflow_dispatch:
+    inputs:
+      services:
+        description: 'Select services that you want to deploy'
+        required: true
+        default: 'all'
+
+jobs:
+  select-service:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          if [ "${{ inputs.services }}" == "all" ]; then
+            echo 'matrix=["collectors", "forecast-service", "sentiment-service", "market-data-service", "backtesting-service", "portfolio-service", "websocket-service", "notification-service", "web-frontend"]' >> $GITHUB_OUTPUT
+          else
+            JSON_ARRAY=$(echo "${{ inputs.services }}" | jq -R -c 'split(",") | map(sub("^\\s+"; "") | sub("\\s+$"; "")) | map(select(length > 0))')
+            echo "matrix=$JSON_ARRAY" >> $GITHUB_OUTPUT
+          fi
+
+  deploy:
+    needs: select-service
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.select-service.outputs.matrix) }}
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Clone code
+        uses: actions/checkout@v4
+
+      - name: Authenticate with google
+        uses: google-github-actions/auth@v2
+        with:
+          service_account: ${{ secrets.CICD_SA_EMAIL }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ secrets.CLUSTER_NAME }}
+          location: ${{ secrets.REGION }}
+
+      - name: Deploy ${{ matrix.service }}
+        run: |
+          echo "Deploying ${{ matrix.service }} to dev namespace"
+          kubectl apply -k k8s/overlays/dev-gcp/${{ matrix.service }}
+          kubectl rollout restart deployment/${{ matrix.service }} -n dev
+          kubectl rollout status deployment/${{ matrix.service }} -n dev

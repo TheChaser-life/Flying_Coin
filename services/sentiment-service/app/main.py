@@ -12,6 +12,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from app.core.config import config
 from app.core.dependencies import get_redis, close_redis
 from app.services.news_consumer import NewsConsumer
@@ -60,7 +62,7 @@ async def lifespan(app: FastAPI):
         try:
             await _consumer_task
         except asyncio.CancelledError:
-            pass
+            logger.info("Sentiment consumer task cancelled")
 
     if _consumer:
         await _consumer.close()
@@ -97,3 +99,6 @@ async def readiness_check():
 
 
 app.include_router(sentiment.router, prefix="/api/v1")
+
+# Instrument Prometheus metrics
+Instrumentator().instrument(app).expose(app)

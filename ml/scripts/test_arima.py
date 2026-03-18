@@ -7,9 +7,9 @@ import pandas as pd
 import numpy as np
 from ml.scripts.train_arima import run_arima_and_evaluate
 
-np.random.seed(42)
+rng = np.random.default_rng(42)
 n = 150
-close = 100 + np.cumsum(np.random.randn(n) * 2)
+close = 100 + np.cumsum(rng.standard_normal(n) * 2)
 train = pd.DataFrame({"close": close[:100]})
 val = pd.DataFrame({"close": close[100:120]})
 test = pd.DataFrame({"close": close[120:]})

@@ -1,0 +1,38 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dev
+
+resources:
+  - ../../../base/portfolio
+  - database-external-secret.yaml
+
+images:
+  - name: portfolio-service
+    newName: asia-southeast1-docker.pkg.dev/flying-coin-489803/flying-coin-docker/portfolio-service
+    newTag: staging
+
+patchesStrategicMerge:
+  - |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: portfolio-service
+    spec:
+      template:
+        spec:
+          containers:
+            - name: portfolio-service
+              envFrom:
+                - secretRef:
+                    name: portfolio-db-config
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: portfolio-db-config
+                      key: DATABASE_URL
+                - name: REDIS_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: portfolio-db-config
+                      key: REDIS_URL

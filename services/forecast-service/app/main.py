@@ -10,6 +10,8 @@ import sys
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from app.api.v1 import forecast
 from app.core.config import config
 
@@ -36,6 +38,9 @@ app.add_middleware(
 )
 
 app.include_router(forecast.router, prefix="/api/v1")
+
+# Instrument Prometheus metrics
+Instrumentator().instrument(app).expose(app)
 
 
 @app.get("/health", tags=["health"])

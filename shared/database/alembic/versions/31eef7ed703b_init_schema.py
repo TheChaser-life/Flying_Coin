@@ -5,7 +5,7 @@ Revises:
 Create Date: 2026-03-06 10:18:14.269453
 
 """
-from typing import Sequence, Union
+from typing import Sequence
 
 from alembic import op
 import sqlalchemy as sa
@@ -13,9 +13,12 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '31eef7ed703b'
-down_revision: Union[str, Sequence[str], None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | Sequence[str] | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
+
+# Constant to avoid duplicated literal (SonarQube S1192)
+_FK_SYMBOLS_ID = ['symbols.id']
 
 
 def upgrade() -> None:
@@ -57,7 +60,7 @@ def upgrade() -> None:
     sa.Column('volume', sa.Float(), nullable=False),
     sa.Column('source', sa.Enum('YAHOO', 'BINANCE', 'KRAKEN', 'COINBASE', name='dataprovider'), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['symbol_id'], ['symbols.id'], ),
+    sa.ForeignKeyConstraint(['symbol_id'], _FK_SYMBOLS_ID, ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('symbol_id', 'timestamp', 'source', name='uix_market_data_symbol_time_source')
     )
@@ -85,7 +88,7 @@ def upgrade() -> None:
     sa.Column('confidence_score', sa.Float(), nullable=True),
     sa.Column('actual_value', sa.Float(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['symbol_id'], ['symbols.id'], ),
+    sa.ForeignKeyConstraint(['symbol_id'], _FK_SYMBOLS_ID, ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_predictions_id'), 'predictions', ['id'], unique=False)
@@ -101,7 +104,7 @@ def upgrade() -> None:
     sa.Column('sentiment_label', sa.String(length=50), nullable=True),
     sa.Column('text_snippet', sa.String(length=1000), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['symbol_id'], ['symbols.id'], ),
+    sa.ForeignKeyConstraint(['symbol_id'], _FK_SYMBOLS_ID, ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_sentiments_id'), 'sentiments', ['id'], unique=False)

@@ -8,15 +8,15 @@ import numpy as np
 from ml.pipelines.preprocessing import DataPreprocessor, PreprocessingConfig
 
 dates = pd.date_range("2023-01-01", periods=100, freq="D")
-np.random.seed(42)
-close = 100 + np.cumsum(np.random.randn(100) * 2)
+rng = np.random.default_rng(42)
+close = 100 + np.cumsum(rng.standard_normal(100) * 2)
 df = pd.DataFrame({
     "timestamp": dates,
     "open": np.roll(close, 1),
-    "high": close + np.abs(np.random.randn(100)),
-    "low": close - np.abs(np.random.randn(100)),
+    "high": close + np.abs(rng.standard_normal(100)),
+    "low": close - np.abs(rng.standard_normal(100)),
     "close": close,
-    "volume": np.random.randint(1_000_000, 10_000_000, 100).astype(float),
+    "volume": rng.integers(1_000_000, 10_000_000, 100).astype(float),
 })
 df.loc[0, "open"] = 100
 

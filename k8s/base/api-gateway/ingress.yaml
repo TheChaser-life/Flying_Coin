@@ -8,31 +8,26 @@ metadata:
     # Kích hoạt các Plugin đã định nghĩa sẵn cho toàn bộ các Route nằm trong Ingress này
     # Ở đây ta bật CORS (để Frontend gọi API không bị chặn cross-origin) và Rate Limit (chống Spam)
     konghq.com/plugins: "global-cors, global-rate-limit, keycloak-jwt-auth"
-    # Tự động cắt prefix path (/api/v1) trước khi forward request đến backend service
-    # httpbin nhận /get thay vì /api/v1/get
-    konghq.com/strip-path: "true"
+    konghq.com/strip-path: "false"
 spec:
+  ingressClassName: kong
+  tls:
+    - hosts:
+        - flying-coin.thinhopsops.win # Sẽ được ghi đè nếu cần, nhưng để mặc định ở đây cho tiện
+      secretName: cloudflare-origin-tls
   rules:
     # Backend thuần không hardcode domain (Domain sẽ được vá/patch qua Overlays)
     - http:
         paths:
-          # Route 1: Dùng để giả lập Endpoint nhận Request thử nghiệm chặn/bỏ chặn Token (Mồi ngon cho việc Test JWT)
-          - path: /api/v1
-            pathType: Prefix
-            backend:
-              service:
-                name: httpbin-service # Trỏ vào Service giả chuyên trả về thông tin cấu trúc HTTP Request
-                port:
-                  number: 80
           
           # Route 2: Phục vụ riêng cho Market Data Service (Scrape/Feed giá crypto, CP sau này)
-          - path: /api/v1/market
+          - path: /api/v1/market-data
             pathType: Prefix
             backend:
               service:
-                name: market-data-service # Tên thực của Service Python sau này ta sẽ Deploy
+                name: market-data-service-service # Tên thực của Service Python sau này ta sẽ Deploy
                 port:
-                  number: 80
+                  number: 8001
           
           # Route 3: Phục vụ Sentiment Analysis service
           - path: /api/v1/sentiment
@@ -42,3 +37,52 @@ spec:
                 name: sentiment-service-service
                 port:
                   number: 8002
+          
+          # Route 4: Web Frontend (Moved to public-ingress.yaml)
+          # - path: /
+          #   ...
+          
+          # Route 5: Collectors service
+          - path: /api/v1/collectors
+            pathType: Prefix
+            backend:
+              service:
+                name: collectors-service
+                port:
+                  number: 8000
+          
+          # Route 6: Forecast service
+          - path: /api/v1/forecast
+            pathType: Prefix
+            backend:
+              service:
+                name: forecast-service-service
+                port:
+                  number: 8000
+          
+          # Route 7: Backtesting service
+          - path: /api/v1/backtesting
+            pathType: Prefix
+            backend:
+              service:
+                name: backtesting-service
+                port:
+                  number: 8000
+          
+          # Route 8: Portfolio service
+          - path: /api/v1/portfolio
+            pathType: Prefix
+            backend:
+              service:
+                name: portfolio-service
+                port:
+                  number: 8000
+          
+          # Route 9: Notification service
+          - path: /api/v1/notification
+            pathType: Prefix
+            backend:
+              service:
+                name: notification-service
+                port:
+                  number: 80

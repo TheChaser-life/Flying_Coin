@@ -6,7 +6,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - ingress.yaml           # Tự động apply bộ quy tắc Ingress (Các Routes)
+  - ingress.yaml           # Tên cũ là api-ingress, chứa các Route cần JWT
+  - public-ingress.yaml    # Chứa Route cho Frontend (Public)
   - kong-plugins.yaml      # Tự động apply các Plugin giúp thiết lập hành vi của KONG
-  - httpbin.yaml           # Tự động tạo cái Backend ảo Httpbin
   - keycloak-consumer.yaml # KongConsumer + JWT credential để verify Keycloak token (RS256)

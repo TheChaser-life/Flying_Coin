@@ -4,10 +4,36 @@
 #   push:
 #     branches:
 #       - dev
+#     paths:
+#       - 'services/**'
+#       - 'ml/**'
+#       - 'shared/**'
+#       - 'terraform/**'
+#       - 'k8s/**'
+#       - 'helm_values/**'
+#       - 'scripts/**'
+#       - 'docker_compose_for_testing/**'
+#       - '.github/workflows/**'
 
 # jobs:
 #   scan_source_code:
 #     runs-on: ubuntu-latest
 #     steps:
-#       - name:
+#       - name: copy_source_code
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
         
+#       - name: scan_source_code
+#         uses: SonarSource/sonarqube-scan-action@v5.0.0
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#         with:
+#           args: >
+#             -Dsonar.organization=${{ secrets.ORGANIZATION }}
+#             -Dsonar.projectKey=${{ secrets.PROJECT_KEY }}
+#             -Dsonar.python.version=3.10
+#             -Dsonar.sources=services,ml,shared,terraform,k8s,helm_values,scripts,docker_compose_for_testing,.github/workflows
+#             -Dsonar.exclusions=docs/**,**/*.md,alembic.ini
+#             -Dsonar.branch.name=dev

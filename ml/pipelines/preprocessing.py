@@ -114,7 +114,7 @@ class DataPreprocessor:
 
         # 5. Normalization / Scaling
         if self.config.scaler != "none":
-            train, val, test = self._scale(train, val, test, target_col)
+            train, val, test = self._scale(train, val, test)
 
         metadata = {
             "n_train": len(train),
@@ -182,7 +182,7 @@ class DataPreprocessor:
             numeric = df.select_dtypes(include=[np.number])
 
             # 1. Distribution plots
-            fig, axes = plt.subplots(2, 3, figsize=(12, 8))
+            _fig, axes = plt.subplots(2, 3, figsize=(12, 8))
             axes = axes.flatten()
             for i, col in enumerate(numeric.columns[:6]):
                 axes[i].hist(numeric[col].dropna(), bins=50, edgecolor="black", alpha=0.7)
@@ -300,7 +300,6 @@ class DataPreprocessor:
         train: pd.DataFrame,
         val: pd.DataFrame,
         test: pd.DataFrame,
-        target_col: str | None,
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """Normalization/scaling — fit trên train, transform val/test."""
         scale_cols = [c for c in OHLCV_COLUMNS if c in train.columns]

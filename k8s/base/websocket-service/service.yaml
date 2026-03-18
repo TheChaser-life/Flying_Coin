@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: websocket-service
+  namespace: dev
+spec:
+  selector:
+    app: websocket-service
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080

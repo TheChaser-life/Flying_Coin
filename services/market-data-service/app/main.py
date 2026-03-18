@@ -56,7 +56,7 @@ async def lifespan(app: FastAPI):
         try:
             await _consumer_task
         except asyncio.CancelledError:
-            pass
+            logger.info("Market data consumer task cancelled")
 
     if _consumer:
         await _consumer.close()

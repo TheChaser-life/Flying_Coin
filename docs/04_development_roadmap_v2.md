@@ -127,10 +127,10 @@
 | 4.2 | **Market Data Service** | 🤖 AI | 1.4, 1.6 | ✅ Done — Consume RabbitMQ → xử lý → lưu PostgreSQL → publish Redis |
 | 4.3 | **Data Pipeline + API** | 🤖 AI | 4.2 | ✅ Done — Làm sạch dữ liệu, API endpoints đọc dữ liệu lịch sử |
 | 4.4 | **Dockerfiles (Collectors + Market Data)** | 🤖 AI | 4.1, 4.2 | ✅ Done — Multi-stage build cho Collectors + Market Data Service |
-| 4.5 | **Deploy Market Data trên Minikube** | 👤 Bạn | 4.1, 4.2, 4.3, 4.4 | ✅ Done — K8s manifests (Kustomize base/overlay), deploy namespace dev, fix FIPS/timezone/Redis auth |
+| 4.5 | **Deploy Market Data trên Cloud** | 👤 Bạn | 4.1, 4.2, 4.3, 4.4 | ✅ Done — Deploy GKE dev-gcp, fix DB schema auto-init, Redis auth |
 | 4.6 | **Verify full pipeline** | 👤 Bạn | 4.5 | ✅ Done — Binance → RabbitMQ → market-data-service → PostgreSQL → Redis → API `/symbols`, `/latest`, `/history` |
 
-**✅ Deliverable Phase 1:**
+**✅ Deliverable Phase 1: 100% Completed**
 
 - [ ] 👤 Minikube cluster chạy tất cả services locally
 - [ ] 👤 CI/CD pipeline hoạt động (build → push → deploy local)
@@ -235,7 +235,7 @@
 > 6. `minikube start` → Forecast Service tự load model mới từ MLflow
 > 7. Test API inference → ✅ Tiếp tục
 
-**✅ Deliverable Phase 2:**
+**✅ Deliverable Phase 2: 100% Completed**
 
 - [ ] 🤖 3 ML models trained local (ARIMA, XGBoost GPU, LSTM GPU) + registered trên MLflow
 - [ ] 🤖 Forecast Service (serving only) + API dự báo 7/14/30 ngày
@@ -253,19 +253,18 @@
 
 | # | Task | Người | Thời gian | Chi tiết |
 |---|------|-------|-----------|----------|
-| M.1 | `terraform apply` — GKE Cluster | 👤 Bạn | ✅ Done | Tạo GKE cluster từ modules đã viết sẵn ở Phase 1 |
-| M.2 | **Deploy DB & Cache on GKE** | 👤 Bạn | 15 phút | Cấu hình PV/PVC (SSD), deploy PostgreSQL + TimescaleDB & Redis bằng Helm |
-| M.3 | `terraform apply` — GCR/SecretManager | 👤 Bạn | ✅ Done | Container Registry + Secret Manager infrastructure |
-| M.4 | Migrate data (nếu cần) | 👤 Bạn | 30 phút | `pg_dump` local → `pg_restore` vào PostgreSQL pod trên GKE |
-| M.5 | Đổi kubectl context | 👤 Bạn | 1 phút | `gcloud container clusters get-credentials` |
-| M.6 | `kubectl apply -k overlays/dev/` | 👤 Bạn | 5 phút | Deploy tất cả services lên GKE — overlay đã sẵn sàng! |
-| M.7 | **Deploy Airflow trên GKE** | 👤 Bạn | 30 phút | `helm install airflow apache-airflow/airflow -f helm-values/airflow-cloud.yaml`, migrate DAG files |
-| M.8 | **Cấu hình Airflow cloud** | 👤 Bạn | 30 phút | Kết nối MLflow trên GKE, cập nhật connection string đến DB pod trong cluster |
-| M.9 | **Setup SSH cho remote training** | 👤 Bạn | 30 phút | Bật OpenSSH Server trên Windows, cấu hình Airflow `SSHOperator` connection đến máy local để trigger GPU training |
-| M.10 | Verify tất cả services | 👤 Bạn | 1 giờ | Test mọi service + Airflow DAGs + SSH training hoạt động |
-| M.11 | Cập nhật CI/CD target | 👤 Bạn | 15 phút | GitHub Actions deploy → GKE thay vì local |
-| M.12 | **MLOps CI pipeline** (6.1) | 👤 Bạn | M.11 | GitHub Actions: trigger train (self-hosted/GKE) → log MLflow → validate metrics |
-| M.13 | **Model Validation Gate** (6.2) | 👤 Bạn | M.12 | Auto-check RMSE, MAE, Directional Accuracy trước khi promote model |
+| M.1 | `terraform apply` — GKE Cluster | 👤 Bạn | ✅ Done | Tạo GKE cluster |
+| M.2 | **Deploy DB & Cache on GKE** | 👤 Bạn | ✅ Done | Helm: Postgres, Redis, Rabbit. Auto-init DB schema ✅ |
+| M.3 | `terraform apply` — GCR/SecretManager | 👤 Bạn | ✅ Done | Infrastructure components |
+| M.4 | Migrate data (nếu cần) | 👤 Bạn | 30 phút | Task duy trì |
+| M.5 | Đổi kubectl context | 👤 Bạn | ✅ Done | `gcloud container clusters get-credentials` |
+| M.6 | `kubectl apply -k overlays/dev-gcp/` | 👤 Bạn | ✅ Done | Deploy Cloud overlays |
+| M.7 | **Deploy Airflow trên GKE** | 👤 Bạn | ✅ Done | Helm: Apache Airflow deployed in `mlops` ns |
+| M.8 | **Cấu hình Airflow cloud** | 👤 Bạn | ✅ Done | Workload Identity, DAGs (Stage 1 & 2 integration) |
+| M.9 | **Setup SSH cho remote training** | 👤 Bạn | ✅ Done | Reverse Tunnel via Bastion (GatewayPorts enabled) |
+| M.10 | Verify tất cả services | 👤 Bạn | ✅ Done | Collectors, Sentiment, Market-Data services OK |
+| M.11 | Cập nhật CI/CD target | 👤 Bạn | ✅ Done | Deploy → GKE target |
+| M.12 | **Cost-Saving & Automation** | 👤 Bạn | ✅ Done | `destroy.sh` + setup integrated with Terraform |
 
 **Sau migration:** Airflow chạy 24/7 trên GKE, orchestrate pipeline tự động. Training vẫn chạy trên máy local (RTX 4060) qua SSH.
 
@@ -281,32 +280,32 @@
 
 | # | Task | Người | Phụ thuộc | Chi tiết |
 |---|------|-------|-----------|----------|
-| 9.1 | ⬆️ **Migration Local → GKE** | 👤 Bạn | Phase 2 | Xem Migration Checkpoint ở trên |
-| 9.2 | Prometheus + Grafana | 👤 Bạn | 9.1 | Helm: kube-prometheus-stack trên GKE |
-| 9.3 | Service Monitors | 👤 Bạn | 9.2 | Scrape metrics từ mọi service |
-| 9.4 | **Portfolio Service** | 🤖 AI | Phase 1 | Markowitz, Efficient Frontier, risk analysis |
-| 9.5 | **Backtesting Engine** | 🤖 AI | 9.4 | Backtesting với equity curve |
-| 9.6 | **WebSocket Service (Go)** | 🤖 AI | Phase 1 | Gorilla WebSocket + go-redis, fan-out |
-| 9.7 | Deploy Portfolio + WS trên GKE | 👤 Bạn | 9.4, 9.6 | K8s manifests, deploy cloud, verify |
+| 9.1 | ⬆️ **Migration Local → GKE** | 👤 Bạn | Phase 2 | [Done] Migration complete |
+| 9.2 | Prometheus + Grafana | 👤 Bạn | 9.1 | [Done] Running in logging-monitoring |
+| 9.3 | Service Monitors | 👤 Bạn | 9.2 | [Done] Configured via annotations |
+| 9.4 | **Portfolio Service** | 🤖 AI | Phase 1 | [Done] Implemented & Deployed |
+| 9.5 | **Backtesting Engine** | 🤖 AI | 9.4 | [Done] Implemented & Deployed |
+| 9.6 | **WebSocket Service (Go)** | 🤖 AI | Phase 1 | [Done] Implemented & Deployed |
+| 9.7 | Deploy Portfolio + WS trên GKE | 👤 Bạn | 9.4, 9.6 | [Done] Verified on dev namespace |
 
 ### Tuần 11 — Notification, ELK & Logging
 
 | # | Task | Người | Phụ thuộc | Chi tiết |
 |---|------|-------|-----------|----------|
-| 11.1 | ELK Stack | 👤 Bạn | 9.1 | Helm: elasticsearch + logstash + kibana |
-| 11.2 | Health Checks | 👤 Bạn | 9.7 | Readiness & Liveness probes cho tất cả services |
-| 11.3 | Grafana ML Dashboard | 👤 Bạn | 9.2 | Dashboard cho ML model metrics |
-| 11.4 | **Notification Service (Go)** | 🤖 AI | Phase 1 | Email alerts (Gin + gomail) |
-| 11.5 | **Real-time integration** | 🤖 AI | 9.6 | WS channels: price, sentiment, forecast, alerts |
-| 11.6 | **Pub/Sub tích hợp** | 🤖 AI | 11.4, 11.5 | Redis Pub/Sub giữa tất cả services |
-| 11.7 | Deploy Notification trên GKE | 👤 Bạn | 11.4 | Deploy, verify email alerts |
+| 11.1 | VEK Stack | 👤 Bạn | 9.1 | ✅ [Done] Helm: vector + elasticsearch + kibana |
+| 11.2 | Health Checks | 👤 Bạn | 9.7 | ✅ [Done] Readiness & Liveness for all services |
+| 11.3 | Grafana ML Dashboard | 👤 Bạn | 9.2 | ✅ [Done] Dashboard cho ML model metrics |
+| 11.4 | **Notification Service (Go)** | 🤖 AI | Phase 1 | ✅ [Done] Email alerts (Resend SMTP) |
+| 11.5 | **Real-time integration** | 🤖 AI | 9.6 | ✅ [Done] WS channels: price, sentiment, forecast, alerts |
+| 11.6 | **Pub/Sub tích hợp** | 🤖 AI | 11.4, 11.5 | ✅ [Done] Redis Pub/Sub giữa tất cả services |
+| 11.7 | Deploy Notification trên GKE | 👤 Bạn | 11.4 | ✅ [Done] Deploy, verify email alerts |
 | 11.8 | **Terraform bật/tắt script** | 👤 Bạn | 9.1 | Script tự động destroy/apply GKE ngoài giờ làm việc |
 
 **✅ Deliverable Phase 3:**
 
-- [ ] 🤖 Portfolio + Backtesting + WebSocket + Notification hoạt động
-- [ ] 👤 Toàn bộ hệ thống chạy trên GKE Cloud
-- [ ] 👤 Prometheus + Grafana + ELK monitoring/logging
+- [x] 🤖 Portfolio + Backtesting + WebSocket + Notification hoạt động
+- [x] 👤 Toàn bộ hệ thống chạy trên GKE Cloud
+- [x] 👤 Prometheus + Grafana + ELK monitoring/logging
 - [ ] 👤 Terraform bật/tắt script tiết kiệm chi phí
 
 ---

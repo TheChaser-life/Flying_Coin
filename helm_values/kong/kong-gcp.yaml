@@ -116,6 +116,15 @@ env:
   admin_gui_error_log: /dev/stderr
   portal_api_error_log: /dev/stderr
   prefix: /kong_prefix/
+  # Fix: Disable IPv6 for GKE environment to avoid [::1] bind errors
+  proxy_listen: 0.0.0.0:8000, 0.0.0.0:8443 ssl
+  admin_listen: 0.0.0.0:8001, 0.0.0.0:8444 ssl
+  status_listen: 0.0.0.0:8100
+  # Use Cloudflare Origin Certificate as default SSL certificate
+  ssl_cert: /etc/secrets/cloudflare-origin-tls/tls.crt
+  ssl_cert_key: /etc/secrets/cloudflare-origin-tls/tls.key
+
+
 
 # This section is any customer specific environments variables that doesn't require KONG_ prefix.
 # These custom environment variables are typicall used in custom plugins or serverless plugins to

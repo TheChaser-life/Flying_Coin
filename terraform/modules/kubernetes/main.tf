@@ -1,6 +1,38 @@
+# Tạo service account cho GKE nodes TRƯỚC cluster + node pool
+# Node pool phải dùng SA này — nếu dùng default sẽ 403 khi pull Artifact Registry
+resource "google_service_account" "gke_service_account" {
+  account_id   = "${var.project_name}-gke-sa"
+  display_name = "GKE Service Account for ${var.project_name}"
+}
+
+# Cấp quyền cho GKE node SA
+resource "google_project_iam_member" "sa_registry" {
+  project = var.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_project_iam_member" "sa_storage" {
+  project = var.project_id
+  role    = "roles/storage.objectAdmin"
+  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_project_iam_member" "sa_logging" {
+  project = var.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_project_iam_member" "sa_monitoring" {
+  project = var.project_id
+  role    = "roles/monitoring.metricWriter"
+  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
 # Tạo GKE Cluster
 resource "google_container_cluster" "gke_cluster" {
-  name     = "${var.project_name}-gke-cluster"
+  name     = "${var.project_name}-gke-cluster${var.resource_suffix}"
   location = var.zone
 
   remove_default_node_pool = true # Xóa default node pool để tạo pool riêng
@@ -31,21 +63,21 @@ resource "google_container_cluster" "gke_cluster" {
     # Nó cho phép Google Cloud tin tưởng và chấp nhận danh tính của các Kubernetes Service Account (KSA) đến từ cụm GKE này, mà không cần bất kỳ file key (mật khẩu) nào cả
   }
 
-  # Cấu hình tạm thời để tránh GKE tạo mặc định 100GB SSD gây quá Quota
-  node_config {
-    disk_size_gb = 20
-    disk_type    = "pd-standard"
-  }
-
   deletion_protection = false
 }
 
-# Tạo node pool, máy chạy các pods
+# Tạo node pool — phải dùng flying-coin-gke-sa, không dùng default (sẽ 403 pull Artifact Registry)
 resource "google_container_node_pool" "primary" {
-  name       = "${var.project_name}-node-pool"
+  name       = "${var.project_name}-node-pool${var.resource_suffix}"
   location   = var.zone
-  cluster    = google_container_cluster.gke_cluster.id # Gắn node pool vào cluster đã tạo ở trên
+  cluster    = google_container_cluster.gke_cluster.id
   node_count = var.node_count
+
+  depends_on = [
+    google_project_iam_member.sa_registry,
+    google_project_iam_member.sa_storage,
+  ]
+
   node_config {
     machine_type    = var.machine_type                                 # Loại máy (VD: e2-standard-2, ...)
     service_account = google_service_account.gke_service_account.email # Chỉ định service account cho node
@@ -126,6 +158,7 @@ resource "helm_release" "external_secrets" {
   repository = "https://charts.external-secrets.io"
   chart      = "external-secrets"
   namespace  = "external-secrets"
+  timeout    = 600 # 10 phút - tránh context deadline exceeded khi uninstall
   set {
     name  = "serviceAccount.create"
     value = "false"
@@ -136,47 +169,27 @@ resource "helm_release" "external_secrets" {
   }
 }
 
-# Tạo service account, cấp quyền tối thiểu cho GKE nodes
-resource "google_service_account" "gke_service_account" {
-  account_id   = "${var.project_name}-gke-sa"
-  display_name = "GKE Service Account for ${var.project_name}"
+# Workload Identity cho Airflow
+# Cho phép airflow-scheduler và airflow-worker (nếu có) đóng vai GKE Node SA
+resource "google_service_account_iam_member" "airflow_scheduler_wi" {
+  service_account_id = google_service_account.gke_service_account.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "serviceAccount:${var.project_id}.svc.id.goog[mlops/airflow-scheduler]"
 }
 
-# Cấp các quyền cần thiêt cho service account ở trên
-# Pull Docker images
-resource "google_project_iam_member" "sa_registry" {
-  project = var.project_id
-  role    = "roles/artifactregistry.reader"
-  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
+resource "google_service_account_iam_member" "airflow_worker_wi" {
+  service_account_id = google_service_account.gke_service_account.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "serviceAccount:${var.project_id}.svc.id.goog[mlops/airflow-worker]"
 }
 
-# Đọc/ghi MLflow model files trên Cloud storage
-resource "google_project_iam_member" "sa_storage" {
-  project = var.project_id
-  role    = "roles/storage.objectAdmin"
-  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
-}
-
-# Ghi logs
-resource "google_project_iam_member" "sa_logging" {
-  project = var.project_id
-  role    = "roles/logging.logWriter"
-  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
-}
-
-# Ghi metrics
-resource "google_project_iam_member" "sa_monitoring" {
-  project = var.project_id
-  role    = "roles/monitoring.metricWriter"
-  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
-}
-
+# Tự định nghĩa StorageClass "standard-rwo" để kiểm soát ReclaimPolicy
 resource "kubernetes_storage_class_v1" "gcp_ssd" {
   metadata {
     name = "standard-rwo"
   }
   storage_provisioner = "pd.csi.storage.gke.io"
-  reclaim_policy      = "Retain"
+  reclaim_policy      = "Delete" # Tự động xóa ổ đĩa vật lý khi PVC/Cluster bị xóa (Tiết kiệm chi phí Dev)
   volume_binding_mode = "WaitForFirstConsumer"
   parameters = {
     type = "pd-ssd"

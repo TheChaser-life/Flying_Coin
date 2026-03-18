@@ -1,50 +1,132 @@
+# =============================================================================
 # Python
+# =============================================================================
 __pycache__/
 *.py[cod]
 *$py.class
-*.env
-.env
+*.so
+.Python
 venv/
 env/
-.venv
+.venv/
 .pytest_cache/
 .coverage
 htmlcov/
 dist/
 build/
 *.egg-info/
+*.egg
 
-# Terraform
+# =============================================================================
+# Environment & Secrets — KHÔNG commit thông tin nhạy cảm
+# =============================================================================
+.env
+.env.*
+!.env.example
+*.env
+*.env.local
+*.env.*.local
+
+# Credentials
+*.pem
+*.key
+*.p12
+*.jks
+*.pfx
+credentials.json
+*credentials*.json
+application_default_credentials.json
+gcloud_secret*.txt
+
+# =============================================================================
+# Terraform — cho phép terraform/ nhưng KHÔNG commit .tfvars (chứa secret)
+# =============================================================================
 .terraform/
+.terraform.lock.hcl
 *.tfstate
+*.tfstate.*
 *.tfstate.backup
-# .terraform.lock.hcl
 *.tfvars
+terraform/plan_output.txt
+terraform/plan_result.txt
+terraform/tfplan
 
-# Kubernetes / Local temp
+# =============================================================================
+# Kubernetes / Local
+# =============================================================================
 k8s_yaml_storage/
 .minikube/
 kubeconfig
+*.kubeconfig
 
-# IDEs
+# =============================================================================
+# ML / Airflow / MLflow
+# =============================================================================
+ml/logs/
+ml/outputs/
+ml/mlruns/
+ml/artifacts/
+
+# =============================================================================
+# Setup & Logs
+# =============================================================================
+setup_*.log
+*.log
+
+# =============================================================================
+# IDEs & Editors
+# =============================================================================
 .idea/
 .vscode/
 .cursor/
 *.swp
 *.swo
-
-# ML / Airflow
-ml/logs/
-ml/outputs/
-
+*~
+*.kiro/
+.kiro/
+# =============================================================================
 # OS
+# =============================================================================
 .DS_Store
 Thumbs.db
+Desktop.ini
 
+# =============================================================================
 # Project specific
+# =============================================================================
 diary/
 node_modules/
-*.pem
-*.key
-*.jks
-*.p12
+.next/
+out/
+build/
+dist/
+.npm
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache
+
+sonar_scan/
+source_code_issues_*.json
+alembic.ini
+check.sh
+full_mapping.json
+log_dump.json
+sample_log.json
+
+# Temp / Cache
+*.tmp
+*.temp
+*.bak
+
+.gitattributes
+.gitignore
+bastion_ed25519
+bastion_id_rsa

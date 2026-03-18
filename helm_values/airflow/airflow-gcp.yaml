@@ -1,0 +1,164 @@
+# Airflow Cloud Values for GKE (prod-ready local executor)
+# This file is used for deploying Apache Airflow using the official Helm chart on GKE.
+
+# Use LocalExecutor for simplicity in this phase, similar to local setup.
+executor: "LocalExecutor"
+airflowVersion: "2.10.0"
+
+# Disable internal postgres, use external one in 'database' namespace
+postgresql:
+  enabled: false
+
+# Image configuration
+images:
+  airflow:
+    repository: apache/airflow
+    tag: 2.10.0-python3.11
+    pullPolicy: IfNotPresent
+
+# Database configuration
+data:
+  metadataSecretName: "airflow-secrets"
+
+# Flask secret keys từ GCP Secret Manager qua ExternalSecret
+apiSecretKeySecretName: "airflow-secrets"
+webserverSecretKeySecretName: "airflow-secrets"
+# JWT secret cho API auth (airflow-jwt-secret-key)
+jwtSecretName: "airflow-secrets"
+
+# Webserver configuration
+webserver:
+  enabled: true
+  replicas: 1
+  service:
+    type: ClusterIP
+  livenessProbe:
+    initialDelaySeconds: 40
+    timeoutSeconds: 30
+  readinessProbe:
+    initialDelaySeconds: 40
+    timeoutSeconds: 30
+  defaultUser:
+    role: Admin
+    username: admin
+    email: admin@example.com
+    firstName: admin
+    lastName: user
+    # The password will be set via AIRFLOW_WEBSERVER_DEFAULT_USER_PASSWORD env var,
+    # and expanded by bash -c in the createUserJob.
+    password: "$(AIRFLOW_WEBSERVER_DEFAULT_USER_PASSWORD)"
+  # Ensure waitForMigrations is disabled for webserver too
+  waitForMigrations:
+    enabled: false
+  extraVolumes:
+    - name: airflow-secrets-vol
+      secret:
+        secretName: airflow-secrets
+  extraVolumeMounts:
+    - name: airflow-secrets-vol
+      mountPath: /opt/airflow/secrets
+      readOnly: true
+
+# Extra environment variables
+env:
+  - name: "AIRFLOW__CORE__LOAD_EXAMPLES"
+    value: "False"
+  - name: "AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION"
+    value: "True"
+  - name: "MLFLOW_TRACKING_URI"
+    value: "http://mlflow-tracking-svc.mlops.svc.cluster.local"
+  - name: "AIRFLOW__CORE__DAGS_FOLDER"
+    value: "/opt/airflow/dags/repo/ml/dags"
+  - name: "GCS_BUCKET_NAME"
+    value: "flying-coin-ml-datasets"
+  - name: "GCP_PROJECT_ID"
+    value: "flying-coin-489803"
+  - name: "_PIP_ADDITIONAL_DEPENDENCIES"
+    value: "pandas sqlalchemy psycopg2-binary pyarrow fastparquet"
+  - name: "AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT"
+    value: "google-cloud-platform://"
+
+# Extra env vars that support valueFrom (must be a string for this chart)
+extraEnv: |
+  - name: "AIRFLOW_WEBSERVER_DEFAULT_USER_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        name: airflow-secrets
+        key: admin-password
+
+# DAG configuration
+dags:
+  persistence:
+    enabled: false # Use gitSync instead of PVC for DAGs
+  gitSync:
+    enabled: true
+    repo: "https://github.com/TheChaser-life/Flying_Coin.git"
+    branch: "dev"
+    rev: "HEAD"
+    depth: 1
+    # Only sync the ml/dags folder
+    subPath: "ml/dags"
+    wait: 60
+
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClassName: "standard-rwo"
+
+# logs.persistence: TẮT — GKE PD (standard-rwo) chỉ hỗ trợ RWO, không hỗ trợ RWX (multi-writer)
+# Chart tạo PVC RWX cho shared logs → provisioning fail. Dùng emptyDir thay thế.
+# Override size: 5Gi (default 100Gi) — phòng khi enable sau
+logs:
+  persistence:
+    enabled: false
+    size: 5Gi
+
+# workers.persistence: LocalExecutor dùng cho scheduler StatefulSet — default 100Gi quá lớn
+workers:
+  persistence:
+    size: 5Gi
+    storageClassName: "standard-rwo"
+
+# triggerer.persistence: per-pod RWO PVC — tương thích GKE PD
+triggerer:
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClassName: "standard-rwo"
+
+# Disable metrics, let prometheus scrape via service monitor if needed
+metrics:
+  enabled: true
+
+# Tắt Helm hooks — tránh helm install/upgrade bị đơ khi chờ createUserJob, migrateDatabaseJob
+# Jobs vẫn chạy nhưng Helm return ngay, không block
+createUserJob:
+  useHelmHooks: false
+migrateDatabaseJob:
+  useHelmHooks: false
+
+# Tắt waitForMigrations — tránh init container CrashLoopBackOff khi migration job chưa xong
+# Migration job chạy song song, pods start không block. Nếu migration fail, main container sẽ báo lỗi rõ hơn.
+scheduler:
+  serviceAccount:
+    annotations:
+      iam.gke.io/gcp-service-account: "flying-coin-gke-sa@flying-coin-489803.iam.gserviceaccount.com"
+  waitForMigrations:
+    enabled: false
+  extraVolumes:
+    - name: airflow-secrets-vol
+      secret:
+        secretName: airflow-secrets
+  extraVolumeMounts:
+    - name: airflow-secrets-vol
+      mountPath: /opt/airflow/secrets
+      readOnly: true
+triggerer:
+  waitForMigrations:
+    enabled: false
+dagProcessor:
+  waitForMigrations:
+    enabled: false
+# Tắt api-server — Airflow 2.10 dùng webserver cho REST API; api-server chủ yếu cho Airflow 3+
+apiServer:
+  enabled: false

@@ -25,26 +25,6 @@ provider "google" {
 # Lấy token chứng thực của account Google đang chạy Terraform
 data "google_client_config" "default" {}
 
-locals {
-  services = [
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "artifactregistry.googleapis.com",
-    "secretmanager.googleapis.com",
-    "iam.googleapis.com",
-    "cloudresourcemanager.googleapis.com",
-    "storage.googleapis.com"
-  ]
-}
-
-resource "google_project_service" "enabled_services" {
-  for_each = toset(local.services)
-  project  = var.project_id
-  service  = each.key
-
-  disable_on_destroy = false
-}
-
 provider "kubernetes" {
   host                   = "https://${module.kubernetes.cluster_endpoint}" # url của K8s API server để terraform gọi đến
   token                  = data.google_client_config.default.access_token  # token chứng thực của account Google đang chạy Terraform
@@ -60,30 +40,29 @@ provider "helm" {
 }
 
 module "networking" {
-  source        = "./modules/networking"
-  project_name  = var.project_name
-  region        = var.region
-  subnet_cidr   = var.subnet_cidr
-  pods_cidr     = var.pods_cidr
-  services_cidr = var.services_cidr
-
-  depends_on = [google_project_service.enabled_services]
+  source         = "./modules/networking"
+  project_name   = var.project_name
+  region         = var.region
+  subnet_cidr    = var.subnet_cidr
+  pods_cidr      = var.pods_cidr
+  services_cidr  = var.services_cidr
+  resource_suffix = var.resource_suffix
 }
 
 module "kubernetes" {
   source           = "./modules/kubernetes"
   project_id       = var.project_id
-  project_name     = var.project_name
-  region           = var.region
-  zone             = var.zone
-  subnet_id        = module.networking.subnet_id
-  vpc_id           = module.networking.vpc_id
-  node_count       = var.node_count
-  machine_type     = var.machine_type
+  project_name    = var.project_name
+  region          = var.region
+  zone            = var.zone
+  subnet_id       = module.networking.subnet_id
+  vpc_id          = module.networking.vpc_id
+  node_count      = var.node_count
+  machine_type    = var.machine_type
   eso_gcp_sa_email = module.secrets.eso_gcp_sa_email
-  disk_size        = var.disk_size
-  disk_type        = var.disk_type
-  depends_on       = [google_project_service.enabled_services]
+  disk_size       = var.disk_size
+  disk_type       = var.disk_type
+  resource_suffix = var.resource_suffix
 }
 
 module "registry" {
@@ -91,22 +70,24 @@ module "registry" {
   project_id   = var.project_id
   project_name = var.project_name
   region       = var.region
-
-  depends_on = [google_project_service.enabled_services]
 }
 
 module "storage" {
   source       = "./modules/storage"
   project_name = var.project_name
   region       = var.region
-
-  depends_on = [google_project_service.enabled_services]
 }
 
 module "secrets" {
   source       = "./modules/secrets"
   project_id   = var.project_id
   project_name = var.project_name
+}
 
-  depends_on = [google_project_service.enabled_services]
+module "cicd" {
+  source          = "./modules/cicd"
+  project_id      = var.project_id
+  project_name   = var.project_name
+  github_repo    = var.github_repo
+  resource_suffix = var.resource_suffix
 }

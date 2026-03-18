@@ -1,11 +1,11 @@
 ### ADJUSTED CONFIGURATIONS ###
 # auth.existingSecret: create custom secret via GCP Secret Manager
-# architecture: replication: ensure HA and handle load
-# sentinel.enabled: support auto-electing replica to master if master goes down
+# architecture: standalone cho dev — tránh lỗi Sentinel WRONGPASS với existingSecret (Bitnami #32497)
+# Đổi sang replication + sentinel khi cần HA
 # storageClass: "standard-rwo": balance between speed and cost (for both master and replicas)
 # size: 10Gi (for both master and replicas)
 # resources: CPU 100m-500m, RAM 256Mi-1Gi (for both master and replicas)
-# nodeSelector & tolerations: force Redis pod to run on dedicated Redis Node pool so other services do not compete for CPU/RAM
+# nodeSelector & tolerations: để trống để chạy trên bất kỳ node nào
 # metrics.serviceMonitor.enabled: true: open port for prometheus to collect metrics from Redis
 ###---------------------------------###
 
@@ -147,7 +147,7 @@ image:
 ##
 ## @param architecture Redis(R) architecture. Allowed values: `standalone` or `replication`
 ##
-architecture: replication
+architecture: standalone
 ## Redis(R) Authentication parameters
 ## ref: https://github.com/bitnami/containers/tree/main/bitnami/redis#setting-the-server-password-on-first-run
 ##
@@ -458,16 +458,11 @@ master:
   ## @param master.nodeSelector Node labels for Redis(R) master pods assignment
   ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
   ##
-  nodeSelector: 
-    cloud.google.com/gke-nodepool: "database-pool"
+  nodeSelector: {}
   ## @param master.tolerations Tolerations for Redis(R) master pods assignment
   ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   ##
-  tolerations:
-    - key: "node-role.kubernetes.io/master"
-      operator: "Equal"
-      value: "true"
-      effect: "NoSchedule" 
+  tolerations: [] 
   ## @param master.topologySpreadConstraints Spread Constraints for Redis(R) master pod assignment
   ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
   ## E.g.
@@ -704,9 +699,9 @@ replica:
   ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
   ##
   kind: StatefulSet
-  ## @param replica.replicaCount Number of Redis(R) replicas to deploy
+  ## @param replica.replicaCount Number of Redis(R) replicas to deploy (1 for dev to save CPU)
   ##
-  replicaCount: 2
+  replicaCount: 1
   ## @param replica.revisionHistoryLimit The number of old history to retain to allow rollback
   ## NOTE: Explicitly setting this field to 0, will result in cleaning up all the history, breaking ability to rollback
   revisionHistoryLimit: 10
@@ -953,16 +948,11 @@ replica:
   ## @param replica.nodeSelector Node labels for Redis(R) replicas pods assignment
   ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
   ##
-  nodeSelector: 
-    cloud.google.com/gke-nodepool: "database-pool"
+  nodeSelector: {}
   ## @param replica.tolerations Tolerations for Redis(R) replicas pods assignment
   ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   ##
-  tolerations: 
-    - key: "node-role.kubernetes.io/database"
-      operator: "Equal"
-      value: "true"
-      effect: "NoSchedule" 
+  tolerations: [] 
   ## @param replica.topologySpreadConstraints Spread Constraints for Redis(R) replicas pod assignment
   ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
   ## E.g.
@@ -1204,8 +1194,9 @@ sentinel:
   ## @param sentinel.enabled Use Redis(R) Sentinel on Redis(R) pods.
   ## IMPORTANT: this will disable the master and replicas services and
   ## create a single Redis(R) service exposing both the Redis and Sentinel ports
+  ## Tắt khi dùng architecture: standalone
   ##
-  enabled: true
+  enabled: false
   ## Bitnami Redis(R) Sentinel image version
   ## ref: https://hub.docker.com/r/bitnami/redis-sentinel/tags/
   ## @param sentinel.image.registry [default: REGISTRY_NAME] Redis(R) Sentinel image registry
@@ -1806,7 +1797,7 @@ tls:
 metrics:
   ## @param metrics.enabled Start a sidecar prometheus exporter to expose Redis(R) metrics
   ##
-  enabled: false
+  enabled: true
   ## Bitnami Redis(R) Exporter image
   ## ref: https://hub.docker.com/r/bitnami/redis-exporter/tags/
   ## @param metrics.image.registry [default: REGISTRY_NAME] Redis(R) Exporter image registry
@@ -2021,7 +2012,7 @@ metrics:
     port: http-metrics
     ## @param metrics.serviceMonitor.enabled Create ServiceMonitor resource(s) for scraping metrics using PrometheusOperator
     ##
-    enabled: true
+    enabled: false
     ## @param metrics.serviceMonitor.namespace The namespace in which the ServiceMonitor will be created
     ##
     namespace: ""

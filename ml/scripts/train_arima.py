@@ -28,18 +28,21 @@ from ml.pipelines.naive_baselines import BaselineMetrics, compute_metrics, evalu
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
+# Constants to avoid duplicated literals (SonarQube S1192)
+PARQUET_EXT = ".parquet"
+
 
 def load_dataset_from_dir(data_dir: str | Path, symbol: str = "all") -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load train/val/test từ thư mục dataset builder output."""
     data_dir = Path(data_dir)
     suffix = f"_{symbol}" if symbol != "all" else "_all"
 
-    for ext in [".parquet", ".csv"]:
+    for ext in [PARQUET_EXT, ".csv"]:
         train_path = data_dir / f"training_dataset{suffix}_train{ext}"
         val_path = data_dir / f"training_dataset{suffix}_val{ext}"
         test_path = data_dir / f"training_dataset{suffix}_test{ext}"
         if train_path.exists() and val_path.exists() and test_path.exists():
-            if ext == ".parquet":
+            if ext == PARQUET_EXT:
                 train = pd.read_parquet(train_path)
                 val = pd.read_parquet(val_path)
                 test = pd.read_parquet(test_path)
@@ -55,7 +58,7 @@ def load_dataset_from_dir(data_dir: str | Path, symbol: str = "all") -> tuple[pd
 def load_and_split(path: str | Path, train_ratio: float = 0.7, val_ratio: float = 0.15) -> tuple:
     """Load file đơn và split theo thời gian."""
     path = Path(path)
-    df = pd.read_parquet(path) if path.suffix == ".parquet" else pd.read_csv(path)
+    df = pd.read_parquet(path) if path.suffix == PARQUET_EXT else pd.read_csv(path)
     df = df.sort_values("timestamp").reset_index(drop=True)
     n = len(df)
     train_end = int(n * train_ratio)
@@ -149,12 +152,12 @@ def create_sample_dataset() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     from ml.pipelines.dataset_builder import DatasetBuilder, DatasetBuilderConfig
 
     dates = pd.date_range("2023-01-01", periods=300, freq="D")
-    np.random.seed(42)
-    close = 100 + np.cumsum(np.random.randn(300) * 2)
+    rng = np.random.default_rng(42)
+    close = 100 + np.cumsum(rng.standard_normal(300) * 2)
     df = pd.DataFrame({
         "timestamp": dates,
         "open": np.roll(close, 1), "high": close + 1, "low": close - 1,
-        "close": close, "volume": np.random.randint(1_000_000, 10_000_000, 300).astype(float),
+        "close": close, "volume": rng.integers(1_000_000, 10_000_000, 300).astype(float),
     })
     df.loc[0, "open"] = 100
 
@@ -186,9 +189,14 @@ def main() -> int:
         logger.warning("No input — tạo sample dataset")
         train, val, test = create_sample_dataset()
 
+    close_col = "close"
     if "close" not in train.columns:
-        logger.error("Dataset thiếu cột 'close'")
-        return 1
+        if "price" in train.columns:
+            logger.info("Cột 'close' không có, dùng 'price' thay thế.")
+            close_col = "price"
+        else:
+            logger.error("Dataset thiếu cột 'close' và 'price'")
+            return 1
 
     order = tuple(args.order)
     if len(order) != 3:
@@ -196,14 +204,14 @@ def main() -> int:
         return 1
 
     # Fit & evaluate
-    arima_metrics, fitted = run_arima_and_evaluate(train, val, test, order=order)
+    arima_metrics, fitted = run_arima_and_evaluate(train, val, test, close_col=close_col, order=order)
     logger.info("ARIMA(%d,%d,%d): RMSE=%.4f MAE=%.4f DA=%.1f%% MAPE=%.2f%%",
                 order[0], order[1], order[2], arima_metrics.rmse, arima_metrics.mae,
                 arima_metrics.directional_accuracy, arima_metrics.mape)
 
     # So sánh với naive
     if not args.no_compare:
-        naive_metrics = evaluate_baselines(train, val, test)
+        naive_metrics = evaluate_baselines(train, val, test, close_col=close_col)
         compare_with_naive(arima_metrics, naive_metrics)
 
     # Log MLflow

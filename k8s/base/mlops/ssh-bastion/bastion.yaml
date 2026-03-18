@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ssh-bastion
+  namespace: mlops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ssh-bastion
+  template:
+    metadata:
+      labels:
+        app: ssh-bastion
+    spec:
+      containers:
+      - name: sshd
+        image: linuxserver/openssh-server:latest
+        ports:
+        - containerPort: 2222
+          name: ssh
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Ho_Chi_Minh"
+        - name: USER_NAME
+          value: "mldev"
+        - name: PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ssh-bastion-keys
+              key: public_key
+        - name: PORT
+          value: "2222"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ssh-bastion-svc
+  namespace: mlops
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 2222
+    targetPort: 2222
+    name: ssh
+  - port: 8765
+    targetPort: 8765
+    name: training-tunnel
+  selector:
+    app: ssh-bastion

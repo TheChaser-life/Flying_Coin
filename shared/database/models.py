@@ -5,6 +5,10 @@ from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
+# Constants to avoid duplicated literals (SonarQube S1192)
+CASCADE_ALL_DELETE_ORPHAN = "all, delete-orphan"
+FK_SYMBOLS_ID = "symbols.id"
+
 class AssetClass(str, enum.Enum):
     STOCK = "STOCK"
     CRYPTO = "CRYPTO"
@@ -35,7 +39,7 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    portfolios = relationship("Portfolio", back_populates="user", cascade="all, delete-orphan")
+    portfolios = relationship("Portfolio", back_populates="user", cascade=CASCADE_ALL_DELETE_ORPHAN)
 
 class Symbol(Base):
     __tablename__ = "symbols"
@@ -50,9 +54,9 @@ class Symbol(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    market_data = relationship("MarketData", back_populates="symbol", cascade="all, delete-orphan")
-    predictions = relationship("Prediction", back_populates="symbol", cascade="all, delete-orphan")
-    sentiments = relationship("Sentiment", back_populates="symbol", cascade="all, delete-orphan")
+    market_data = relationship("MarketData", back_populates="symbol", cascade=CASCADE_ALL_DELETE_ORPHAN)
+    predictions = relationship("Prediction", back_populates="symbol", cascade=CASCADE_ALL_DELETE_ORPHAN)
+    sentiments = relationship("Sentiment", back_populates="symbol", cascade=CASCADE_ALL_DELETE_ORPHAN)
 
 class MarketData(Base):
     __tablename__ = "market_data"
@@ -61,7 +65,7 @@ class MarketData(Base):
     )
 
     id = Column(Integer, primary_key=True, index=True)
-    symbol_id = Column(Integer, ForeignKey("symbols.id"), nullable=False, index=True)
+    symbol_id = Column(Integer, ForeignKey(FK_SYMBOLS_ID), nullable=False, index=True)
     timestamp = Column(DateTime, nullable=False, index=True)
     open = Column(Float, nullable=False)
     high = Column(Float, nullable=False)

@@ -1,4 +1,4 @@
-﻿### ADJUSTED CONFIGURATIONS ###
+### ADJUSTED CONFIGURATIONS ###
 # production: true: # Must use https protocol
 # auth.existingSecret & postgresql.exsistingSecret: using secret created from gcp secret manager
 # proxyHeaders: xforwarded: focus on the xforwarded header
@@ -30,7 +30,7 @@ global:
   ## @param global.security.allowInsecureImages Allows skipping image verification
   ##
   security:
-    allowInsecureImages: false
+    allowInsecureImages: true
   ## Compatibility adaptations for Kubernetes platforms
   ##
   compatibility:
@@ -104,7 +104,7 @@ usePasswordFiles: true
 ##
 image:
   registry: docker.io
-  repository: bitnami/keycloak
+  repository: bitnamilegacy/keycloak
   tag: 26.3.3-debian-12-r0
   digest: ""
   ## Specify a imagePullPolicy
@@ -704,8 +704,9 @@ ingress:
   ##
   extraTls: 
     - hosts:
-      - "flyingcoin.thinhopsops.win"
-      secretName: "cloudflare-tls-secret"
+      - "keycloak.thinhopsops.win"
+      secretName: "keycloak.thinhopsops.win-tls"
+
   ## @param ingress.secrets If you're providing your own certificates, please use this to add the certificates as secrets
   ## key and certificate should start with -----BEGIN CERTIFICATE----- or
   ## -----BEGIN RSA PRIVATE KEY-----
@@ -911,7 +912,7 @@ metrics:
   ## @param metrics.enabled Enable exposing Keycloak metrics
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/keycloak#enabling-metrics
   ##
-  enabled: false
+  enabled: true
   ## Keycloak metrics service parameters
   ##
   service:
@@ -1278,6 +1279,10 @@ defaultInitContainers:
 ##
 postgresql:
   enabled: true
+  image:
+    registry: registry-1.docker.io
+    repository: bitnami/postgresql
+    tag: latest
   auth:
     postgresPassword: ""
     username: bn_keycloak

@@ -1,52 +1,55 @@
-"""
-Training Pipeline DAG — Cách A (dataset parquet) + Cách B (train trên host)
----------------------------------------------------------------------------
-- Cách A: Đọc dataset từ /opt/airflow/outputs/datasets/*.parquet
-- Cách B: PythonOperator gọi Trigger Server trên host (http://host.docker.internal:8765)
-          → script chạy trong venv host → dùng GPU RTX 4060
-"""
-
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from datetime import datetime
-from pathlib import Path
+from airflow.providers.google.cloud.hooks.gcs import GCSHook
+from datetime import datetime, timedelta
+import os
 
-TRIGGER_URL = "http://host.docker.internal:8765"
+# Configuration
+GCS_BUCKET = os.getenv("GCS_BUCKET_NAME", "flying-coin-ml-datasets")
+TRIGGER_URL = "http://ssh-bastion-svc.mlops.svc.cluster.local:8765"
 
+default_args = {
+    "owner": "airflow",
+    "retries": 1,
+    "retry_delay": timedelta(minutes=5),
+}
 
-def check_datasets(**context):
-    """Kiểm tra dataset parquet có sẵn (Cách A)."""
-    data_dir = Path("/opt/airflow/outputs/datasets")
-    if not data_dir.exists():
-        raise FileNotFoundError(f"Thư mục dataset không tồn tại: {data_dir}")
-
-    parquets = list(data_dir.glob("*.parquet"))
-    if not parquets:
-        raise FileNotFoundError(f"Không có file parquet trong {data_dir}")
-
-    # Cần ít nhất train/val/test cho symbol "all"
-    required = ["training_dataset_all_train", "training_dataset_all_val", "training_dataset_all_test"]
-    found = [p.stem for p in parquets]
-    missing = [r for r in required if not any(r in f for f in found)]
-    if missing:
-        raise FileNotFoundError(f"Thiếu dataset: {missing}. Cần: training_dataset_all_*_train/val/test.parquet")
-
-    print(f"OK: Tìm thấy {len(parquets)} file parquet trong {data_dir}")
-    return True
+def check_datasets_gcs(**context):
+    """Kiểm tra dataset parquet có sẵn trên GCS."""
+    hook = GCSHook()
+    # Đường dẫn mẫu: datasets/20260314/dataset_all.parquet
+    prefix = f"datasets/{datetime.now().strftime('%Y%m%d')}/"
+    files = hook.list(bucket_name=GCS_BUCKET, prefix=prefix)
+    
+    if not files:
+        raise FileNotFoundError(f"Không tìm thấy dataset trong gs://{GCS_BUCKET}/{prefix}")
+    
+    print(f"Found datasets: {files}")
+    # Truyền đường dẫn cho task sau qua XCom
+    context['ti'].xcom_push(key='dataset_path', value=files[0])
+    return files[0]
 
 
 def trigger_training(endpoint: str, model_name: str, **context):
     """
-    Gọi Trigger Server trên host. Training chạy đồng bộ — request chờ đến khi xong.
-    ARIMA: ~1-3 phút | XGBoost: ~2-5 phút | LSTM: ~5-15 phút (tùy data).
+    Gọi Trigger Server trên host. Payload bao gồm thông tin GCS.
     """
     import urllib.request
     import json
 
+    dataset_path = context['ti'].xcom_pull(task_ids='check_datasets_gcs', key='dataset_path')
+    
     url = f"{TRIGGER_URL}/{endpoint}"
-    data = json.dumps({"symbol": "all"}).encode()
+    payload = {
+        "symbol": "all",
+        "gcs_bucket": GCS_BUCKET,
+        "gcs_path": dataset_path
+    }
+    data = json.dumps(payload).encode()
     req = urllib.request.Request(url, data=data, method="POST", headers={"Content-Type": "application/json"})
 
+    print(f"Triggering {model_name} with GCS source: gs://{GCS_BUCKET}/{dataset_path}")
+    
     try:
         with urllib.request.urlopen(req, timeout=3600) as resp:
             result = json.loads(resp.read().decode())
@@ -55,30 +58,25 @@ def trigger_training(endpoint: str, model_name: str, **context):
 
             print(f"=== {model_name} (exit_code={exit_code}) ===")
             print(output)
-            print("=" * 50)
-
+            
             if exit_code != 0:
                 raise RuntimeError(f"{model_name} failed with exit_code={exit_code}")
-    except urllib.error.HTTPError as e:
-        body = e.read().decode() if e.fp else ""
-        print(f"HTTP {e.code}: {body}")
-        raise
-    except urllib.error.URLError as e:
-        print(f"URL Error: {e.reason}")
-        print("Kiểm tra: Trigger Server đang chạy? python ml/scripts/trigger_server.py")
+    except (urllib.error.HTTPError, urllib.error.URLError) as e:
+        print(f"Connection error to trigger server: {e}")
         raise
 
 
 with DAG(
-    "training_pipeline",
+    "training_pipeline_v2",
+    default_args=default_args,
     start_date=datetime(2025, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["ml", "training"],
+    tags=["ml", "training", "hybrid"],
 ) as dag:
     check_data = PythonOperator(
-        task_id="check_datasets",
-        python_callable=check_datasets,
+        task_id="check_datasets_gcs",
+        python_callable=check_datasets_gcs,
     )
 
     trigger_arima = PythonOperator(
@@ -99,5 +97,4 @@ with DAG(
         op_kwargs={"endpoint": "train-lstm", "model_name": "LSTM"},
     )
 
-    # Flow: check data → arima → xgboost → lstm (arima có sẵn, xgboost/lstm cần tạo script)
     check_data >> trigger_arima >> trigger_xgboost >> trigger_lstm

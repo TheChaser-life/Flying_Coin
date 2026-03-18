@@ -82,6 +82,7 @@ def run_xgboost_and_evaluate(
     val: pd.DataFrame,
     test: pd.DataFrame,
     feature_cols: list[str],
+    target_col: str = "close",
     use_gpu: bool = True,
     max_depth: int = 6,
     n_estimators: int = 100,
@@ -90,12 +91,12 @@ def run_xgboost_and_evaluate(
     """Fit XGBoost, forecast test, return metrics và model."""
     import xgboost as xgb
 
-    X_train, y_train = prepare_xy(train, feature_cols)
-    X_val, y_val = prepare_xy(val, feature_cols)
-    X_test, y_test = prepare_xy(test, feature_cols)
+    X_train, y_train = prepare_xy(train, feature_cols, target_col)
+    x_val, y_val = prepare_xy(val, feature_cols, target_col)
+    X_test, y_test = prepare_xy(test, feature_cols, target_col)
 
     dtrain = xgb.DMatrix(X_train, label=y_train)
-    dval = xgb.DMatrix(X_val, label=y_val)
+    dval = xgb.DMatrix(x_val, label=y_val)
     dtest = xgb.DMatrix(X_test)
 
     # XGBoost 2.x: tree_method="hist" + device="cuda" (không còn gpu_hist)
@@ -183,6 +184,7 @@ def main() -> int:
 
     parser = argparse.ArgumentParser(description="XGBoost Model (GPU)")
     parser.add_argument("-d", "--data-dir", help="Thư mục dataset (train/val/test)")
+    parser.add_argument("-i", "--input", help="File dataset đơn (sẽ split)")
     parser.add_argument("-s", "--symbol", default="all")
     parser.add_argument("--max-depth", type=int, default=6)
     parser.add_argument("--n-estimators", type=int, default=100)
@@ -194,27 +196,41 @@ def main() -> int:
     parser.add_argument("--no-compare", action="store_true")
     args = parser.parse_args()
 
-    if not args.data_dir:
-        logger.error("Cần -d/--data-dir (ví dụ: ml/outputs/datasets)")
+    if args.data_dir:
+        train, val, test = load_dataset_from_dir(args.data_dir, args.symbol)
+    elif args.input:
+        # Đơn giản hóa: dùng load_and_split từ train_arima hoặc copy lại
+        df = pd.read_parquet(args.input) if args.input.endswith(".parquet") else pd.read_csv(args.input)
+        df = df.sort_values("timestamp").reset_index(drop=True)
+        n = len(df)
+        train_end = int(n * 0.7)
+        val_end = int(n * 0.85)
+        train, val, test = df.iloc[:train_end], df.iloc[train_end:val_end], df.iloc[val_end:]
+    else:
+        logger.error("Cần -d/--data-dir hoặc -i/--input")
         return 1
 
-    train, val, test = load_dataset_from_dir(args.data_dir, args.symbol)
-
+    close_col = "close"
     if "close" not in train.columns:
-        logger.error("Dataset thiếu cột 'close'")
-        return 1
+        if "price" in train.columns:
+            logger.info("Cột 'close' không có, dùng 'price' thay thế.")
+            close_col = "price"
+        else:
+            logger.error("Dataset thiếu cột 'close' và 'price'")
+            return 1
 
     feature_cols = get_feature_columns(train)
     if not feature_cols:
-        feature_cols = ["close"]
+        feature_cols = [close_col]
     # Thêm close để hỗ trợ autoregressive forecast
-    if "close" not in feature_cols:
-        feature_cols = ["close"] + feature_cols
+    if close_col not in feature_cols:
+        feature_cols = [close_col] + feature_cols
     logger.info("Features: %s", feature_cols[:10] if len(feature_cols) > 10 else feature_cols)
 
     metrics, model = run_xgboost_and_evaluate(
         train, val, test,
         feature_cols=feature_cols,
+        target_col=close_col,
         use_gpu=not args.no_gpu,
         max_depth=args.max_depth,
         n_estimators=args.n_estimators,
@@ -225,7 +241,7 @@ def main() -> int:
                 metrics.rmse, metrics.mae, metrics.directional_accuracy, metrics.mape)
 
     if not args.no_compare:
-        naive_metrics = evaluate_baselines(train, val, test)
+        naive_metrics = evaluate_baselines(train, val, test, close_col=close_col)
         compare_with_naive(metrics, naive_metrics)
 
     if not args.no_mlflow:

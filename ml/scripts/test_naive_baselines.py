@@ -8,9 +8,9 @@ import numpy as np
 from ml.pipelines.naive_baselines import evaluate_baselines, compute_metrics, naive_forecast, ma_forecast
 
 # Sample train/val/test
-np.random.seed(42)
+rng = np.random.default_rng(42)
 n = 100
-close = 100 + np.cumsum(np.random.randn(n) * 2)
+close = 100 + np.cumsum(rng.standard_normal(n) * 2)
 train = pd.DataFrame({"close": close[:70]})
 val = pd.DataFrame({"close": close[70:85]})
 test = pd.DataFrame({"close": close[85:]})

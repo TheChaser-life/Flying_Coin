@@ -9,6 +9,10 @@ spec:
       app: mlflow-tracking
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+        prometheus.io/path: "/metrics"
       labels:
         app: mlflow-tracking
     spec:
@@ -25,7 +29,7 @@ spec:
                 --backend-store-uri "${MLFLOW_BACKEND_STORE_URI}" \
                 --serve-artifacts \
                 --artifacts-destination "${MLFLOW_ARTIFACTS_DESTINATION}" \
-                --gunicorn-opts "--workers 2"
+                --gunicorn-opts "--workers 1"
           envFrom:
             - configMapRef:
                 name: mlflow-config
@@ -37,20 +41,21 @@ spec:
           resources:
             requests:
               cpu: 200m
-              memory: 256Mi
+              memory: 512Mi
             limits:
               cpu: 500m
               memory: 1Gi
+          # pip install ~60s + mlflow startup ~20s — tăng delay tránh probe kill sớm
           livenessProbe:
             httpGet:
               path: /health
               port: 5000
-            initialDelaySeconds: 30
+            initialDelaySeconds: 120
             periodSeconds: 10
             failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /health
               port: 5000
-            initialDelaySeconds: 10
+            initialDelaySeconds: 90
             periodSeconds: 5

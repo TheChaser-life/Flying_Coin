@@ -8,8 +8,8 @@ resources:
 
 images:
   - name: sentiment-service
-    newName: asia-southeast1-docker.pkg.dev/flying-coin/flying-coin/sentiment-service
-    newTag: latest
+    newName: asia-southeast1-docker.pkg.dev/flying-coin-489803/flying-coin-docker/sentiment-service
+    newTag: staging
 
 patchesStrategicMerge:
   - |-
@@ -25,8 +25,10 @@ patchesStrategicMerge:
               envFrom:
                 - secretRef:
                     name: sentiment-db-config
-              env:
-                - name: RABBITMQ_URL
-                  value: "amqp://admin:admin@rabbitmq-service.database.svc.cluster.local:5672/"
-                - name: REDIS_URL
-                  value: "redis://:admin@redis-master.database.svc.cluster.local:6379/0"
+              resources:
+                requests:
+                  cpu: "500m"
+                  memory: "2Gi"
+                limits:
+                  cpu: "1000m"
+                  memory: "3Gi"

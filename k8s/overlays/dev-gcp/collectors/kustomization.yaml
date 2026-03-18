@@ -8,8 +8,8 @@ resources:
 
 images:
   - name: collectors
-    newName: asia-southeast1-docker.pkg.dev/flying-coin/flying-coin/collectors
-    newTag: latest
+    newName: asia-southeast1-docker.pkg.dev/flying-coin-489803/flying-coin-docker/collectors
+    newTag: staging
 
 patchesStrategicMerge:
   - |-
@@ -25,6 +25,3 @@ patchesStrategicMerge:
               envFrom:
                 - secretRef:
                     name: collectors-db-config
-              env:
-                - name: RABBITMQ_URL
-                  value: "amqp://admin:admin@rabbitmq-service.database.svc.cluster.local:5672/"

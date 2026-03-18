@@ -1,0 +1,140 @@
+name: 2. Build services container, Test and Push to registry
+
+on:
+  push:
+    branches:
+     - dev
+  
+jobs:
+  Detect-changes:
+    runs-on: ubuntu-latest
+    outputs: 
+      services: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          base: ${{ github.ref }}
+          filters: |
+            collectors: 'services/collectors/**'
+            forecast-service: 'services/forecast-service/**'
+            sentiment-service: 'services/sentiment-service/**'
+            market-data-service: 'services/market-data-service/**'
+            backtesting-service: 'services/backtesting-service/**'
+            portfolio-service: 'services/portfolio-service/**'
+            websocket-service: 'services/websocket-service/**'
+            notification-service: 'services/notification-service/**'
+            web-frontend: 'services/web-frontend/**'
+
+  Build-Test-Push:
+    needs: Detect-changes
+    runs-on: ubuntu-latest
+
+    permissions:
+        contents: read
+        id-token: write
+
+    env:
+        ARTIFACT_REGISTRY: ${{ secrets.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}
+        TAG: staging
+        CHANGED_SERVICES_JSON: ${{ needs.Detect-changes.outputs.services }}
+        # Build-time variables for Next.js frontend
+        NEXT_PUBLIC_API_URL: https://flying-coin.thinhopsops.win/api/v1
+        NEXT_PUBLIC_WS_URL: wss://flying-coin.thinhopsops.win/ws
+    
+    steps:
+      - name: clone_code
+        uses: actions/checkout@v4
+
+      - name: Make list of changed services
+        run: |
+          SERVICES_LIST=$(echo '${{ env.CHANGED_SERVICES_JSON }}' | jq -r '. | join(" ")')
+          echo "SERVICES_LIST=$SERVICES_LIST" >> $GITHUB_ENV
+          echo "Changed services: $SERVICES_LIST"
+    
+      - name: build_and_health_check
+        run: | 
+          docker compose -f docker_compose_for_testing/docker-compose.yml up -d $SERVICES_LIST
+
+          echo "Waiting for services to be healthy..."
+          declare -A port_map=( ["collectors"]=8000 ["forecast-service"]=8001 ["sentiment-service"]=8002 ["market-data-service"]=8003 ["backtesting-service"]=8004 ["portfolio-service"]=8005 ["websocket-service"]=8006 ["notification-service"]=8007 ["web-frontend"]=8008 )
+          
+          # Đợi tối đa 120s cho các service ổn định
+          for i in {1..24}; do
+            echo "Attempt $i: Checking health endpoints..."
+            COMPLETED=true
+            for sv in $SERVICES_LIST; do
+              port=${port_map[$sv]}
+              if ! curl -s --fail http://localhost:$port/health; then
+                # Only print "not healthy" message every few attempts to avoid spam
+                if [ $((i % 4)) -eq 0 ] || [ $i -eq 24 ]; then
+                  echo "Service $sv (port $port) is NOT healthy yet."
+                fi
+                COMPLETED=false
+              fi
+            done
+            if [ "$COMPLETED" = true ]; then
+              echo "All services are healthy!"
+              break
+            fi
+            sleep 5
+          done
+          
+          if [ "$COMPLETED" = false ]; then
+            echo "Timeout reached. Logging only unhealthy services (last 50 lines):"
+            for sv in $SERVICES_LIST; do
+              port=${port_map[$sv]}
+              if ! curl -s --fail http://localhost:$port/health; then
+                echo "--------------------------------------------------------"
+                echo "Logs for UNHEALTHY service: $sv"
+                echo "--------------------------------------------------------"
+                docker compose -f docker_compose_for_testing/docker-compose.yml logs --tail=50 $sv
+              fi
+            done
+            exit 1
+          fi
+
+          docker compose -f docker_compose_for_testing/docker-compose.yml ps
+      # - name: Install Trivy CLI
+      #   run: |
+      #       sudo apt-get install wget apt-transport-https gnupg lsb-release
+      #       wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+      #       echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+      #       sudo apt-get update && sudo apt-get install trivy
+  
+      # - name: Scan multiple images
+      #   run: |
+      #       for sv in $SERVICES_LIST; do
+      #         img="${{ env.ARTIFACT_REGISTRY }}/$sv:${{ env.TAG }}"
+      #         echo "Scanning image: $img"
+      #         trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed $img
+      #       done
+          
+      - name: authentication with google
+        uses: google-github-actions/auth@v2
+        id: auth
+        with:
+          service_account: ${{ secrets.CICD_SA_EMAIL }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          token_format: 'access_token'
+
+      - name: Login to Artifact Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.REGISTRY }}
+          username: 'oauth2accesstoken'
+          password: '${{ steps.auth.outputs.access_token }}'
+
+      - name: Push images to Artifact Registry
+        run: |
+          docker compose -f docker_compose_for_testing/docker-compose.yml push $SERVICES_LIST
+
+      - name: Trigger deploy to dev ns pipeline
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          SERVICES_ARRAY=$(echo "$SERVICES_LIST" | tr ' ' ', ')
+          echo "Pushing completed, trigger deploy to dev namespace pipeline"
+          gh workflow run Deploy_to_dev_ns.yml -ref ${{ github.ref_name }} -f services="$SERVICES_ARRAY" 

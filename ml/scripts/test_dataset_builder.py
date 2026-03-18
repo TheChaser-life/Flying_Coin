@@ -10,15 +10,15 @@ from ml.pipelines.feature_engineering import add_technical_indicators
 
 # Sample OHLCV
 dates = pd.date_range("2023-01-01", periods=200, freq="D")
-np.random.seed(42)
-close = 100 + np.cumsum(np.random.randn(200) * 2)
+rng = np.random.default_rng(42)
+close = 100 + np.cumsum(rng.standard_normal(200) * 2)
 df = pd.DataFrame({
     "timestamp": dates,
     "open": np.roll(close, 1),
-    "high": close + np.abs(np.random.randn(200)),
-    "low": close - np.abs(np.random.randn(200)),
+    "high": close + np.abs(rng.standard_normal(200)),
+    "low": close - np.abs(rng.standard_normal(200)),
     "close": close,
-    "volume": np.random.randint(1_000_000, 10_000_000, 200).astype(float),
+    "volume": rng.integers(1_000_000, 10_000_000, 200).astype(float),
 })
 df.loc[0, "open"] = 100
 

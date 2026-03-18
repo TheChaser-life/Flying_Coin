@@ -19,3 +19,24 @@ resource "google_storage_bucket" "mlflow_artifacts" {
     }
   }
 }
+
+resource "google_storage_bucket" "ml_datasets" {
+  name     = "${var.project_name}-ml-datasets"
+  location = var.region
+  uniform_bucket_level_access = true
+
+  force_destroy = true
+
+  versioning {
+    enabled = true
+  }
+
+  lifecycle_rule {
+    condition {
+      age = 30 # Dataset giữ lâu hơn model (30 ngày)
+    }
+    action {
+      type = "Delete"
+    }
+  }
+}

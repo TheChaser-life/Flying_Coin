@@ -15,6 +15,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from app.config import config
 from app.yahoo_collector import YahooCollector
 from app.binance_collector import BinanceCollector
+from app.binance_ws_collector import BinanceWebSocketCollector
 from app.newsapi_collector import NewsAPICollector
 from app.rss_collector import RSSCollector
 
@@ -28,7 +29,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-async def handle_health(request):
+def handle_health(request):
     """Simple health check endpoint."""
     return web.json_response({"status": "ok", "service": "collectors"})
 
@@ -72,6 +73,10 @@ class CollectorOrchestrator:
             rabbitmq_url=config.RABBITMQ_URL,
             feeds=config.RSS_FEEDS,
         )
+        self._binance_ws = BinanceWebSocketCollector(
+            redis_url=config.REDIS_URL,
+            symbols=config.BINANCE_SYMBOLS,
+        )
         self._running = False
 
     @retry(
@@ -82,6 +87,7 @@ class CollectorOrchestrator:
     async def _connect_all(self) -> None:
         await self._yahoo.connect()
         await self._binance.connect()
+        await self._binance_ws.connect()  # Redis connection for WS collector
         await self._newsapi.connect()
         await self._rss.connect()
 
@@ -121,6 +127,7 @@ class CollectorOrchestrator:
         self._running = False
         await self._yahoo.disconnect()
         await self._binance.disconnect()
+        await self._binance_ws.disconnect()  # Closes Redis connection
         await self._newsapi.disconnect()
         await self._rss.disconnect()
         logger.info("Collectors stopped")
@@ -142,10 +149,11 @@ async def main() -> None:
             # Windows does not support add_signal_handler for all signals
             signal.signal(sig, lambda s, f: loop.create_task(orchestrator.stop()))
 
-    # Run both the health server and the orchestrator
+    # Run health server, periodic collectors, and Binance WS stream in parallel
     await asyncio.gather(
         run_health_server(),
-        orchestrator.start()
+        orchestrator.start(),
+        orchestrator._binance_ws.stream(),
     )
 
 

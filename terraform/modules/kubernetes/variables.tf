@@ -49,3 +49,9 @@ variable "disk_size" {
 variable "disk_type" {
   type = string
 }
+
+variable "resource_suffix" {
+  description = "Hậu tố cho tên resource (vd: -v2) để tránh conflict"
+  type        = string
+  default     = ""
+}

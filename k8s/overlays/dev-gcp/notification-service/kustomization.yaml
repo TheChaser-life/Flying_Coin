@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev
+
+resources:
+  - ../../../base/notification-service
+
+images:
+  - name: notification-service
+    newName: asia-southeast1-docker.pkg.dev/flying-coin-489803/flying-coin-docker/notification-service
+    newTag: staging
