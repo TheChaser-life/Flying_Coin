@@ -7,7 +7,8 @@ Consume from news.raw queue → FinBERT inference → publish sentiment to Redis
 import asyncio
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
+import time
 from typing import Callable, Awaitable
 
 import aio_pika
@@ -127,7 +128,7 @@ class NewsConsumer:
                 news_ts = now_utc
         
         if (now_utc - news_ts).total_seconds() > 172800: # 48 hours
-            logger.info("NewsConsumer | Bỏ qua tin tức quá cũ: %s", title)
+            logger.info("NewsConsumer | Bỏ qua tin tức quá cũ (>48h): %s", title)
             return
 
         # 1. Cơ chế chống trùng lặp (Deduplication) dựa trên tiêu đề

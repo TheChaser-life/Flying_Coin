@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 # Default financial RSS feeds (Reuters removed — feeds.reuters.com DNS issues in some regions)
 DEFAULT_RSS_FEEDS = [
-    ("https://feeds.a.dj.com/rss/RSSMarketsMain.xml", "Wall Street Journal"),
+    ("https://feeds.content.dowjones.io/public/rss/RSSMarketsMain", "Wall Street Journal"),
     ("https://feeds.content.dowjones.io/public/rss/mw_topstories", "MarketWatch"),
     ("https://finance.yahoo.com/news/rssindex", "Yahoo Finance"),
     ("https://www.cnbc.com/id/100003114/device/rss/rss.html", "CNBC"),
