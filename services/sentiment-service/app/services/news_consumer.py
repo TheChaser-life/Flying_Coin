@@ -117,6 +117,32 @@ class NewsConsumer:
         SENTIMENT_PROCESSED_TOTAL.labels(symbol=symbol, source=source).inc()
         SENTIMENT_SCORE.labels(symbol=symbol, source=source).set(float(result["sentiment_score"]))
 
+        # 0. Lọc tin tức quá cũ (ví dụ > 48 giờ)
+        now_utc = datetime.now(timezone.utc)
+        news_ts = timestamp_str
+        if isinstance(news_ts, str):
+            try:
+                news_ts = datetime.fromisoformat(news_ts.replace("Z", "+00:00"))
+            except ValueError:
+                news_ts = now_utc
+        
+        if (now_utc - news_ts).total_seconds() > 172800: # 48 hours
+            logger.info("NewsConsumer | Bỏ qua tin tức quá cũ: %s", title)
+            return
+
+        # 1. Cơ chế chống trùng lặp (Deduplication) dựa trên tiêu đề
+        # Sử dụng Redis SET với TTL 24h để đánh dấu bài báo đã xử lý
+        dedup_key = f"sentiment:processed:{symbol}"
+        title_hash = str(hash(title)) # Đơn giản hóa hash tiêu đề
+        
+        is_new = await self._redis.sadd(dedup_key, title_hash)
+        if not is_new:
+            logger.info("NewsConsumer | Bỏ qua bài báo trùng lặp: %s", title)
+            return
+        
+        # Đặt TTL cho dedup set nếu chưa có (ví dụ 24h)
+        await self._redis.expire(dedup_key, 86400)
+
         sentiment_score = result["sentiment_score"]
         sentiment_label = result["sentiment_label"]
 

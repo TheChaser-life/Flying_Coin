@@ -51,8 +51,19 @@ export default function SentimentPage() {
           label: generalData.sentiment_label || "Neutral"
         })
 
-        // Gộp và sắp xếp lịch sử tin tức
+        // Gộp, lọc trùng lặp và tin cũ (>48h), sau đó sắp xếp
+        const now = new Date().getTime()
+        const fortyEightHoursAgo = now - (48 * 60 * 60 * 1000)
+
+        const seenTitles = new Set()
         const combinedHistory = [...btcHistory, ...generalHistory]
+          .filter(item => {
+            const itemTs = new Date(item.timestamp).getTime()
+            if (itemTs < fortyEightHoursAgo) return false
+            if (seenTitles.has(item.title)) return false
+            seenTitles.add(item.title)
+            return true
+          })
           .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
           .slice(0, 100)
         
@@ -94,11 +105,13 @@ export default function SentimentPage() {
         url: lastMessage.url
       }
 
+      // Kiểm tra xem tin này đã có trong danh sách hiển thị chưa (dựa trên tiêu đề)
+      const isDuplicate = (list: NewsItem[]) => list.some(item => item.title === newItem.title)
+
       if (isHoveringNews) {
         setPendingNews(prev => {
-          if (prev.some(item => item.title === newItem.title)) return prev
+          if (isDuplicate(prev) || newsList.some(item => item.title === newItem.title)) return prev
           const next = [newItem, ...prev]
-          // Nếu dồn quá 50 tin thì tự động flush để tránh mất dữ liệu quá lâu
           if (next.length >= 50) {
              setTimeout(flushPendingNews, 0)
           }
@@ -106,7 +119,7 @@ export default function SentimentPage() {
         })
       } else {
         setNewsList(prev => {
-          if (prev.some(item => item.title === newItem.title)) return prev
+          if (isDuplicate(prev)) return prev
           return [newItem, ...prev].slice(0, 100)
         })
       }
