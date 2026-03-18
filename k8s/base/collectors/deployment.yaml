@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: collectors
-          image: collectors
+          image: asia-southeast1-docker.pkg.dev/flying-coin-489803/flying-coin-docker/collectors:staging
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
@@ -24,6 +24,9 @@ spec:
               port: 8000
             initialDelaySeconds: 15
             periodSeconds: 20
+          env:
+            - name: RSS_FEEDS
+              value: '[["https://feeds.content.dowjones.io/public/rss/RSSMarketsMain","WSJ"],["https://feeds.content.dowjones.io/public/rss/mw_topstories","MarketWatch"],["https://finance.yahoo.com/news/rssindex","Yahoo Finance"],["https://www.cnbc.com/id/100003114/device/rss/rss.html","CNBC"],["https://news.google.com/rss/search?q=when:1h+finance&hl=en-US&gl=US&ceid=US:en","Google News"]]'
           readinessProbe:
             httpGet:
               path: /health

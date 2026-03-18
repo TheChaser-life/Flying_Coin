@@ -40,11 +40,11 @@ class CollectorConfig(BaseSettings):
 
     # RSS feeds (url, display_name)
     RSS_FEEDS: list[tuple[str, str]] = [
-        ("https://feeds.a.dj.com/rss/RSSMarketsMain.xml", "Wall Street Journal"),
+        ("https://feeds.content.dowjones.io/public/rss/RSSMarketsMain", "Wall Street Journal"),
         ("https://feeds.content.dowjones.io/public/rss/mw_topstories", "MarketWatch"),
         ("https://finance.yahoo.com/news/rssindex", "Yahoo Finance"),
         ("https://www.cnbc.com/id/100003114/device/rss/rss.html", "CNBC"),
-        ("https://www.investing.com/rss/news.rss", "Investing.com"),
+        ("https://news.google.com/rss/search?q=when:1h+finance&hl=en-US&gl=US&ceid=US:en", "Google News"),
     ]
 
     model_config = SettingsConfigDict(

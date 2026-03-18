@@ -9,7 +9,7 @@ class SentimentConfig(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
 
     CONSUMER_PREFETCH_COUNT: int = 10
-    REDIS_SENTIMENT_TTL: int = 3600  # 1h per project rules
+    REDIS_SENTIMENT_TTL: int = 86400  # 24h
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -35,10 +35,22 @@ export default function SentimentPage() {
       try {
         const simpleTicker = "BTC"
         const [btcData, generalData, btcHistory, generalHistory] = await Promise.all([
-          sentimentApi.getSentiment(simpleTicker, session.accessToken),
-          sentimentApi.getSentiment("GENERAL", session.accessToken).catch(() => ({ sentiment_score: 0, sentiment_label: "Neutral" })),
-          sentimentApi.getHistory(simpleTicker, session.accessToken).catch(() => []),
-          sentimentApi.getHistory("GENERAL", session.accessToken).catch(() => [])
+          sentimentApi.getSentiment(simpleTicker, session.accessToken).catch(err => {
+            console.warn("Failed to fetch BTC sentiment:", err)
+            return { sentiment_score: 0, sentiment_label: "Neutral" }
+          }),
+          sentimentApi.getSentiment("GENERAL", session.accessToken).catch(err => {
+            console.warn("Failed to fetch general sentiment:", err)
+            return { sentiment_score: 0, sentiment_label: "Neutral" }
+          }),
+          sentimentApi.getHistory(simpleTicker, session.accessToken).catch(err => {
+            console.warn("Failed to fetch BTC history:", err)
+            return []
+          }),
+          sentimentApi.getHistory("GENERAL", session.accessToken).catch(err => {
+            console.warn("Failed to fetch general history:", err)
+            return []
+          })
         ])
 
         setAiSentiment({
