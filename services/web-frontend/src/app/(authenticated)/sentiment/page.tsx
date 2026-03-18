@@ -96,13 +96,18 @@ export default function SentimentPage() {
 
     // Cập nhật News Feed nếu message chứa thông tin bài báo
     if (lastMessage.title && lastMessage.source) {
+      let sanitizedUrl = (lastMessage.url || "").trim()
+      if (sanitizedUrl.startsWith("web:")) {
+        sanitizedUrl = sanitizedUrl.substring(4).trim()
+      }
+
       const newItem: NewsItem = {
         title: lastMessage.title,
         source: lastMessage.source,
         timestamp: lastMessage.timestamp || new Date().toISOString(),
         sentiment_label: lastMessage.sentiment_label || "NEUTRAL",
         sentiment_score: lastMessage.latest_score || lastMessage.sentiment_score || 0,
-        url: lastMessage.url
+        url: sanitizedUrl
       }
 
       // Kiểm tra xem tin này đã có trong danh sách hiển thị chưa (dựa trên tiêu đề)

@@ -203,6 +203,8 @@ class NewsConsumer:
         except (redis.RedisError, OSError) as e:
             logger.error("Failed to store sentiment history in ZSET: %s", e)
 
+        key = f"sentiment:{symbol}"
+        json_payload = json.dumps(payload)
         try:
             pipe = self._redis.pipeline()
             pipe.set(key, json_payload, ex=self._ttl)
