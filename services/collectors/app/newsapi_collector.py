@@ -77,8 +77,12 @@ class NewsAPICollector(BaseNewsCollector):
         if not content or content == "[]":
             return None
 
-        source_id = (art.get("source") or {}).get("id") or "unknown"
-        source_name = SOURCE_NAMES.get(source_id, source_id.replace("-", " ").title())
+        source_data = art.get("source") or {}
+        source_id = source_data.get("id") or "unknown"
+        source_name = SOURCE_NAMES.get(source_id)
+        
+        if not source_name:
+            source_name = source_data.get("name") or source_id.replace("-", " ").title()
 
         published_at = art.get("publishedAt")
         if published_at:
@@ -113,6 +117,11 @@ class NewsAPICollector(BaseNewsCollector):
         errors = 0
         client = NewsApiClient(api_key=self._api_key)
 
+        from_date = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+        # Hoặc đơn giản hơn là 24h trước
+        from_date = (datetime.now(timezone.utc).timestamp() - 86400)
+        from_date_str = datetime.fromtimestamp(from_date, tz=timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
+
         for keyword in self._keywords[:5]:  # Limit to 5 keywords per run (rate limit)
             try:
                 response = client.get_everything(
@@ -121,6 +130,7 @@ class NewsAPICollector(BaseNewsCollector):
                     sort_by="publishedAt",
                     page_size=min(self._page_size, 20),
                     page=1,
+                    from_param=from_date_str
                 )
 
                 articles = response.get("articles") or []
