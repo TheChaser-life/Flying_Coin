@@ -49,7 +49,7 @@ jobs:
         uses: google-github-actions/get-gke-credentials@v2
         with:
           cluster_name: ${{ secrets.CLUSTER_NAME }}
-          location: ${{ secrets.REGION }}
+          location: ${{ secrets.ZONE }}
 
       - name: Deploy ${{ matrix.service }}
         run: |
