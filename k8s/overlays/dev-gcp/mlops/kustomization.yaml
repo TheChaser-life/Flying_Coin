@@ -4,5 +4,4 @@ kind: Kustomization
 namespace: mlops
 
 resources:
-  - mlflow
-  # airflow-external-secret đã apply qua external-secrets overlay
+  - ../../../base/mlops

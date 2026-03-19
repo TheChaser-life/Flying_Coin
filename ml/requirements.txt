@@ -38,3 +38,6 @@ torchaudio>=2.0.0
 # FinBERT — sentiment analysis (Task 8.3)
 transformers>=4.35.0
 accelerate>=0.25.0
+
+# GKE/GCP integration (cho trigger_server.py tải data từ GCS)
+google-cloud-storage>=2.14.0

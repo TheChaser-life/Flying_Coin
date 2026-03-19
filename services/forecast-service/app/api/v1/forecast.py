@@ -78,24 +78,50 @@ async def get_latest_forecast(ticker: str):
 async def predict(req: ForecastRequest) -> ForecastResponse:
     """
     Dự báo 7/14/30 ngày.
-    - ARIMA: không cần features (model có sẵn history).
-    - XGBoost: features = 1 row [f1, f2, ...].
-    - LSTM: features = seq_len rows.
+    - Tự động lấy features từ market-data-service nếu không cung cấp.
     """
     import time
+    import httpx
     start_time = time.time()
     loader = get_loader()
+
+    # Tự động lấy features nếu thiếu (cho XGBoost và LSTM)
+    features = req.features
+    if not features and req.model_type in ["xgboost", "lstm"]:
+        logger.info("Fetching features from market-data-service for %s", req.ticker)
+        # Xác định số lượng bản ghi cần thiết
+        limit = 30 if req.model_type == "lstm" else 1 
+        market_url = f"http://market-data-service.dev.svc.cluster.local:8000/api/v1/symbols/{req.ticker}/history?limit={limit}"
+        
+        try:
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(market_url, timeout=10.0)
+                resp.raise_for_status()
+                history = resp.json()
+                # Chuyển đổi sang định dạng [[open, high, low, close, volume]]
+                # Lưu ý: model_loader.py giả định close ở cột 0 cho LSTM/XGBoost logic autoregressive cục bộ
+                # Chúng ta sẽ map theo thứ tự: [close, open, high, low, volume]
+                features = [[
+                    h["close"], h["open"], h["high"], h["low"], h["volume"]
+                ] for h in history]
+                
+                if not features:
+                    raise HTTPException(404, f"Không có dữ liệu lịch sử cho {req.ticker} để làm features")
+        except Exception as e:
+            logger.error("Failed to fetch features from market-data: %s", e)
+            raise HTTPException(500, f"Lỗi lấy dữ liệu thị trường: {str(e)}")
+
     try:
         if req.model_type == "arima":
             preds = loader.predict_arima(req.run_id, req.horizon)
         elif req.model_type == "xgboost":
-            if not req.features:
+            if not features:
                 raise HTTPException(400, "XGBoost cần features (1 row)")
-            preds = loader.predict_xgboost(req.run_id, req.features, req.horizon)
+            preds = loader.predict_xgboost(req.run_id, features, req.horizon)
         elif req.model_type == "lstm":
-            if not req.features:
+            if not features:
                 raise HTTPException(400, "LSTM cần features (seq_len rows)")
-            preds = loader.predict_lstm(req.run_id, req.features, req.horizon)
+            preds = loader.predict_lstm(req.run_id, features, req.horizon)
         else:
             raise HTTPException(400, f"model_type không hỗ trợ: {req.model_type}")
 

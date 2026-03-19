@@ -163,6 +163,7 @@ def log_xgboost_to_mlflow(
             except Exception as e:
                 logger.warning("Could not log model artifact: %s", e)
         logger.info("XGBoost: RMSE=%.4f MAE=%.4f DA=%.1f%%", metrics.rmse, metrics.mae, metrics.directional_accuracy)
+        print(f"MLFLOW_RUN_ID: {mlflow.active_run().info.run_id}")
 
 
 def compare_with_naive(metrics: BaselineMetrics, naive_metrics: dict) -> None:

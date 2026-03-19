@@ -61,8 +61,54 @@ def trigger_training(endpoint: str, model_name: str, **context):
             
             if exit_code != 0:
                 raise RuntimeError(f"{model_name} failed with exit_code={exit_code}")
+            
+            return result
     except (urllib.error.HTTPError, urllib.error.URLError) as e:
         print(f"Connection error to trigger server: {e}")
+        raise
+
+
+def trigger_forecast_predict(model_type: str, train_task_id: str, **context):
+    """
+    Trích xuất MLFLOW_RUN_ID từ logs huấn luyện và gọi forecast-service để cập nhật dự báo.
+    """
+    import urllib.request
+    import json
+    import re
+
+    # Lấy output từ task huấn luyện trước đó qua XCom
+    train_result = context['ti'].xcom_pull(task_ids=train_task_id)
+    if not train_result:
+        raise ValueError(f"Không tìm thấy kết quả từ task {train_task_id}")
+    
+    logs = train_result.get("output", "")
+    # Tìm chuỗi MLFLOW_RUN_ID: <id>
+    match = re.search(r"MLFLOW_RUN_ID: ([a-f0-9]+)", logs)
+    if not match:
+        print(f"Logs huấn luyện:\n{logs}")
+        raise ValueError(f"Không tìm thấy MLFLOW_RUN_ID trong logs của {model_type}")
+    
+    run_id = match.group(1)
+    print(f"Đã tìm thấy Run ID cho {model_type}: {run_id}")
+
+    # Gọi API forecast-service trên cluster
+    forecast_url = "http://forecast-service-service.dev.svc.cluster.local:8000/api/v1/forecast/predict"
+    payload = {
+        "ticker": "BTCUSDT",
+        "model_type": model_type.lower(),
+        "run_id": run_id,
+        "horizon": 7
+    }
+    
+    data = json.dumps(payload).encode()
+    req = urllib.request.Request(forecast_url, data=data, method="POST", headers={"Content-Type": "application/json"})
+    
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            res_data = json.loads(resp.read().decode())
+            print(f"Cập nhật dự báo {model_type} thành công: {res_data}")
+    except Exception as e:
+        print(f"Lỗi khi gọi forecast-service: {e}")
         raise
 
 
@@ -97,4 +143,22 @@ with DAG(
         op_kwargs={"endpoint": "train-lstm", "model_name": "LSTM"},
     )
 
-    check_data >> trigger_arima >> trigger_xgboost >> trigger_lstm
+    predict_arima = PythonOperator(
+        task_id="predict_arima",
+        python_callable=trigger_forecast_predict,
+        op_kwargs={"model_type": "arima", "train_task_id": "trigger_train_arima"},
+    )
+
+    predict_xgboost = PythonOperator(
+        task_id="predict_xgboost",
+        python_callable=trigger_forecast_predict,
+        op_kwargs={"model_type": "xgboost", "train_task_id": "trigger_train_xgboost"},
+    )
+
+    predict_lstm = PythonOperator(
+        task_id="predict_lstm",
+        python_callable=trigger_forecast_predict,
+        op_kwargs={"model_type": "lstm", "train_task_id": "trigger_train_lstm"},
+    )
+
+    check_data >> trigger_arima >> predict_arima >> trigger_xgboost >> predict_xgboost >> trigger_lstm >> predict_lstm
