@@ -19,11 +19,11 @@ logger = logging.getLogger(__name__)
 
 # Default financial RSS feeds (Reuters removed — feeds.reuters.com DNS issues in some regions)
 DEFAULT_RSS_FEEDS = [
-    ("https://feeds.a.dj.com/rss/RSSMarketsMain.xml", "Wall Street Journal"),
+    ("https://feeds.content.dowjones.io/public/rss/RSSMarketsMain", "Wall Street Journal"),
     ("https://feeds.content.dowjones.io/public/rss/mw_topstories", "MarketWatch"),
     ("https://finance.yahoo.com/news/rssindex", "Yahoo Finance"),
     ("https://www.cnbc.com/id/100003114/device/rss/rss.html", "CNBC"),
-    ("https://www.investing.com/rss/news.rss", "Investing.com"),
+    ("https://news.google.com/rss/search?q=stock+market+finance&hl=en-US&gl=US&ceid=US:en", "Google News (Finance)"),
 ]
 
 
@@ -90,7 +90,11 @@ class RSSCollector(BaseNewsCollector):
         if not content or len(content) < 20:
             return None
 
-        link = entry.get("link") or ""
+        # Cleanup link: strip whitespace and mysterious "web:" prefix seen in some feeds
+        link = (entry.get("link") or "").strip()
+        if link.startswith("web:"):
+            link = link[4:].strip()
+        
         published_at = _parse_date(
             entry.get("published") or entry.get("updated")
         )

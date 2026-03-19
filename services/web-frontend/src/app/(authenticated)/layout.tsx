@@ -11,8 +11,9 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const session = await auth()
-
-  if (!session) {
+  
+  // If no session or token refresh failed, redirect to login
+  if (!session || (session as any).error === "RefreshAccessTokenError") {
     redirect("/")
   }
 
