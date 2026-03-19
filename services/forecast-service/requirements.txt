@@ -17,3 +17,6 @@ pandas>=2.0.0
 
 # Monitoring
 prometheus-fastapi-instrumentator==7.0.0
+
+# Redis client for caching
+redis>=5.0.0
