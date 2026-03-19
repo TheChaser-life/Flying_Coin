@@ -130,3 +130,4 @@ sample_log.json
 .gitignore
 bastion_ed25519
 bastion_id_rsa
+connect_to_bastion_host*
