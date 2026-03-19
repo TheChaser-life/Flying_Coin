@@ -91,7 +91,7 @@ async def predict(req: ForecastRequest) -> ForecastResponse:
         logger.info("Fetching features from market-data-service for %s", req.ticker)
         # Xác định số lượng bản ghi cần thiết
         limit = 30 if req.model_type == "lstm" else 1 
-        market_url = f"http://market-data-service.dev.svc.cluster.local:8000/api/v1/symbols/{req.ticker}/history?limit={limit}"
+        market_url = f"http://market-data-service-service.dev.svc.cluster.local:8001/api/v1/market-data/symbols/{req.ticker}/history?limit={limit}"
         
         try:
             async with httpx.AsyncClient() as client:
@@ -138,9 +138,8 @@ async def predict(req: ForecastRequest) -> ForecastResponse:
                 from app.core.dependencies import get_redis_pool
                 import json
                 redis_client = get_redis_pool()
-                # We use the ticker/symbol from the run_id or features if available. 
-                # Assuming run_id contains ticker info for now if not available elsewhere.
-                ticker = req.run_id.split('_')[0] if '_' in req.run_id else "unknown"
+                
+                ticker = req.ticker.upper()
                 payload = {
                     "ticker": ticker,
                     "model_type": req.model_type,

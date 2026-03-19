@@ -27,4 +27,17 @@ patchesStrategicMerge:
                     name: forecast-db-config
               env:
                 - name: MLFLOW_TRACKING_URI
-                  value: "http://mlflow-service.mlops.svc.cluster.local:5000"
+                  value: "http://mlflow-tracking-svc.mlops.svc.cluster.local:80"
+              resources:
+                requests:
+                  cpu: "500m"
+                  memory: "1Gi"
+                limits:
+                  cpu: "1"
+                  memory: "4Gi"
+              livenessProbe:
+                initialDelaySeconds: 60
+                timeoutSeconds: 10
+              readinessProbe:
+                initialDelaySeconds: 30
+                timeoutSeconds: 10
