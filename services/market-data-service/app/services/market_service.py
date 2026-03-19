@@ -180,11 +180,14 @@ class MarketService:
         result = await db.execute(
             select(MarketData)
             .where(and_(*conditions))
-            .order_by(MarketData.timestamp)
+            .order_by(desc(MarketData.timestamp))
             .offset(offset)
             .limit(limit)
         )
-        return list(result.scalars().all())
+        records = list(result.scalars().all())
+        # Trả về theo thứ tự thời gian tăng dần để biểu đồ hiển thị đúng
+        records.reverse()
+        return records
 
     async def get_stats(
         self,

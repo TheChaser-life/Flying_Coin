@@ -18,37 +18,53 @@ interface ForecastChartProps {
 }
 
 export function ForecastChart({ marketData, forecastData }: ForecastChartProps) {
+  // Sắp xếp dữ liệu theo thời gian tăng dần
+  const sortedMarketData = [...marketData].sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  )
+
   // Chuẩn bị dữ liệu cho biểu đồ
-  // Gộp lịch sử thị trường và dự báo
-  const chartData = [
-    ...marketData.slice(-20).map(item => ({
-      name: new Date(item.timestamp).toLocaleDateString(undefined, { weekday: 'short' }),
-      actual: item.close,
-      timestamp: new Date(item.timestamp).getTime()
-    })),
-  ]
+  // Gộp lịch sử thị trường (20 điểm cuối cùng)
+  const chartData = sortedMarketData.slice(-20).map(item => ({
+    name: new Date(item.timestamp).toLocaleDateString(undefined, { 
+      day: 'numeric', 
+      month: 'numeric' 
+    }),
+    actual: item.close,
+    timestamp: new Date(item.timestamp).getTime(),
+    fullDate: new Date(item.timestamp).toLocaleDateString()
+  }))
 
   // Thêm các điểm dự báo
-  if (forecastData) {
-    const lastTimestamp = chartData.length > 0 ? chartData[chartData.length - 1].timestamp : Date.now()
+  if (forecastData && chartData.length > 0) {
+    const lastTimestamp = chartData[chartData.length - 1].timestamp
     const msPerDay = 24 * 60 * 60 * 1000
     
     // Giả sử các model có cùng horizon và interval (1 ngày)
-    const lstmPreds = forecastData.lstm?.predictions || []
-    const xgboostPreds = forecastData.xgboost?.predictions || []
-    const arimaPreds = forecastData.arima?.predictions || []
+    // Lấy predictions từ các model (arima, xgboost, lstm)
+    const models = ["arima", "xgboost", "lstm"]
+    const predsMap: Record<string, number[]> = {}
     
-    const maxHorizon = Math.max(lstmPreds.length, xgboostPreds.length, arimaPreds.length)
+    let maxHorizon = 0
+    models.forEach(m => {
+      const preds = forecastData[m]?.predictions || []
+      predsMap[m] = preds
+      maxHorizon = Math.max(maxHorizon, preds.length)
+    })
     
     for (let i = 0; i < maxHorizon; i++) {
       const forecastDate = new Date(lastTimestamp + (i + 1) * msPerDay)
       chartData.push({
-        name: forecastDate.toLocaleDateString(undefined, { weekday: 'short' }),
-        lstm: lstmPreds[i],
-        xgboost: xgboostPreds[i],
-        arima: arimaPreds[i],
+        name: forecastDate.toLocaleDateString(undefined, { 
+          day: 'numeric', 
+          month: 'numeric' 
+        }),
+        lstm: predsMap.lstm[i],
+        xgboost: predsMap.xgboost[i],
+        arima: predsMap.arima[i],
         forecast: true,
-        timestamp: forecastDate.getTime()
+        timestamp: forecastDate.getTime(),
+        fullDate: forecastDate.toLocaleDateString()
       } as any)
     }
   }
