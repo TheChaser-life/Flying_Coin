@@ -107,6 +107,9 @@ env:
   # DSL-based router
   router_flavor: "traditional"
   nginx_worker_processes: "2"
+  nginx_proxy_proxy_buffer_size: 128k
+  nginx_proxy_proxy_buffers: 4 256k
+  nginx_proxy_proxy_busy_buffers_size: 256k
   proxy_access_log: /dev/stdout
   admin_access_log: /dev/stdout
   admin_gui_access_log: /dev/stdout

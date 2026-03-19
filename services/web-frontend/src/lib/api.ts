@@ -39,3 +39,7 @@ export const sentimentApi = {
   getSentiment: (symbol: string, token?: string) => apiFetch(`/sentiment/${symbol}`, {}, token),
   getHistory: (symbol: string, token?: string) => apiFetch(`/sentiment/${symbol}/history`, {}, token),
 };
+
+export const forecastApi = {
+  getForecast: (ticker: string, token?: string) => apiFetch(`/forecast/${ticker}`, {}, token),
+};

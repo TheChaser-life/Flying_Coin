@@ -1,6 +1,7 @@
 """Forecast API — Task 6.6."""
 import logging
 import traceback
+import json
 
 from fastapi import APIRouter, HTTPException
 
@@ -38,6 +39,32 @@ def get_loader() -> ForecastModelLoader:
     if _loader is None:
         _loader = ForecastModelLoader(config.MLFLOW_TRACKING_URI)
     return _loader
+
+
+@router.get("/{ticker}", response_model=dict)
+async def get_latest_forecast(ticker: str):
+    """
+    Lấy dự báo mới nhất cho một ticker từ Redis.
+    Trả về dữ liệu gộp từ nhiều model nếu có.
+    """
+    from app.core.dependencies import get_redis_pool
+    redis = get_redis_pool()
+    ticker = ticker.upper()
+    
+    # Thử lấy từ các model khác nhau
+    models = ["arima", "xgboost", "lstm"]
+    results = {}
+    
+    for m in models:
+        key = f"forecast:latest:{ticker}:{m}"
+        data = await redis.get(key)
+        if data:
+            results[m] = json.loads(data)
+            
+    if not results:
+        raise HTTPException(status_code=404, detail=f"Không tìm thấy dữ liệu dự báo cho {ticker}")
+        
+    return results
 
 
 @router.post(
@@ -95,9 +122,14 @@ async def predict(req: ForecastRequest) -> ForecastResponse:
                     "horizon": req.horizon,
                     "timestamp": time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
                 }
+                # Publish cho real-time updates
                 await redis_client.publish(f"forecast:{ticker}", json.dumps(payload))
+                
+                # Lưu vào cache cho REST API (Task: Real-time Forecast Data)
+                cache_key = f"forecast:latest:{ticker}:{req.model_type}"
+                await redis_client.set(cache_key, json.dumps(payload), ex=86400) # Expire trong 24h
             except Exception as e:
-                logger.error("Failed to publish forecast to Redis: %s", e)
+                logger.error("Failed to publish/store forecast in Redis: %s", e)
 
         return ForecastResponse(
             predictions=preds,
