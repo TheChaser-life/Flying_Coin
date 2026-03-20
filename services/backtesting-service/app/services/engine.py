@@ -45,10 +45,10 @@ class BacktestEngine:
         # Win Rate
         win_rate = (returns > 0).sum() / len(returns) if len(returns) > 0 else 0
         
-        equity_curve = [{"timestamp": str(idx), "value": float(val)} for idx, val in portfolio['total'].items()]
-        
         def safe_float(v):
             return float(v) if np.isfinite(v) else 0.0
+
+        equity_curve = [{"timestamp": str(idx), "value": safe_float(val)} for idx, val in portfolio['total'].items()]
 
         return {
             "total_return": safe_float(total_return),
