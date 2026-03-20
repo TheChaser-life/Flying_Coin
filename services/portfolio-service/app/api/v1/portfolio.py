@@ -43,20 +43,37 @@ async def optimize_portfolio(payload: OptimizationRequest):
     
     async with httpx.AsyncClient() as client:
         for ticker in payload.tickers:
+            # Try original ticker
             resp = await client.get(
                 f"{settings.MARKET_DATA_SERVICE_URL}/api/v1/market-data/symbols/{ticker}/history",
                 params={"limit": 100}
             )
+            
+            # If not found, try adding USDT (common for crypto in this system)
+            if resp.status_code != 200 and not ticker.endswith("USDT"):
+                alt_ticker = f"{ticker}USDT"
+                resp = await client.get(
+                    f"{settings.MARKET_DATA_SERVICE_URL}/api/v1/market-data/symbols/{alt_ticker}/history",
+                    params={"limit": 100}
+                )
+                if resp.status_code == 200:
+                    ticker = alt_ticker # Use the successful one
+            
             if resp.status_code != 200:
                 continue
             
             data = resp.json()
-            # Convert to series
+            if not data:
+                continue
+                
             prices = {item["timestamp"]: item["close"] for item in data}
             all_prices[ticker] = prices
             
     if not all_prices:
-        raise HTTPException(status_code=400, detail="Could not fetch market data for tickers")
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Could not fetch market data for any of the provided tickers: {payload.tickers}. Please check if they are supported."
+        )
         
     df = pd.DataFrame(all_prices).sort_index()
     df = df.fillna(method="ffill").dropna()

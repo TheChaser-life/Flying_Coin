@@ -13,7 +13,7 @@ import { Loader2, Plus, Zap } from "lucide-react"
 
 export default function PortfolioPage() {
   const { data: session } = useSession()
-  const [tickers, setTickers] = useState("BTC, ETH, SOL, USDT")
+  const [tickers, setTickers] = useState("BTCUSDT, ETHUSDT, SOLUSDT, AAPL")
   const [risk, setRisk] = useState(0.5)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<any>(null)
@@ -24,9 +24,9 @@ export default function PortfolioPage() {
       const tickerList = tickers.split(",").map(t => t.trim().toUpperCase()).filter(t => t !== "")
       const data = await portfolioApi.optimize(tickerList, risk, (session as any)?.accessToken)
       setResult(data)
-    } catch (err) {
+    } catch (err: any) {
       console.error("Optimization failed", err)
-      alert("Failed to optimize portfolio. Please check your tickers and connection.")
+      alert(`Optimization failed: ${err.message || "Please check your tickers and connection."}`)
     } finally {
       setLoading(false)
     }

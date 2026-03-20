@@ -70,7 +70,7 @@ spec:
                   number: 8000
           
           # Route 8: Portfolio service
-          - path: /api/v1/portfolio
+          - path: /api/v1/portfolios
             pathType: Prefix
             backend:
               service:
