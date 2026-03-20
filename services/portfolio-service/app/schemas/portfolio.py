@@ -41,3 +41,4 @@ class OptimizationResponse(BaseModel):
     expected_return: float
     volatility: float
     sharpe_ratio: float
+    method: str
