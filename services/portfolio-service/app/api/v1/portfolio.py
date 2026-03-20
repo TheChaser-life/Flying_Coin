@@ -39,6 +39,7 @@ async def optimize_portfolio(payload: OptimizationRequest):
     """
     Fetches historical data from Market Data Service and returns optimal weights.
     """
+    print(f"DEBUG: optimize_portfolio request with tickers: {payload.tickers}, risk: {payload.risk_tolerance}")
     all_prices = {}
     
     async with httpx.AsyncClient() as client:
