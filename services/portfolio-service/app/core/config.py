@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/portfolio"
     REDIS_URL: str = "redis://localhost:6379/0"
     
-    MARKET_DATA_SERVICE_URL: str = "http://market-data-service:8000"
+    MARKET_DATA_SERVICE_URL: str = "http://market-data-service-service:8001"
     FORECAST_SERVICE_URL: str = "http://forecast-service:8000"
     
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
