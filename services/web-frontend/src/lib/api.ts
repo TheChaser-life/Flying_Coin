@@ -50,3 +50,16 @@ export const portfolioApi = {
       body: JSON.stringify({ tickers, risk_tolerance: riskTolerance }),
     }, token),
 };
+
+export const backtestApi = {
+  run: (ticker: string, strategyName: string, initialCapital: number, token?: string) =>
+    apiFetch("/backtest/run", {
+      method: "POST",
+      body: JSON.stringify({ 
+        ticker, 
+        strategy_name: strategyName, 
+        initial_capital: initialCapital,
+        parameters: { short_window: 20, long_window: 50 } 
+      }),
+    }, token),
+};

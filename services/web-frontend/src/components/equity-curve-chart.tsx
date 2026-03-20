@@ -10,22 +10,17 @@ import {
   ResponsiveContainer,
 } from "recharts"
 
-const data = [
-  { date: "2024-01-01", balance: 10000 },
-  { date: "2024-01-15", balance: 10500 },
-  { date: "2024-02-01", balance: 10300 },
-  { date: "2024-02-15", balance: 11200 },
-  { date: "2024-03-01", balance: 12100 },
-  { date: "2024-03-15", balance: 11800 },
-  { date: "2024-04-01", balance: 13500 },
-  { date: "2024-04-15", balance: 14200 },
-]
+interface EquityCurveData {
+  date: string
+  balance: number
+}
 
-export function EquityCurveChart() {
+export function EquityCurveChart({ data }: { data?: EquityCurveData[] }) {
+  const chartData = data || []
   return (
     <div className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data}>
+        <AreaChart data={chartData}>
           <defs>
             <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>

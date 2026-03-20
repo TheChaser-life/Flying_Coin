@@ -60,8 +60,8 @@ spec:
                 port:
                   number: 8000
           
-          # Route 7: Backtesting service
-          - path: /api/v1/backtesting
+          # Route 7: Backtest service
+          - path: /api/v1/backtest
             pathType: Prefix
             backend:
               service:
