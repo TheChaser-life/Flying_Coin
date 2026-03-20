@@ -76,7 +76,7 @@ async def optimize_portfolio(payload: OptimizationRequest):
         )
         
     df = pd.DataFrame(all_prices).sort_index()
-    df = df.fillna(method="ffill").dropna()
+    df = df.ffill().dropna()
     
     if df.empty:
         raise HTTPException(status_code=400, detail="Data range issues")
