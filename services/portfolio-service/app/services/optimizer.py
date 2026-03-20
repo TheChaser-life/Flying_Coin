@@ -5,18 +5,33 @@ from typing import List, Dict
 
 class PortfolioOptimizer:
     @staticmethod
-    def optimize_markowitz(prices_df: pd.DataFrame) -> Dict:
+    def optimize_markowitz(prices_df: pd.DataFrame, risk_tolerance: float = 0.5) -> Dict:
         """
-        Optimize portfolio using Markowitz model (Max Sharpe Ratio).
-        Expects a DataFrame where columns are Tickers and rows are timestamps.
+        Optimize portfolio based on risk tolerance.
+        0.0 - 0.3: Min Volatility (Low Risk)
+        0.3 - 0.7: Max Sharpe Ratio (Medium Risk)
+        0.7 - 1.0: Efficient Risk (High Risk - target 25% annual volatility)
         """
         # Calculate expected returns and sample covariance
         mu = expected_returns.mean_historical_return(prices_df)
         S = risk_models.sample_cov(prices_df)
 
-        # Optimize for maximal Sharpe ratio
         ef = EfficientFrontier(mu, S)
-        weights = ef.max_sharpe()
+        
+        if risk_tolerance < 0.3:
+            # Low Risk: Minimize volatility
+            weights = ef.min_volatility()
+        elif risk_tolerance < 0.7:
+            # Medium Risk: Maximize Sharpe Ratio
+            weights = ef.max_sharpe()
+        else:
+            # High Risk: Target specific volatility (e.g., 25%)
+            try:
+                weights = ef.efficient_risk(target_volatility=0.25)
+            except:
+                # Fallback to max_sharpe if target is unreachable
+                weights = ef.max_sharpe()
+
         cleaned_weights = ef.clean_weights()
         
         # Performance metrics

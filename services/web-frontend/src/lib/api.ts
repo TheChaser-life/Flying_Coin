@@ -43,3 +43,10 @@ export const sentimentApi = {
 export const forecastApi = {
   getForecast: (ticker: string, token?: string) => apiFetch(`/forecast/${ticker}`, {}, token),
 };
+export const portfolioApi = {
+  optimize: (tickers: string[], riskTolerance: number, token?: string) => 
+    apiFetch("/portfolios/optimize", {
+      method: "POST",
+      body: JSON.stringify({ tickers, risk_tolerance: riskTolerance }),
+    }, token),
+};

@@ -64,5 +64,5 @@ async def optimize_portfolio(payload: OptimizationRequest):
     if df.empty:
         raise HTTPException(status_code=400, detail="Data range issues")
         
-    result = PortfolioOptimizer.optimize_markowitz(df)
+    result = PortfolioOptimizer.optimize_markowitz(df, risk_tolerance=payload.risk_tolerance)
     return result

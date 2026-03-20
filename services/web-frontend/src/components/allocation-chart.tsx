@@ -2,14 +2,20 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts"
 
-const data = [
-  { name: "BTC", value: 45, color: "#f59e0b" },
-  { name: "ETH", value: 30, color: "#6366f1" },
-  { name: "SOL", value: 15, color: "#14b8a6" },
-  { name: "USDT", value: 10, color: "#22c55e" },
-]
+interface AllocationData {
+  name: string;
+  value: number;
+  color: string;
+}
 
-export function AllocationChart() {
+export function AllocationChart({ data }: { data: AllocationData[] }) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground">
+        No data available
+      </div>
+    )
+  }
   return (
     <div className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
