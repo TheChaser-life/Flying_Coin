@@ -16,25 +16,25 @@ class PortfolioOptimizer:
         mu = expected_returns.mean_historical_return(prices_df)
         S = risk_models.sample_cov(prices_df)
 
-        ef = EfficientFrontier(mu, S)
-        
-        if risk_tolerance < 0.3:
-            # Low Risk: Minimize volatility
+        def perform_optimization(ef_obj, tolerance):
+            if tolerance < 0.3:
+                return ef_obj.min_volatility()
+            elif tolerance < 0.7:
+                return ef_obj.max_sharpe()
+            else:
+                try:
+                    return ef_obj.efficient_risk(target_volatility=0.25)
+                except:
+                    return ef_obj.max_sharpe()
+
+        try:
+            weights = perform_optimization(ef, risk_tolerance)
+        except (ValueError, Exception):
+            # Fallback for math errors (e.g. returns < risk-free rate)
+            ef = EfficientFrontier(mu, S)
             weights = ef.min_volatility()
-        elif risk_tolerance < 0.7:
-            # Medium Risk: Maximize Sharpe Ratio
-            weights = ef.max_sharpe()
-        else:
-            # High Risk: Target specific volatility (e.g., 25%)
-            try:
-                weights = ef.efficient_risk(target_volatility=0.25)
-            except:
-                # Fallback to max_sharpe if target is unreachable
-                weights = ef.max_sharpe()
 
         cleaned_weights = ef.clean_weights()
-        
-        # Performance metrics
         ret, vol, sharpe = ef.portfolio_performance(verbose=False)
         
         return {
