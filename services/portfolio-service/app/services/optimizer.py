@@ -22,10 +22,9 @@ class PortfolioOptimizer:
             elif tolerance < 0.7:
                 return ef_obj.max_sharpe()
             else:
-                try:
-                    return ef_obj.efficient_risk(target_volatility=0.25)
-                except:
-                    return ef_obj.max_sharpe()
+                # High Risk: Maximize quadratic utility (explicit trade-off)
+                # Lower risk_aversion = higher risk. 1.0 is aggressive.
+                return ef_obj.max_quadratic_utility(risk_aversion=1.0)
 
         try:
             weights = perform_optimization(ef, risk_tolerance)
