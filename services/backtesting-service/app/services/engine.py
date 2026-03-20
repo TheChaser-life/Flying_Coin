@@ -28,8 +28,14 @@ class BacktestEngine:
         portfolio['returns'] = portfolio['total'].pct_change()
         
         # Metrics
-        total_return = (portfolio['total'].iloc[-1] / initial_capital) - 1
-        sharpe_ratio = np.sqrt(252) * portfolio['returns'].mean() / portfolio['returns'].std()
+        final_total = portfolio['total'].iloc[-1]
+        total_return = (final_total / initial_capital) - 1 if initial_capital > 0 else 0
+        
+        returns = portfolio['returns'].dropna()
+        if len(returns) > 1 and returns.std() != 0:
+            sharpe_ratio = np.sqrt(252) * returns.mean() / returns.std()
+        else:
+            sharpe_ratio = 0.0
         
         # Max Drawdown
         rolling_max = portfolio['total'].cummax()
@@ -37,15 +43,17 @@ class BacktestEngine:
         max_drawdown = drawdown.min()
         
         # Win Rate
-        trades = portfolio['returns'].dropna()
-        win_rate = (trades > 0).sum() / len(trades) if len(trades) > 0 else 0
+        win_rate = (returns > 0).sum() / len(returns) if len(returns) > 0 else 0
         
         equity_curve = [{"timestamp": str(idx), "value": float(val)} for idx, val in portfolio['total'].items()]
         
+        def safe_float(v):
+            return float(v) if np.isfinite(v) else 0.0
+
         return {
-            "total_return": float(total_return),
-            "sharpe_ratio": float(sharpe_ratio) if not np.isnan(sharpe_ratio) else 0.0,
-            "max_drawdown": float(max_drawdown),
-            "win_rate": float(win_rate),
+            "total_return": safe_float(total_return),
+            "sharpe_ratio": safe_float(sharpe_ratio),
+            "max_drawdown": safe_float(max_drawdown),
+            "win_rate": safe_float(win_rate),
             "equity_curve": equity_curve
         }

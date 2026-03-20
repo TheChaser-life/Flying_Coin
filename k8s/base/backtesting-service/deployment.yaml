@@ -15,6 +15,7 @@ spec:
       containers:
       - name: backtesting-service
         image: asia-southeast1-docker.pkg.dev/flying-coin-489803/flying-coin-docker/backtesting-service:staging
+        imagePullPolicy: Always
         ports:
         - containerPort: 8000
         env:
