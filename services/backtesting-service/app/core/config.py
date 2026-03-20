@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     
-    MARKET_DATA_SERVICE_URL: str = "http://market-data-service:8000"
+    MARKET_DATA_SERVICE_URL: str = "http://market-data-service-service:8001"
     
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 

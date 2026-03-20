@@ -16,8 +16,8 @@ spec:
         - flying-coin.thinhopsops.win # Sẽ được ghi đè nếu cần, nhưng để mặc định ở đây cho tiện
       secretName: cloudflare-origin-tls
   rules:
-    # Backend thuần không hardcode domain (Domain sẽ được vá/patch qua Overlays)
-    - http:
+    - host: flying-coin.thinhopsops.win
+      http:
         paths:
           
           # Route 2: Phục vụ riêng cho Market Data Service (Scrape/Feed giá crypto, CP sau này)

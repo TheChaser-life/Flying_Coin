@@ -14,9 +14,9 @@ spec:
     spec:
       containers:
       - name: backtesting-service
-        image: backtesting-service:latest
+        image: asia-southeast1-docker.pkg.dev/flying-coin-489803/flying-coin-docker/backtesting-service:staging
         ports:
         - containerPort: 8000
         env:
         - name: MARKET_DATA_SERVICE_URL
-          value: "http://market-data-service.dev.svc.cluster.local:8000"
+          value: "http://market-data-service-service:8001"
